@@ -28,5 +28,9 @@
 
 ### Bo French
 *Bo is a passionate software developer with a focus in web development. After graduation he has a job lined up doing web development and consultating. During his time here at Eastern Michigan he participated on the Men's Hockey team, Theta Chi fraternity, and was a research assistant in software development. His hobbies include anything outdoorsy, all sports, anything active and the arts! (music, painting anf more)*
+
+
+### Stela Opingari
+*Stela is a senior Computer Science student who’s making the most of her time at Eastern Michigan University. She recently started an internship at Trinity Information Systems and works as a research assistant in the EAS Lab. She’s also been involved in the Eagle Vision program as a production assistant and serves as Secretary of the Women in Computer Science (WiCS) club. In her free time, Stela enjoys reading, skiing, and traveling to new places.*
 <!-- Add additional team member bios below -->
 
