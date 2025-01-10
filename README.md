@@ -25,5 +25,8 @@
 ### Victor Tyler
 *Victor is a loser at the moment*
 
+
+### Bo French
+*Bo is a passionate software developer with a focus in web development. After graduation he has a job lined up doing web development and consultating. During his time here at Eastern Michigan he participated on the Men's Hockey team, Theta Chi fraternity, and was a research assistant in software development. His hobbies include anything outdoorsy, all sports, anything active and the arts! (music, painting anf more)*
 <!-- Add additional team member bios below -->
 
