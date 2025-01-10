@@ -23,7 +23,8 @@
 ## Team Member Bios
 
 ### Victor Tyler
-*Victor is a loser at the moment*
+*I’m a Computer Science major in my senior year. My strong suit languages are Python and Java. I’m interested in Systems Engineering, Databases, and some elements of Cybersecurity. I like Systems because learning how different components work together for a specific task excites me. Plus, there’s always something new and interesting to learn in each component.  In my free time I like to read (Game of Thrones preferably), weightlift, play basketball, watch anime, and travel. I’m also on the executive board for the National Society of Black Engineers (NSBE)![image](https://github.com/user-attachments/assets/6703f281-5552-41e5-9c84-cf401c936cff)
+*
 
 
 ### Bo French
