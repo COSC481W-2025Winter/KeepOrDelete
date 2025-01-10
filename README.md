@@ -32,5 +32,9 @@
 
 ### Stela Opingari
 *Stela is a senior Computer Science student who’s making the most of her time at Eastern Michigan University. She recently started an internship at Trinity Information Systems and works as a research assistant in the EAS Lab. She’s also been involved in the Eagle Vision program as a production assistant and serves as Secretary of the Women in Computer Science (WiCS) club. In her free time, Stela enjoys reading, skiing, and traveling to new places.*
+
+
+### Garrett Drake
+*My name is Garrett! I'm a senior CompSci student at EMU. I love programming in Rust and living on the command line. I'm most interested in the facets of data security, networking, and robust software design patterns. I'm excited to learn new languages and frameworks to create a project broader in scope than I'm used to. My hobbies include programming niche command line applications, listening to Daft Punk, wishing I could speak Spanish, and configuring my NixOS Linux machine. My favorite shark is the basking shark.*
 <!-- Add additional team member bios below -->
 
