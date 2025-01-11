@@ -31,7 +31,7 @@
 
 
 ### Stela Opingari
-*Stela is a senior Computer Science student who’s making the most of her time at Eastern Michigan University. She recently started an internship at Trinity Information Systems and works as a research assistant in the EAS Lab. She’s also been involved in the Eagle Vision program as a production assistant and serves as Secretary of the Women in Computer Science (WiCS) club. In her free time, Stela enjoys reading, skiing, and traveling to new places.*
+*I'm a senior Computer Science student making the most of my time at Eastern Michigan University. Recently, I started an internship at Trinity Information Systems and work as a research assistant in the EAS Lab. I was previously involved in the Eagle Vision program as a production assistant and currently serve as the Secretary of the Women in Computer Science (WiCS) club. I have a strong passion for software engineering and have been finding different AI models increasingly fascinating. In my free time, I love reading, skiing, and traveling to new places.*
 
 
 ### Garrett Drake
