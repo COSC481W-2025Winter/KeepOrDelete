@@ -36,5 +36,10 @@
 
 ### Garrett Drake
 *My name is Garrett! I'm a senior CompSci student at EMU. I love programming in Rust and living on the command line. I'm most interested in the facets of data security, networking, and robust software design patterns. I'm excited to learn new languages and frameworks to create a project broader in scope than I'm used to. My hobbies include programming niche command line applications, listening to Daft Punk, wishing I could speak Spanish, and configuring my NixOS Linux machine. My favorite shark is the basking shark.*
+
+
+### David Williams
+*Hello, My name is David. I am a senior Computer Science student at EMU. I enjoy learning about new software development technologies and would always prefer to do something full stack so I can get my hands dirty in every step of the process. In my free time, I enjoy absorbing media whether it's books, TV shows, movies, or games. I’m looking forward to experiencing the pros and cons of working with others for the first time while developing a program.*
+
 <!-- Add additional team member bios below -->
 
