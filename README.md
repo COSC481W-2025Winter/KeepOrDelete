@@ -41,5 +41,7 @@
 ### David Williams
 *Hello, My name is David. I am a senior Computer Science student at EMU. I enjoy learning about new software development technologies and would always prefer to do something full stack so I can get my hands dirty in every step of the process. In my free time, I enjoy absorbing media whether it's books, TV shows, movies, or games. I’m looking forward to experiencing the pros and cons of working with others for the first time while developing a program.*
 
+### Nathan Hasey 
+*Hey, I am Nathan Hasey, a senior at Eastern Michigan University studying Computer Science. I am currently interning at AdvantageCS and plan to work there after I graduate. Outside of work and school I enjoy spending time outside whenever possible. Some of my hobbies include learning history and playing soccer. I hope this project can help me learn and familizare myself with Electron and the rest of our TechStack.*
 <!-- Add additional team member bios below -->
 
