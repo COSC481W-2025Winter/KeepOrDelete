@@ -15,16 +15,14 @@ Prerequisites:
 
 Clone this repo using Git.
 
-<!-- https://github.com/COSC481W-2025Winter/KeepOrDelete -->
-
 ```
-git clone https://github.com/massivebird/electron-forge-test
+git clone https://github.com/COSC481W-2025Winter/KeepOrDelete
 ```
 
 Install project dependencies:
 
 ```
-cd electron-forge-test
+cd KeepOrDelete
 npm install
 ```
 
