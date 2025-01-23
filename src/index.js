@@ -18,8 +18,6 @@ const createWindow = () => {
    })
 
    mainWindow.loadFile("src/main_menu.html")
-
-   mainWindow.webContents.openDevTools()
 }
 
 // This method will be called when Electron has finished
