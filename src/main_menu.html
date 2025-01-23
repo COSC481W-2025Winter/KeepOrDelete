@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <meta charset="UTF-8" />
+   <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+   <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+   <link rel="stylesheet" href="./stylesheet.css">
+   <title>KeepOrDelete</title>
+</head>
+
+<body>
+   <h1>KeepOrDelete</h1>
+   <p class="disclaimer">(Experimental build)</p>
+   <button id="createButton">Create <code>/tmp/electronfile</code></button>
+   <button id="removeButton">Remove <code>/tmp/electronfile</code></button>
+   <button id="viewButton">View <code>/tmp/electronfile</code></button>
+   <p id="report"></p>
+</body>
+
+<script src="./main_menu.js"></script>
+
+</html>
