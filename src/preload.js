@@ -1,25 +1,28 @@
 const { contextBridge } = require('electron/renderer')
 const fs = require("node:fs")
+const os = require("node:os")
+const path = require("node:path")
 
-const path = '/tmp/electronfile'
-const contents = `👋 Hello from ${path}!`
+const filePath = path.join(os.tmpdir(), "electronfile")
+const contents = `👋 Hello from ${filePath}!\n`
 
 contextBridge.exposeInMainWorld('file', {
-   fileExists : () => {
-      return fs.existsSync(path);
+   getFilePath: () => filePath,
+   fileExists: () => {
+      return fs.existsSync(filePath);
    },
    createFile: () => {
-      fs.writeFile(path, contents, function(err) {
+      fs.writeFile(filePath, contents, function(err) {
          if (err) throw err;
-         console.log(`Wrote file ${path}.`);
+         console.log(`Wrote file ${filePath}.`);
       });
    },
    removeFile: () => {
-      fs.rm(path, function() { }) // is a dummy function a valid callback?
-      console.log(`Removed file ${path}.`)
+      fs.rm(filePath, function() { }) // is a dummy function a valid callback?
+      console.log(`Removed file ${filePath}.`)
    },
    getFileContents: () => {
-      return fs.readFileSync(path).toString();
+      return fs.readFileSync(filePath).toString();
    },
    getTimeStamp: () => {
       const date = new Date();
