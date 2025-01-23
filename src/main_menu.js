@@ -1,3 +1,5 @@
+document.getElementById("filepath").innerText = window.file.getFilePath();
+
 const report = function(string) {
    const timestamp = window.file.getTimeStamp().substring(0, 8);
    document.getElementById("report").innerHTML = `${timestamp} : ${string}`
