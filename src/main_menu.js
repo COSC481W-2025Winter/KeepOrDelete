@@ -1,9 +1,4 @@
-const spans = document.getElementsByClassName("filepath");
-
-for (let i = 0; i < spans.length; i++) {
-  const element = spans[i];
-  element.innerText = window.file.getFilePath();
-}
+document.getElementById("filepath").innerText = window.file.getFilePath();
 
 const report = function(string) {
    const timestamp = window.file.getTimeStamp().substring(0, 8);
