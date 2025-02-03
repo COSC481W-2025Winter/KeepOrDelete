@@ -6,16 +6,20 @@ const report = function(string) {
 }
 
 // Backend functionality for main menu.
-document.getElementById("createButton").onclick = function() {
-   window.file.createFile();
-   report("File created.");
-}
 
-document.getElementById("removeButton").onclick = function() {
-   window.file.removeFile();
-   report("File removed.");
-}
 
-document.getElementById("viewButton").onclick = function() {
-   window.location.href = "./view_file.html";
-}
+document.getElementById("SelectButton").addEventListener("click", async () => {
+   try {
+       // Open the directory picker
+       const dirHandle = await window.showDirectoryPicker();
+       const dirPath = dirHandle.kind === "directory" ? dirHandle.name : dirHandle;
+       window.file.setFilePath(dirPath);
+
+       // Update the UI with the selected absolute directory path
+       document.getElementById("filepath").textContent = ` ${window.file.getFilePath()}`;
+   } catch (error) {
+       console.error("Directory selection cancelled or failed:", error);
+   }
+});
+
+
