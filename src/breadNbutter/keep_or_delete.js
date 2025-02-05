@@ -30,16 +30,30 @@ window.onload = async function () {
 
     document.getElementById("nextButton").addEventListener("click", () => {
         if (files.length > 0) {
-            currentIndex = (currentIndex + 1) % files.length;
-            displayFile(files[currentIndex]);
+            if(currentIndex < files.length - 1){
+                currentIndex = (currentIndex + 1);
+                displayFile(files[currentIndex]);
+            }
+            else {
+                alert("No more files in selected Directory")
+            }
+
+            
+
         }
     });
 
     document.getElementById("prevButton").addEventListener("click", () => {
         if (files.length > 0) {
-            currentIndex = (currentIndex - 1 + files.length) % files.length;
-            displayFile(files[currentIndex]);
+            if(currentIndex > 0) {
+                currentIndex = (currentIndex - 1);
+                displayFile(files[currentIndex]);
+            }
+            else {
+                alert("No previous files selected Directory")
+            }
         }
+        
     });
 
     function displayFile(filename) {
