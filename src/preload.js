@@ -1,20 +1,8 @@
-const { contextBridge } = require('electron/renderer');
-const fs = require("node:fs");
-const os = require("node:os");
-const path = require("node:path");
-
-let filePath = path.join(os.tmpdir(), "electronfile");
+const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('file', {
-   getFilePath: () => filePath,
-   fileExists: () => {
-      return fs.existsSync(filePath);
-   },
-   setFilePath: (x)  => {
-      filePath = x; // Ensure it's an absolute path
-   },
-   getTimeStamp: () => {
-      const date = new Date();
-      return date.toTimeString();
-   }
+   getFilePath: () => ipcRenderer.invoke('getFilePath'),
+   setFilePath: (filePath) => ipcRenderer.send('setFilePath', filePath),
+   getTimeStamp: () => new Date().toTimeString(),
+   selectDirectory: async () => await ipcRenderer.invoke('selectDirectory') // Always fetch latest value
 });

@@ -1,11 +1,7 @@
-const { app, BrowserWindow } = require("electron")
-const path = require("node:path")
-const started = require('electron-squirrel-startup');
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const path = require("node:path");
 
-// Handles creating/removing shortcuts on Windows when installing/uninstalling.
-if (started) {
-   app.quit();
-}
+let selectedFilePath = ""; // Ensure this updates dynamically
 
 const createWindow = () => {
    const mainWindow = new BrowserWindow({
@@ -13,31 +9,33 @@ const createWindow = () => {
       height: 600,
       webPreferences: {
          preload: path.join(__dirname, "preload.js"),
-         sandbox: false // Grants preload access to node:fs.
+         sandbox: false
       }
-   })
+   });
 
-   mainWindow.loadFile("src/main_menu.html")
-}
+   mainWindow.loadFile("src/main_menu.html");
+};
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
-   createWindow()
+// Handle file path retrieval and updates
+ipcMain.handle('getFilePath', () => selectedFilePath);
+ipcMain.on('setFilePath', (event, filePath) => {
+   selectedFilePath = filePath; // Ensure it updates
+});
 
-   // On OS X it's common to re-create a window in the app when the
-   // dock icon is clicked and there are no other windows open.
-   app.on('activate', () => {
-      if (BrowserWindow.getAllWindows().length === 0) {
-         createWindow()
-      }
-   })
-})
+ipcMain.handle('selectDirectory', async () => {
+   const result = await dialog.showOpenDialog({
+      properties: ['openDirectory']
+   });
+
+   if (!result.canceled && result.filePaths.length > 0) {
+      selectedFilePath = result.filePaths[0]; // Update dynamically
+      return selectedFilePath;
+   }
+   return null; // Ensure null is returned if canceled
+});
+
+app.whenReady().then(createWindow);
 
 app.on("window-all-closed", () => {
-   if (process.platform !== "darwin") app.quit()
-})
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+   if (process.platform !== "darwin") app.quit();
+});
