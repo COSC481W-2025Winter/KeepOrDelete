@@ -9,12 +9,16 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\""
+    "lint": "echo \"No linting configured\"",
+    "test": "mocha"
   },
   "build": {
-      "linux": {
-         "target": [ "AppImage", "tar.gz" ]
-      }
+    "linux": {
+      "target": [
+        "AppImage",
+        "tar.gz"
+      ]
+    }
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.6.0",
@@ -25,8 +29,10 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.6.0",
     "@electron-forge/plugin-fuses": "^7.6.0",
     "@electron/fuses": "^1.8.0",
+    "chai": "^5.1.2",
     "electron": "34.0.0",
-    "electron-builder": "25.1.8"
+    "electron-builder": "25.1.8",
+    "mocha": "^11.1.0"
   },
   "keywords": [],
   "author": {
