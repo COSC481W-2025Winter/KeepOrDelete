@@ -7,7 +7,8 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  # Run tests before building
+  test:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -23,9 +24,32 @@ jobs:
         with:
           node-version: 22.12
 
-      #run mocha tests before building 
+      # Install dependencies (including dev dependencies)
+      - name: Install dependencies
+        run: npm ci  # Ensures exact dependencies from package-lock.json
+
+      # Run Mocha tests before building
       - name: Run Mocha tests 
         run: npx mocha
+        env:
+          NODE_ENV: test
+
+  release:
+    needs: test  # Ensures this job runs only if 'test' passes
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v1
+        with:
+          node-version: 22.12
 
       # Fixes temporary file conflicts.
       - name: Clean cache
