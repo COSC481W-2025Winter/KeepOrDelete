@@ -1,22 +1,48 @@
-// keep_or_delete.js
-
 window.onload = async function () {
-   try {
-       // Fetch the directory path from Electron's main process
-       const dirPath = await window.file.getFilePath();
+    let files = [];
+    let currentIndex = 0;
 
-       // Ensure a valid directory path is displayed
-       document.getElementById("dirPath").innerText = 
-           dirPath ? `Selected Directory: ${dirPath}` : "No directory selected";
+    try {
+        // Fetch the selected directory path
+        const dirPath = await window.file.getFilePath();
 
-   } catch (error) {
-       console.error("Failed to fetch directory path:", error);
-   }
+        document.getElementById("dirPath").innerText =
+            dirPath ? `Selected Directory: ${dirPath}` : "No directory selected";
 
-   // Event listener for the "Back" button to return to the main menu.
-   document.getElementById("backButton").addEventListener("click", () => {
-       window.location.href = "../main_menu.html";
-   });
+        if (dirPath) {
+            // Fetch files in the directory
+            files = await window.file.getFilesInDirectory();
+        }
+
+        if (files.length > 0) {
+            displayFile(files[currentIndex]);
+        } else {
+            document.getElementById("currentItem").innerText = "No files found.";
+        }
+
+    } catch (error) {
+        console.error("Failed to fetch directory path or files:", error);
+    }
+
+    document.getElementById("backButton").addEventListener("click", () => {
+        window.location.href = "../main_menu.html";
+    });
+
+    document.getElementById("nextButton").addEventListener("click", () => {
+        if (files.length > 0) {
+            currentIndex = (currentIndex + 1) % files.length;
+            displayFile(files[currentIndex]);
+        }
+    });
+
+    document.getElementById("prevButton").addEventListener("click", () => {
+        if (files.length > 0) {
+            currentIndex = (currentIndex - 1 + files.length) % files.length;
+            displayFile(files[currentIndex]);
+        }
+    });
+
+    function displayFile(filename) {
+        document.getElementById("currentItem").innerText = `Current File: ${filename}`;
+    }
 };
-
- 
