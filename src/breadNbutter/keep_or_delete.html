@@ -10,16 +10,20 @@
 </head>
 <!-- Here u can add other tabs and compnents for display-->
 <body>
-   <h1>Keep or Delete</h1>
+   <h1>KeepOrDelete</h1>
    <div id="dirDisplay">
-      <!-- Folder icon image. I added this as a potential (clickable Icon). -->
-      <img id="folderIcon" src="./Druski copy.jpg" alt="Folder Icon" width="64" height="64">
       <p id="dirPath"></p>
+      <!-- Folder icon image. I added this as a potential (Preview Files). -->
+      <img id="folderIcon" src="./Druski copy.jpg" alt="Folder Icon" width="100" height="100"> 
    </div>
-   <button id="backButton">Back</button> 
+
+   <button id="backButton">Change Directory</button> 
    <p id="currentItem"></p>
-   <button id="prevButton"><-</button> 
-   <button id="nextButton">-></button> 
+
+   <div class="button-container">
+      <button id="prevButton">Previous</button> 
+      <button id="nextButton">Next</button> 
+   </div>
    
 </body>
 <script src="./keep_or_delete.js"></script>
