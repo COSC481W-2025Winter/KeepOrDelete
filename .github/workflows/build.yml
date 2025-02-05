@@ -7,13 +7,9 @@ permissions:
   contents: write
 
 jobs:
-  # Run tests before building
+  # Run tests before building (only once on Ubuntu)
   test:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Check out Git repository
@@ -36,11 +32,11 @@ jobs:
 
   release:
     needs: test  # Ensures this job runs only if 'test' passes
-    runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]  # Run build on three platforms
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Check out Git repository
