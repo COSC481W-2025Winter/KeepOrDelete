@@ -7,7 +7,7 @@ window.onload = async function () {
         const dirPath = await window.file.getFilePath();
 
         document.getElementById("dirPath").innerText =
-            dirPath ? `Selected Directory: ${dirPath}` : "No directory selected";
+            dirPath ? `Selected Directory: \n${dirPath}` : "No directory selected";
 
         if (dirPath) {
             // Fetch files in the directory
@@ -24,10 +24,12 @@ window.onload = async function () {
         console.error("Failed to fetch directory path or files:", error);
     }
 
+    // Change Directory Button
     document.getElementById("backButton").addEventListener("click", () => {
         window.location.href = "../main_menu.html";
     });
 
+    // Go through files in directory +1
     document.getElementById("nextButton").addEventListener("click", () => {
         if (files.length > 0) {
             if(currentIndex < files.length - 1){
@@ -37,12 +39,9 @@ window.onload = async function () {
             else {
                 alert("No more files in selected Directory")
             }
-
-            
-
         }
     });
-
+    // Go through files in directory - 1
     document.getElementById("prevButton").addEventListener("click", () => {
         if (files.length > 0) {
             if(currentIndex > 0) {
@@ -57,6 +56,6 @@ window.onload = async function () {
     });
 
     function displayFile(filename) {
-        document.getElementById("currentItem").innerText = `Current File: ${filename}`;
+        document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
     }
 };
