@@ -23,6 +23,10 @@ jobs:
         with:
           node-version: 22.12
 
+      #run mocha tests before building 
+      - name: Run Mocha tests 
+        run: npx mocha
+
       # Fixes temporary file conflicts.
       - name: Clean cache
         run: rm -rf ~/.cache/electron-builder
