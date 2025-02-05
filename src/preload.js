@@ -11,7 +11,7 @@ contextBridge.exposeInMainWorld('file', {
       return fs.existsSync(filePath);
    },
    setFilePath: (x)  => {
-      filePath = path.resolve(x); // Ensure it's an absolute path
+      filePath = x; // Ensure it's an absolute path
    },
    getTimeStamp: () => {
       const date = new Date();
