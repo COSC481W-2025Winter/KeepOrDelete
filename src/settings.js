@@ -1,4 +1,4 @@
+//Back button functionality
 document.getElementById("backButton").addEventListener("click", () => {
-    window.location.href = "./main_menu.html";
+  window.location.href = "./main_menu.html";
 });
- 
