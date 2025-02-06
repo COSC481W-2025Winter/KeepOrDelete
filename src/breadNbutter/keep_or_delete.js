@@ -68,9 +68,13 @@ window.onload = async function () {
       console.log(`${filename} has MIME type ${mimeType}.`);
 
       if (mimeType != null && mimeType.startsWith("text/")) {
-         const fileContents = window.file.getFileContents(filename);
-         // XMP tag does not interpret HTML; HTML is rendered as a regular string.
-         container.innerHTML = `<div class="txtPreview"><xmp>${fileContents}</xmp></div>`;
+         var fileContents = window.file.getFileContents(filename).replaceAll("<", "&lt;");
+
+         // Escape HTML tags so they aren't interpreted as actual HTML.
+         fileContents.replaceAll("<", "&lt;");
+
+         // <pre> tag displays preformatted text. Displays all whitespace chars.
+         container.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
       } else {
          container.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
       }
