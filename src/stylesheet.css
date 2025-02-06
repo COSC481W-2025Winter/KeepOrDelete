@@ -73,3 +73,21 @@ code {
   padding: 0.2em 0.4em;
   border-radius: 3px;
 }
+
+#previewContainer {
+   border: 2px solid #777777;
+   background-color: #d9d9d9;
+   overflow: hidden;
+   font-size: 1rem;
+   font-family: monospace;
+   border-radius: 10px;
+   width: 500px;
+   height: 300px;
+}
+
+/* Element inside preview container */
+#previewContainer p {
+   background-color: #d9d9d9;
+   text-align: left;
+   margin: 8px;
+}

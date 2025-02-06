@@ -57,5 +57,15 @@ window.onload = async function () {
 
     function displayFile(filename) {
         document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
+        refreshPreview(filename)
     }
+
+   function refreshPreview(filename) {
+      var container = document.getElementById("previewContainer");
+
+      // Parse incoming file's extension.
+      const extension = filename.split('.').pop();
+
+      container.innerHTML = "<p>Hello</p>";
+   }
 };
