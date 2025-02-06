@@ -66,6 +66,8 @@ window.onload = async function () {
       // Parse incoming file's extension.
       const extension = filename.split('.').pop();
 
-      container.innerHTML = "<p>Hello</p>";
+      const fileContents = window.file.getFileContents(filename);
+
+      container.innerHTML = `<p>${fileContents}</p>`;
    }
 };
