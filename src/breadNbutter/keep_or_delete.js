@@ -239,9 +239,21 @@ window.onload = async function () {
 
         const mimeType = window.file.getMimeType(filename);
 
+        // Declaring this function here so I can short circuit on null
+        // mime type AND use it as a fallback on unsupported mime type.
+        const displayUnsupported = function () {
+           container.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
+        };
+
         console.log(`${filename} has MIME type ${mimeType}.`);
 
-        if (mimeType != null && mimeType.startsWith("text/")) {
+        // Handle null MIME so we don't have to check for it later.
+        if (mimeType == null) {
+           displayUnsupported();
+           return;
+        }
+
+        if (mimeType.startsWith("text/")) {
             var fileContents = window.file.getFileContents(filename).replaceAll("<", "&lt;");
 
             // Escape HTML tags so they aren't interpreted as actual HTML.
@@ -249,6 +261,8 @@ window.onload = async function () {
 
             // <pre> tag displays preformatted text. Displays all whitespace chars.
             container.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
+        } else if (mimeType.startsWith("image/")) {
+            container.innerHTML = `<div class="imgPreview"><img src="${filename}" /></div>`;
         } else {
             container.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
         }

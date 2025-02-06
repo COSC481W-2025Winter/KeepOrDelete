@@ -94,6 +94,10 @@ code {
    margin: 8px;
 }
 
+.imgPreview, .imgPreview img {
+   height: inherit;
+}
+
 .unsupportedPreview {
    text-align: center;
    color: #777777;
