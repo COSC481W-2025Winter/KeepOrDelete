@@ -63,16 +63,14 @@ window.onload = async function () {
    function refreshPreview(filename) {
       var container = document.getElementById("previewContainer");
 
-      // Parse incoming file's extension, excluding the dot.
-      const extension = filename.split('.').pop();
-
-      const mimeType = window.file.getMimeType(extension);
+      const mimeType = window.file.getMimeType(filename);
 
       console.log(`${filename} has MIME type ${mimeType}.`);
 
-      if (mimeType.startsWith("text/")) {
+      if (mimeType != null && mimeType.startsWith("text/")) {
          const fileContents = window.file.getFileContents(filename);
-         container.innerHTML = `<div class="txtPreview"><p>${fileContents}</p></div>`;
+         // XMP tag does not interpret HTML; HTML is rendered as a regular string.
+         container.innerHTML = `<div class="txtPreview"><xmp>${fileContents}</xmp></div>`;
       } else {
          container.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
       }

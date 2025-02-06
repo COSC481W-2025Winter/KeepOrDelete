@@ -90,7 +90,7 @@ code {
    height: inherit;
 }
 
-.txtPreview p {
+.txtPreview * {
    margin: 8px;
 }
 
