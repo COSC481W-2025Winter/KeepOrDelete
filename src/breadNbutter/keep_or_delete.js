@@ -57,5 +57,26 @@ window.onload = async function () {
 
     function displayFile(filename) {
         document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
+        refreshPreview(filename)
     }
+
+   function refreshPreview(filename) {
+      var container = document.getElementById("previewContainer");
+
+      const mimeType = window.file.getMimeType(filename);
+
+      console.log(`${filename} has MIME type ${mimeType}.`);
+
+      if (mimeType != null && mimeType.startsWith("text/")) {
+         var fileContents = window.file.getFileContents(filename).replaceAll("<", "&lt;");
+
+         // Escape HTML tags so they aren't interpreted as actual HTML.
+         fileContents.replaceAll("<", "&lt;");
+
+         // <pre> tag displays preformatted text. Displays all whitespace chars.
+         container.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
+      } else {
+         container.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
+      }
+   }     
 };
