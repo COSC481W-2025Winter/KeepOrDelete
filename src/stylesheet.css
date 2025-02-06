@@ -75,19 +75,28 @@ code {
 }
 
 #previewContainer {
-   border: 2px solid #777777;
-   background-color: #d9d9d9;
-   overflow: hidden;
    font-size: 1rem;
-   font-family: monospace;
-   border-radius: 10px;
    width: 500px;
    height: 300px;
 }
 
-/* Element inside preview container */
-#previewContainer p {
-   background-color: #d9d9d9;
+.txtPreview {
+   border: 2px solid #bbbbbb;
+   background-color: #e5e5e5;
+   overflow: hidden;
+   font-family: monospace;
+   border-radius: 10px;
    text-align: left;
+   height: inherit;
+}
+
+.txtPreview p {
    margin: 8px;
+}
+
+.unsupportedPreview {
+   text-align: center;
+   color: #777777;
+   line-height: 300px;
+   margin: auto;
 }

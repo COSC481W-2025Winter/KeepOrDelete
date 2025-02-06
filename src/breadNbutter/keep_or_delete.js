@@ -63,11 +63,14 @@ window.onload = async function () {
    function refreshPreview(filename) {
       var container = document.getElementById("previewContainer");
 
-      // Parse incoming file's extension.
+      // Parse incoming file's extension, excluding the dot.
       const extension = filename.split('.').pop();
 
-      const fileContents = window.file.getFileContents(filename);
-
-      container.innerHTML = `<p>${fileContents}</p>`;
-   }
+      if (extension == "txt") {
+         const fileContents = window.file.getFileContents(filename);
+         container.innerHTML = `<div class="txtPreview"><p>${fileContents}</p></div>`;
+      } else {
+         container.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
+      }
+   }     
 };
