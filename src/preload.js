@@ -1,9 +1,11 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const fs = require("node:fs");
+const mime = require("mime");
 
 contextBridge.exposeInMainWorld('file', {
    getFilePath: () => ipcRenderer.invoke('getFilePath'),
    getFileContents: (path) => fs.readFileSync(path).toString(),
+   getMimeType: (extension) => mime.getType(extension),
    setFilePath: (filePath) => ipcRenderer.send('setFilePath', filePath),
    getTimeStamp: () => new Date().toTimeString(),
    selectDirectory: async () => await ipcRenderer.invoke('selectDirectory'), // Always fetch latest value

@@ -66,7 +66,11 @@ window.onload = async function () {
       // Parse incoming file's extension, excluding the dot.
       const extension = filename.split('.').pop();
 
-      if (extension == "txt") {
+      const mimeType = window.file.getMimeType(extension);
+
+      console.log(`${filename} has MIME type ${mimeType}.`);
+
+      if (mimeType.startsWith("text/")) {
          const fileContents = window.file.getFileContents(filename);
          container.innerHTML = `<div class="txtPreview"><p>${fileContents}</p></div>`;
       } else {
