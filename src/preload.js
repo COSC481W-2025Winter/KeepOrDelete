@@ -10,5 +10,5 @@ contextBridge.exposeInMainWorld('file', {
    getTimeStamp: () => new Date().toTimeString(),
    selectDirectory: async () => await ipcRenderer.invoke('selectDirectory'), // Always fetch latest value
    getFilesInDirectory: () => ipcRenderer.invoke('getFilesInDirectory'), // Fetch file list
-   deleteFile: (filePath) => ipcRenderer.invoke('delete-file', filePath)
+   deleteFile: (filePath) => ipcRenderer.invoke('delete-file', filePath) //delete file
 });

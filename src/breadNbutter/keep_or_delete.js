@@ -32,13 +32,14 @@ window.onload = async function () {
         window.location.href = "../main_menu.html";
     });
 
-    document.getElementById("deleteButton").addEventListener("click", async () => {
-        const filePath = files[currentIndex];
+    document.getElementById("deleteButton").addEventListener("click", async () => { //gets the html element containing the button for delete
+        const filePath = files[currentIndex]; //gets the current index, in the array of files that the user selected
         try {
-            const result = await window.file.deleteFile(filePath);
+            const result = await window.file.deleteFile(filePath); //calls the preload.js and invokes method that is contained in context
+            // - bridge but actually exists at line 52 of index.js
 
-            if (result.success) {
-                alert("File deleted successfully!");
+            if (result.success) { //success is a built in boolean callback
+                alert("File deleted successfully!"); //THIS SHOULD GET REMOVED EVENTUALLY, IT IS JUST FOR DEBUGGING TO KNOW WHETHER IT WORKED OR NOT 
             } else {
                 alert("Error: " + result.message);
             }
@@ -79,23 +80,23 @@ window.onload = async function () {
         refreshPreview(filename)
     }
 
-   function refreshPreview(filename) {
-      var container = document.getElementById("previewContainer");
+    function refreshPreview(filename) {
+        var container = document.getElementById("previewContainer");
 
-      const mimeType = window.file.getMimeType(filename);
+        const mimeType = window.file.getMimeType(filename);
 
-      console.log(`${filename} has MIME type ${mimeType}.`);
+        console.log(`${filename} has MIME type ${mimeType}.`);
 
-      if (mimeType != null && mimeType.startsWith("text/")) {
-         var fileContents = window.file.getFileContents(filename).replaceAll("<", "&lt;");
+        if (mimeType != null && mimeType.startsWith("text/")) {
+            var fileContents = window.file.getFileContents(filename).replaceAll("<", "&lt;");
 
-         // Escape HTML tags so they aren't interpreted as actual HTML.
-         fileContents.replaceAll("<", "&lt;");
+            // Escape HTML tags so they aren't interpreted as actual HTML.
+            fileContents.replaceAll("<", "&lt;");
 
-         // <pre> tag displays preformatted text. Displays all whitespace chars.
-         container.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
-      } else {
-         container.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
-      }
-   }     
+            // <pre> tag displays preformatted text. Displays all whitespace chars.
+            container.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
+        } else {
+            container.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
+        }
+    }
 };
