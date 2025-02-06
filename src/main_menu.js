@@ -35,3 +35,7 @@
     window.location.href = "./breadNbutter/keep_or_delete.html";
  });
  
+ // Event listener for the "Settings" button
+document.getElementById("settings").addEventListener("click", () => {
+    window.location.href = "./settings.html";
+  });
