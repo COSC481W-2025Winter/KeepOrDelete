@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const path = require("node:path");
 const fs = require("fs");
 
@@ -49,7 +49,15 @@ ipcMain.handle("getFilesInDirectory", async () => {
    }
 });
 
-
+ipcMain.handle("delete-file", async (event, filePath) => {
+   try {
+      await fs.promises.rm(filePath, { force: true });
+      return { success: true, message: "File deleted successfully" };
+   } catch (error) {
+      console.error("Error deleting file:", error);
+      return { success: false, message: error.message };
+   }
+});
 
 app.whenReady().then(createWindow);
 

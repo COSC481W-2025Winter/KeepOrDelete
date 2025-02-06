@@ -1,3 +1,6 @@
+//const path = require("node:path");
+//const fs = require("fs");
+
 window.onload = async function () {
     let files = [];
     let currentIndex = 0;
@@ -29,10 +32,26 @@ window.onload = async function () {
         window.location.href = "../main_menu.html";
     });
 
+    document.getElementById("deleteButton").addEventListener("click", async () => {
+        const filePath = files[currentIndex];
+        try {
+            const result = await window.file.deleteFile(filePath);
+
+            if (result.success) {
+                alert("File deleted successfully!");
+            } else {
+                alert("Error: " + result.message);
+            }
+        } catch (error) {
+            console.error("Error deleting file:", error);
+            alert("Error deleting file: " + error.message);
+        }
+    });
+
     // Go through files in directory +1
     document.getElementById("nextButton").addEventListener("click", () => {
         if (files.length > 0) {
-            if(currentIndex < files.length - 1){
+            if (currentIndex < files.length - 1) {
                 currentIndex = (currentIndex + 1);
                 displayFile(files[currentIndex]);
             }
@@ -44,7 +63,7 @@ window.onload = async function () {
     // Go through files in directory - 1
     document.getElementById("prevButton").addEventListener("click", () => {
         if (files.length > 0) {
-            if(currentIndex > 0) {
+            if (currentIndex > 0) {
                 currentIndex = (currentIndex - 1);
                 displayFile(files[currentIndex]);
             }
@@ -52,7 +71,7 @@ window.onload = async function () {
                 alert("No previous files selected Directory")
             }
         }
-        
+
     });
 
     function displayFile(filename) {
