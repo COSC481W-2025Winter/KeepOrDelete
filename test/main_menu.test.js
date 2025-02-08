@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-/*Unit testing for Go Button
+/*Unit testing for Go Button 
 1) Make sure pop up works if no directory is selected
 2) Make sure path is properly sent to keep_or_delete page*/
 
