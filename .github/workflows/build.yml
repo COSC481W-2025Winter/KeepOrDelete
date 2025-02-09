@@ -5,7 +5,7 @@ on:
   pull_request:
     types: [ opened, reopened, edited ]
   push:
-    branches: [ main ]
+    branches: [ main, '*print*' ]
 
 jobs:
   # Run tests before building (only once on Windows)
