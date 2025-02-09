@@ -12,8 +12,7 @@ permissions:
 jobs:
   build:
     uses: ./.github/workflows/build.yml
-  release:
-    needs: test # Ensures this job runs only if 'test' passes
+  deploy:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest] # Run build on three platforms
