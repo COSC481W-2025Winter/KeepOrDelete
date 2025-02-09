@@ -25,8 +25,11 @@ jobs:
       - name: Install dependencies
         run: npm ci # Ensures exact dependencies from package-lock.json
 
-      # Run Mocha tests before building
-      - name: Run Tests
+      # Run Mocha tests
+      - name: Run tests
         run: npm test
         env:
           NODE_ENV: test
+
+      - name: Build app
+        run: npm run
