@@ -1,7 +1,7 @@
 name: Test/build
 
 on:
-  workflow_call:
+  workflow_call: # Allows workflow to be invoked by other workflows
   pull_request:
     types: [ opened, reopened, edited ]
   push:
@@ -31,5 +31,6 @@ jobs:
         env:
           NODE_ENV: test
 
+      # Compile and run application
       - name: Build app
         run: npm run start
