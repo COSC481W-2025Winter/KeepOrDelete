@@ -1,18 +1,55 @@
-const { test, expect, _electron: electron } = require('@playwright/test')
 
-// This boilerplate lifted from https://circleci.com/blog/electron-testing/
+import { expect, test } from '@playwright/test'
+import {
+   clickMenuItemById,
+   findLatestBuild,
+   ipcMainCallFirstListener,
+   ipcRendererCallFirstListener,
+   parseElectronApp,
+   ipcMainInvokeHandler,
+   ipcRendererInvoke
+} from 'electron-playwright-helpers'
+import { ElectronApplication, Page, _electron as electron } from 'playwright'
 
-test('an h1 contains hello world"', async () => {
-   const electronApp = await electron.launch({ args: ['.'] })
+let electronApp;
 
-   // Wait for the first BrowserWindow to open
-   const window = await electronApp.firstWindow()
+test.beforeAll(async () => {
+   // find the latest build in the out directory
+   const latestBuild = findLatestBuild()
+   // parse the directory and find paths and other info
+   const appInfo = parseElectronApp(latestBuild)
+   // set the CI environment variable to true
+   process.env.CI = 'e2e'
+   electronApp = await electron.launch({
+      args: [appInfo.main],
+      executablePath: appInfo.executable
+   })
+   electronApp.on('window', async (page) => {
+      const filename = page.url()?.split('/').pop()
+      console.log(`Window opened: ${filename}`)
 
-   // Check for the presence of an h1 element with the text "hello"
-   const headerElement = await window.$('h1')
-   const headerText = await headerElement.textContent()
-   expect(headerText).toBe("KeepOrDelete")
+      // capture errors
+      page.on('pageerror', (error) => {
+         console.error(error)
+      })
+      // capture console messages
+      page.on('console', (msg) => {
+         console.log(msg.text())
+      })
+   })
 
-   // Close the app
-   await electronApp.close()
 })
+
+// test.afterAll(async () => {
+//    await electronApp.close()
+// })
+
+test('renders the first page', async () => {
+   page = await electronApp.firstWindow()
+   await page.waitForSelector('h1')
+   const text = await page.$eval('h1', (el) => el.textContent)
+   expect(text).toBe('KeepOrDelete')
+   const title = await page.title()
+   expect(title).toBe('Window 1')
+})
+
