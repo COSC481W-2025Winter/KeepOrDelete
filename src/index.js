@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const path = require("node:path");
 const fs = require("fs");
 
@@ -49,7 +49,17 @@ ipcMain.handle("getFilesInDirectory", async () => {
    }
 });
 
-
+ipcMain.handle("delete-file", async (event, filePath) => { //filePath gets sent over from preload
+   try {
+      await fs.promises.rm(filePath, { force: true }); //fs.promises.rm(), this currently will remove 
+      // directories as well as files, do we want this? if not we can change it to fs.unlink(), which
+      //only does files
+      return { success: true, message: "File deleted successfully" }; //success is built in boolean feedback
+   } catch (error) {
+      console.error("Error deleting file:", error);
+      return { success: false, message: error.message };
+   }
+});
 
 app.whenReady().then(createWindow);
 
