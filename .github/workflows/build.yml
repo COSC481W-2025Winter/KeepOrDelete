@@ -32,4 +32,4 @@ jobs:
           NODE_ENV: test
 
       - name: Build app
-        run: npm run
+        run: npm run start
