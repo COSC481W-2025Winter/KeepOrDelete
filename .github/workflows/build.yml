@@ -9,7 +9,7 @@ permissions:
 jobs:
   # Run tests before building (only once on Ubuntu)
   test:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: Check out Git repository
@@ -25,7 +25,7 @@ jobs:
         run: npm ci # Ensures exact dependencies from package-lock.json
 
       # Run Mocha tests before building
-      - name: Run electron-mocha tests
+      - name: Run Tests
         run: npm test
         env:
           NODE_ENV: test
