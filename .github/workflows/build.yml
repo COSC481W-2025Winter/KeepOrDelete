@@ -33,4 +33,4 @@ jobs:
 
       # Compile and run application
       - name: Build app
-        run: npm run start
+        run: npm run package
