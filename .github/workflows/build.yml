@@ -26,6 +26,7 @@ jobs:
 
       # Run Mocha tests before building
       - name: Run Tests
+        # Add more tests for your preferred testing framework
         run: npm test
         env:
           NODE_ENV: test
