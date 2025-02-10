@@ -64,10 +64,18 @@ describe('Go Button Functionality', function () {
     expect(navigateCalled).to.be.false;
   });
 
+  it('shows an alert if the path is null', function () {
+    document.getElementById("filepath").innerText = null;
+    document.getElementById("goButton").click();
+    expect(window.alertMessage).to.equal("Please select a directory first.");
+    expect(navigateCalled).to.be.false;
+  });
+
   it('shows an alert if no valid directory is selected', function () {
     document.getElementById("filepath").innerText = "No directory selected";
     document.getElementById("goButton").click();
     expect(window.alertMessage).to.equal("Please select a directory first.");
     expect(navigateCalled).to.be.false;
   });
+
 });
