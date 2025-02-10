@@ -1,12 +1,14 @@
 const { expect } = require('chai');
-const { renameFileHandler } = require('../src/renameHandler.js');
+const { renameFileHandler } = require('../src/renameHandler.js'); //import the function under renameHandler.js
 
 describe('File Renaming Tests', () => {
     let mockFiles;
     let mockWindowFile;
     let notifications = [];
 
+    //before each test, reset mocks and the notification
     beforeEach(() => {
+        //simulate the initial set of files in the directory
         mockFiles = ['file1.txt', 'file2.txt', 'document.pdf'];
         notifications = [];
 
@@ -19,12 +21,13 @@ describe('File Renaming Tests', () => {
             renameFile: async (oldPath, newPath) => ({ success: true }),
             pathBasename: (filePath) => require('path').basename(filePath),
             pathJoin: (dir, file) => require('path').join(dir, file),
-            pathDirname: (filePath) => require('path').dirname(filePath)  // FIX: Mock pathDirname
+            pathDirname: (filePath) => require('path').dirname(filePath)
         };
 
         global.mockShowNotification = mockShowNotification;
     });
 
+    //Test case: Rename the file when the new name is unique
     it('should rename the file when the name is unique', async () => {
         const result = await renameFileHandler('file3.txt', '/mock/directory/file1.txt', mockWindowFile, mockShowNotification);
 
@@ -35,6 +38,7 @@ describe('File Renaming Tests', () => {
         });
     });
 
+    //Test case: Should not rename if a file with the new name already exists
     it('should not rename the file if the name already exists', async () => {
         const result = await renameFileHandler('file1.txt', '/mock/directory/file2.txt', mockWindowFile, mockShowNotification);
 
@@ -45,6 +49,7 @@ describe('File Renaming Tests', () => {
         });
     });
 
+    //Test case: Shows an error if the input file name is empty 
     it('should show an error if the input is empty', async () => {
         const result = await renameFileHandler('', '/mock/directory/file2.txt', mockWindowFile, mockShowNotification);
 

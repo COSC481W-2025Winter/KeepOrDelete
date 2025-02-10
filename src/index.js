@@ -58,20 +58,22 @@ ipcMain.handle("getFilesInDirectory", async () => {
    }
 });
 
+//handle renameFile event triggered by renderer process
 ipcMain.handle('renameFile', async (event, { oldPath, newPath }) => {
-   console.log(`Renaming: ${oldPath} -> ${newPath}`);  // Debugging
-
+   console.log(`Renaming: ${oldPath} -> ${newPath}`);  //displays the file paths being renamed
+   //check for invalid path
    if (!oldPath || !newPath) {
-       console.error('Invalid paths:', { oldPath, newPath });
-       return { success: false, message: 'Invalid file paths provided.' };
+      console.error('Invalid paths:', { oldPath, newPath });
+      return { success: false, message: 'Invalid file paths provided.' };
    }
 
    try {
-       await fsPromises.rename(oldPath, newPath);  // Correctly use fs.promises.rename
-       return { success: true };
+      //rename the file using fs.promises.rename
+      await fsPromises.rename(oldPath, newPath); 
+      return { success: true };
    } catch (error) {
        console.error('Error renaming file:', error);
-       return { success: false, message: error.message };
+      return { success: false, message: error.message };
    }
 });
 
