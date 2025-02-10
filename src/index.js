@@ -4,14 +4,18 @@ const fs = require("fs");
 const { promises: fsPromises } = require('fs');
 
 let selectedFilePath = ""; // Ensure this updates dynamically
+let mainWindow;
 
 const createWindow = () => {
-   const mainWindow = new BrowserWindow({
+   mainWindow = new BrowserWindow({
       width: 800,
       height: 600,
       webPreferences: {
          preload: path.join(__dirname, "preload.js"),
-         sandbox: false
+         sandbox: false,
+         nodeIntegration: false, 
+         contextIsolation: true,
+         enableRemoteModule: false,
       }
    });
 
@@ -82,4 +86,9 @@ app.whenReady().then(createWindow);
 
 app.on("window-all-closed", () => {
    if (process.platform !== "darwin") app.quit();
+});
+
+//handles message box to replace alerts
+ipcMain.handle('show-message-box', async (event, options) => {
+   return dialog.showMessageBox(mainWindow, options);
 });

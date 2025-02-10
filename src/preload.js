@@ -15,5 +15,6 @@ contextBridge.exposeInMainWorld('file', {
    pathJoin: (dir, file) => path.join(dir, file),
    pathDirname: (file) => path.dirname(file),
    pathBasename: (filePath) => path.basename(filePath),
-   deleteFile: (filePath) => ipcRenderer.invoke('delete-file', filePath) //delete file
+   deleteFile: (filePath) => ipcRenderer.invoke('delete-file', filePath), //delete file
+   showMessageBox: (options) => ipcRenderer.invoke('show-message-box', options), //message box to replace alerts
 });
