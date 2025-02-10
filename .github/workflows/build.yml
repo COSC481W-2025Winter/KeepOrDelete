@@ -7,7 +7,7 @@ permissions:
   contents: write
 
 jobs:
-  # Run tests before building (only once on Ubuntu)
+  # Run tests before building (only once on Windows)
   test:
     runs-on: windows-latest
 
@@ -26,7 +26,6 @@ jobs:
 
       # Run Mocha tests before building
       - name: Run Tests
-        # Add more tests for your preferred testing framework
         run: npm test
         env:
           NODE_ENV: test
