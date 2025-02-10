@@ -107,81 +107,29 @@ window.onload = async function () {
 
     document.getElementById('renameButton').addEventListener('click', async (event) => {
         event.preventDefault();
-        event.stopPropagation();
-    
-        const renameContainer = document.getElementById('renameContainer');
         const renameInput = document.getElementById('renameInput');
         const newName = renameInput.value.trim();
-        let currentFile = files[currentIndex];
-    
-        if (!newName) {
-            showNotification('Please enter a new file name.', 'error');
-            resetRenameInput(renameContainer);
-            return;
-        }
-    
-        // Ensure the new name has the correct file extension
-        const originalExtension = currentFile.substring(currentFile.lastIndexOf('.'));
-        const finalName = newName.includes('.') ? newName : `${newName}${originalExtension}`;
-    
-        const directoryPath = window.file.pathDirname(currentFile);
-        const newFilePath = window.file.pathJoin(directoryPath, finalName);
-    
+        const currentFile = files[currentIndex];
+        const renameContainer = document.getElementById('renameContainer');
+
         try {
-            // Step 1: Get all file paths in the directory
-            const allFilePaths = await window.file.getFilesInDirectory();
-    
-            // Step 2: Extract file names using path.basename
-            const allFileNames = allFilePaths.map(filePath => window.file.pathBasename(filePath));
-    
-            // Step 3: Check if the new name already exists
-            if (allFileNames.includes(finalName)) {
-                showNotification(`A file named "${finalName}" already exists. Please choose a different name.`, 'error');
-                resetRenameInput(renameContainer);
-                return;  // **This return ensures we don't continue to the renaming operation**
+            //call the renameFileHandler function inside the renameHandler.js file
+            const result = await window.fileOperations.renameFileHandler(newName, currentFile, window.file, showNotification);
+            if (result !== 'error') {
+                files[currentIndex] = result; //update file list with new path
+                displayFile(files[currentIndex]);
+                //reset input after success by calling resetRenameInput function inside the renameHandler.js file
+                window.fileOperations.resetRenameInput(renameContainer);  
+                console.log(`File renamed to: ${result}`); //log successful renaming
             }
-    
-            console.log('Renaming:', currentFile, 'to', newFilePath);
-    
-            // Step 4: Perform the rename
-            const response = await window.file.renameFile(currentFile, newFilePath);
-            if (response.success) {
-                showNotification(`File renamed successfully to ${finalName}`, 'success');
-                files[currentIndex] = newFilePath;
-                displayFile(newFilePath);
-                resetRenameInput(renameContainer);
-            } else {
-                showNotification(response.message || 'Failed to rename the file.', 'error');
-                resetRenameInput(renameContainer);
-            }
+            else
+                window.fileOperations.resetRenameInput(renameContainer)
         } catch (error) {
-            console.error('Error renaming file:', error);
-            showNotification(`An error occurred: ${error.message}`, 'error');
-            resetRenameInput(renameContainer);
+            console.error("Rename operation failed:", error);
         }
     });
-    
-    function resetRenameInput(container) {
-        container.innerHTML = '';  // Clear the old input field
-    
-        const newRenameInput = document.createElement('input');
-        newRenameInput.type = 'text';
-        newRenameInput.id = 'renameInput';
-        newRenameInput.placeholder = 'Enter new file name';
-    
-        container.appendChild(newRenameInput);
-    
-        // Temporary blur to prevent highlighting the input immediately
-        setTimeout(() => {
-            newRenameInput.blur();  // Remove highlight after creation
-        }, 100);
-    
-        // Optionally, refocus the input when the user interacts with it
-        newRenameInput.addEventListener('focus', () => {
-            console.log('Input refocused when user interacts.');
-        });
-    }    
-    
+
+
     function displayFile(filename) {
         document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
         refreshPreview(filename)

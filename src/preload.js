@@ -2,11 +2,11 @@ const { contextBridge, ipcRenderer } = require('electron');
 const fs = require("node:fs");
 const mime = require("mime");
 const path = require('path');
+const { renameFileHandler, resetRenameInput } = require('./renameHandler.js');
 
 contextBridge.exposeInMainWorld('file', {
    getFilePath: () => ipcRenderer.invoke('getFilePath'),
    getFileContents: (path) => fs.readFileSync(path).toString(),
-   rename: (newName, directoryPath, windowFile, showNotification) => ipcRenderer.invoke('rename', newName, directoryPath, windowFile, showNotification),
    getMimeType: (path) => mime.getType(path),
    setFilePath: (filePath) => ipcRenderer.send('setFilePath', filePath),
    getTimeStamp: () => new Date().toTimeString(),
@@ -18,4 +18,10 @@ contextBridge.exposeInMainWorld('file', {
    pathBasename: (filePath) => path.basename(filePath),
    deleteFile: (filePath) => ipcRenderer.invoke('delete-file', filePath), //delete file
    showMessageBox: (options) => ipcRenderer.invoke('show-message-box', options), //message box to replace alerts
+});
+
+contextBridge.exposeInMainWorld('fileOperations', {
+   renameFileHandler: (newName, currentFilePath, windowFile, showNotification) => 
+       renameFileHandler(newName, currentFilePath, windowFile, showNotification),
+   resetRenameInput:(renameContainer) => resetRenameInput(renameContainer)
 });
