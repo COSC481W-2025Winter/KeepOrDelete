@@ -50,25 +50,40 @@ window.onload = async function () {
             // - bridge but actually exists at line 52 of index.js
 
             if (result.success) { //success is a built in boolean callback
-                alert("File deleted successfully!"); //THIS SHOULD GET REMOVED EVENTUALLY, IT IS JUST FOR DEBUGGING TO KNOW WHETHER IT WORKED OR NOT 
+                await window.file.showMessageBox({
+                    type: "info",
+                    title: "Success",
+                    message: "File deleted successfully"
+                }); //THIS SHOULD GET REMOVED EVENTUALLY, IT IS JUST FOR DEBUGGING TO KNOW WHETHER IT WORKED OR NOT 
             } else {
-                alert("Error: " + result.message);
-            }
+                await window.file.showMessageBox({
+                    type: "error",
+                    title: "Error",
+                    message: result.message
+                });            }
         } catch (error) {
             console.error("Error deleting file:", error);
-            alert("Error deleting file: " + error.message);
+            await window.file.showMessageBox({
+                type: "error",
+                title: "Error",
+                message: "Error deleting file: " + error.message
+            });
         }
     });
 
     // Go through files in directory +1
-    document.getElementById("nextButton").addEventListener("click", () => {
+    document.getElementById("nextButton").addEventListener("click", async () => {
         if (files.length > 0) {
             if (currentIndex < files.length - 1) {
                 currentIndex = (currentIndex + 1);
                 displayFile(files[currentIndex]);
             }
             else {
-                alert("No more files in selected Directory")
+                window.file.showMessageBox({
+                    type: "warning",
+                    title: "No Next File",
+                    message: "No more files in selected Directory"
+                });
             }
         }
     });
@@ -80,7 +95,11 @@ window.onload = async function () {
                 displayFile(files[currentIndex]);
             }
             else {
-                alert("No previous files selected Directory")
+                window.file.showMessageBox({
+                    type: "warning",
+                    title: "No Previous File",
+                    message: "No previous files in selected Directory"
+                });
             }
         }
 
