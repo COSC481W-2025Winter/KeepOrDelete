@@ -6,6 +6,7 @@ const path = require('path');
 contextBridge.exposeInMainWorld('file', {
    getFilePath: () => ipcRenderer.invoke('getFilePath'),
    getFileContents: (path) => fs.readFileSync(path).toString(),
+   rename: (newName, directoryPath, windowFile, showNotification) => ipcRenderer.invoke('rename', newName, directoryPath, windowFile, showNotification),
    getMimeType: (path) => mime.getType(path),
    setFilePath: (filePath) => ipcRenderer.send('setFilePath', filePath),
    getTimeStamp: () => new Date().toTimeString(),

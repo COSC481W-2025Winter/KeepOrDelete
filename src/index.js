@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const path = require("node:path");
 const fs = require("fs");
 const { promises: fsPromises } = require('fs');
+const renameHandler = require("./renameHandler");
 
 let selectedFilePath = ""; // Ensure this updates dynamically
 let mainWindow;
@@ -27,6 +28,10 @@ ipcMain.handle('getFilePath', () => selectedFilePath);
 ipcMain.on('setFilePath', (event, filePath) => {
    selectedFilePath = filePath; // Ensure it updates
 });
+
+ipcMain.handle('rename', async (newName, directoryPath, windowFile, showNotification) => {
+   renameHandler.renameFileHandler(newName, directoryPath, windowFile, showNotification);
+})
 
 ipcMain.handle('selectDirectory', async () => {
    const result = await dialog.showOpenDialog({
