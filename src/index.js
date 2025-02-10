@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const path = require("node:path");
 const fs = require("fs");
-
+const { promises: fsPromises } = require('fs');
 
 let selectedFilePath = ""; // Ensure this updates dynamically
 
@@ -46,6 +46,23 @@ ipcMain.handle("getFilesInDirectory", async () => {
    } catch (error) {
       console.error("Error reading directory:", error);
       return [];
+   }
+});
+
+ipcMain.handle('renameFile', async (event, { oldPath, newPath }) => {
+   console.log(`Renaming: ${oldPath} -> ${newPath}`);  // Debugging
+
+   if (!oldPath || !newPath) {
+       console.error('Invalid paths:', { oldPath, newPath });
+       return { success: false, message: 'Invalid file paths provided.' };
+   }
+
+   try {
+       await fsPromises.rename(oldPath, newPath);  // Correctly use fs.promises.rename
+       return { success: true };
+   } catch (error) {
+       console.error('Error renaming file:', error);
+       return { success: false, message: error.message };
    }
 });
 
