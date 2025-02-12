@@ -19,18 +19,23 @@ test.beforeAll(async () => {
    // parse the directory and find paths and other info
    const appInfo = parseElectronApp(latestBuild)
 
+   require("console").log("appInfo.main=", appInfo.main);
+
    // set the CI environment variable to true
    process.env.CI = 'e2e'
 
    try {
       electronApp = await electron.launch({
          args: [appInfo.main],
-         executablePath: appInfo.executable
+         executablePath: appInfo.executable,
+         NODE_ENV: 'development',
       });
    } catch (e) {
       require("console").log(e);
       return;
    }
+
+   require("console").log("electronApp=", electronApp);
 
    electronApp.on('window', async (page) => {
       const filename = page.url()?.split('/').pop()
@@ -54,6 +59,7 @@ test('renders the first page', async () => {
    const text = await page.$eval('h1', (el) => el.textContent)
    expect(text).toBe('KeepOrDelete')
    const title = await page.title()
+   ipcMainInvokeHandler(electronApp, "setFilePath", "/tmp/clint");
    expect(title).toBe('Window 1')
 })
 
