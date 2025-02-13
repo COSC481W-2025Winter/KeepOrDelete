@@ -31,12 +31,11 @@
     "@electron/fuses": "^1.8.0",
     "@playwright/test": "^1.50.1",
     "@types/mime": "3.0.0",
-    "chai": "^5.1.2",
+    "@types/node": "^22.13.2",
     "electron": "34.0.0",
     "electron-builder": "25.1.8",
     "electron-playwright-helpers": "^1.7.1",
-    "mime": "3.0.0",
-    "mocha": "^11.1.0"
+    "mime": "3.0.0"
   },
   "keywords": [],
   "author": {
@@ -45,6 +44,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.1"
+    "electron-squirrel-startup": "^1.0.1",
+    "playwright": "^1.50.1"
   }
 }
