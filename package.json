@@ -10,7 +10,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\"",
-    "test": "playwright test""test": "playwright test"
+    "test": "playwright test"
   },
   "build": {
     "linux": {
