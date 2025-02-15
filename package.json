@@ -10,7 +10,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\"",
-    "test": "playwright test"
+    "test": "playwright test""test": "playwright test"
   },
   "build": {
     "linux": {
@@ -45,7 +45,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@playwright/test": "^1.50.1",
-    "electron-squirrel-startup": "^1.0.1"
+    "electron-squirrel-startup": "^1.0.1",
+    "playwright": "^1.50.1"
   }
 }
