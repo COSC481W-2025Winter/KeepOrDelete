@@ -27,7 +27,9 @@ jobs:
           npm ci # Ensures exact dependencies from package-lock.json
 
 
-          #install playwright browsers onto build agent
+
+      #install playwright browsers onto build agent 
+
       - name: Install Playwright Browsers
         run: npx playwright install
 
