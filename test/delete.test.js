@@ -1,3 +1,4 @@
+//FOR THIS TEST, ONLY ONE WORKER AT A TIME WORKS, OTHERWISE PROCESSES GET JUMBLED
 const { _electron: electron } = require("playwright");
 const path = require("path");
 const { test, expect } = require("@playwright/test");
