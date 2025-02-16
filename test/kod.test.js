@@ -1,6 +1,7 @@
 const { _electron: electron } = require("playwright");
 const path = require("path");
 const fs = require("node:fs");
+const fsp = require("fs/promises");
 const os = require("node:os");
 const { test, expect } = require("@playwright/test");
 
@@ -36,9 +37,9 @@ test.beforeAll(async () => {
 
    // Create various files inside the temporary directory.
    await Promise.all([
-      fs.writeFile(newTestFilePath("test.txt"), "Standard text file", "utf8"),
-      fs.writeFile(newTestFilePath("test.csv"), "Comma-separated values file", "utf8"),
-      fs.writeFile(newTestFilePath("test.jpeg"), Buffer.from([0x50, 0x4B, 0x03, 0x04]), "binary"),
+      fsp.writeFile(newTestFilePath("test.txt"), "Standard text file", "utf8"),
+      fsp.writeFile(newTestFilePath("test.csv"), "Comma-separated values file", "utf8"),
+      fsp.writeFile(newTestFilePath("test.jpeg"), Buffer.from([0x50, 0x4B, 0x03, 0x04]), "binary"),
    ]);
 });
 
