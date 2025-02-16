@@ -52,11 +52,11 @@ window.onload = async function () {
             if (result.success) {
                 files = files.filter(file => file !== filePath); //dynamically filter files that gets rid of deleted
                 //success is a built in boolean callback
-                await window.file.showMessageBox({
-                    type: "info",
-                    title: "Success",
-                    message: "File deleted successfully"
-                }); //THIS SHOULD GET REMOVED EVENTUALLY, IT IS JUST FOR DEBUGGING TO KNOW WHETHER IT WORKED OR NOT 
+                //await window.file.showMessageBox({
+                //    type: "info",
+                //    title: "Success",
+                //    message: "File deleted successfully"
+                //}); //THIS SHOULD GET REMOVED EVENTUALLY, IT IS JUST FOR DEBUGGING TO KNOW WHETHER IT WORKED OR NOT 
             } else {
                 await window.file.showMessageBox({
                     type: "error",
