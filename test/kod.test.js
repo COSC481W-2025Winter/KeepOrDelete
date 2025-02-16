@@ -1,5 +1,7 @@
 const { _electron: electron } = require("playwright");
 const path = require("path");
+const fs = require("node:fs");
+const os = require("node:os");
 const { test, expect } = require("@playwright/test");
 
 let app;
@@ -7,9 +9,20 @@ let app;
 const filePath = path.resolve(__dirname, "../src/main_menu.html");
 const fileUrl = `file://${filePath}`;
 
-//setting up app
+const newTestFilePath = function(filename) {
+   return path.join(testDirectory, filename);
+};
+
 test.beforeAll(async () => {
    app = await electron.launch({ args: ["./"] });
+
+   // Create temporary directory.
+   const testDirectory = path.join(os.tmpdir(), "/kod-test/");
+   fs.mkdir(testDirectory, { recursive: true }, (err) => {
+      if (err) throw err;
+   });
+
+   expect(fs.existsSync(testDirectory));
 });
 
 //closing app
@@ -57,5 +70,6 @@ test("Navigate to KeepOrDelete page", async ({ page }) => {
 
    await page.click("#goButton");
 
+   // Await for KeepOrDelete page to load.
    await page.waitForSelector("#backButton")
 });
