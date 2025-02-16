@@ -49,7 +49,9 @@ window.onload = async function () {
             const result = await window.file.deleteFile(filePath); //calls the preload.js and invokes method that is contained in context
             // - bridge but actually exists at line 52 of index.js
 
-            if (result.success) { //success is a built in boolean callback
+            if (result.success) {
+                files = files.filter(file => file !== filePath); //dynamically filter files that gets rid of deleted
+                //success is a built in boolean callback
                 //await window.file.showMessageBox({
                 //    type: "info",
                 //    title: "Success",
