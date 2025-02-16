@@ -10,12 +10,23 @@ let app;
 const filePath = path.resolve(__dirname, "../src/main_menu.html");
 const fileUrl = `file://${filePath}`;
 
-// Generate temporary directory path.
+/** Generate temporary directory path. */
 const testDirPath = path.join(os.tmpdir(), "keepordelete-preview-tests");
 
 const newTestFilePath = function(filename) {
    return path.join(testDirPath, filename);
 };
+
+/** Forcefully delete test directory if it exists. */
+const cleanTestDir = function() {
+   // Clean temporary directory if it exists.
+   if (fs.existsSync(testDirPath)) {
+      fs.rm(testDirPath, { recursive: true, force: true }, (err) => {
+         if (err) throw err;
+      })
+   }
+
+}
 
 test.beforeAll(async () => {
    app = await electron.launch({ args: ["./"] });
@@ -46,6 +57,8 @@ test.beforeAll(async () => {
 //closing app
 test.afterAll(async () => {
    await app.close();
+
+   cleanTestDir();
 });
 
 //settings page button test
