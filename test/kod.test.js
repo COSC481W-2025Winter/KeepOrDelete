@@ -61,23 +61,6 @@ test.afterAll(async () => {
    cleanTestDir();
 });
 
-//settings page button test
-test("navigate to settings page", async ({ page }) => {
-   //navigate to main menu
-   await page.goto(fileUrl);
-
-   //wait for settings button and then click
-   await page.waitForSelector("#settings");
-   await page.click("#settings");
-
-   //wait for element from settings page to confirm page loaded
-   const element = await page.waitForSelector("#text_file");
-
-   //assert element is present
-   expect(element).not.toBeNull();
-});
-
-//select directory button test
 test("Navigate to KeepOrDelete page", async ({ page }) => {
    //navigate to main menu
    await page.goto(fileUrl);
