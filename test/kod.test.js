@@ -69,18 +69,16 @@ test("Navigate to KeepOrDelete page", async ({ page }) => {
    await page.waitForSelector("#SelectButton");
    await page.click("#SelectButton");
 
-   // mock a selected file path in the filepath element
-   const mockedFilePath = "/tmp/kod";
-   await page.evaluate((mockedFilePath) => {
-      document.getElementById("filepath").innerText = mockedFilePath;
-   }, mockedFilePath);
+   await page.evaluate((testDirPath) => {
+      document.getElementById("filepath").innerText = testDirPath;
+   }, testDirPath);
 
    //wait for the file path and check if file path was updated correctly
    const filePathElement = await page.waitForSelector("#filepath", {
       state: "visible",
    });
    const updatedFilePath = await filePathElement.innerText();
-   expect(updatedFilePath).toBe(mockedFilePath);
+   expect(updatedFilePath).toBe(testDirPath);
 
    await page.click("#goButton");
 
