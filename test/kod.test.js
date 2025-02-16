@@ -9,15 +9,15 @@ let app;
 const filePath = path.resolve(__dirname, "../src/main_menu.html");
 const fileUrl = `file://${filePath}`;
 
+// Generate temporary directory path.
+const testDirPath = path.join(os.tmpdir(), "keepordelete-preview-tests");
+
 const newTestFilePath = function(filename) {
-   return path.join(testDirectory, filename);
+   return path.join(testDirPath, filename);
 };
 
 test.beforeAll(async () => {
    app = await electron.launch({ args: ["./"] });
-
-   // Create temporary directory.
-   const testDirPath = path.join(os.tmpdir(), "kod-test");
 
    // Clean temporary directory if it exists.
    if (fs.existsSync(testDirPath)) {
@@ -33,6 +33,13 @@ test.beforeAll(async () => {
 
    // Verify that temporary directory exists.
    expect(fs.existsSync(testDirPath));
+
+   // Create various files inside the temporary directory.
+   await Promise.all([
+      fs.writeFile(newTestFilePath("test.txt"), "Standard text file", "utf8"),
+      fs.writeFile(newTestFilePath("test.csv"), "Comma-separated values file", "utf8"),
+      fs.writeFile(newTestFilePath("test.jpeg"), Buffer.from([0x50, 0x4B, 0x03, 0x04]), "binary"),
+   ]);
 });
 
 //closing app
