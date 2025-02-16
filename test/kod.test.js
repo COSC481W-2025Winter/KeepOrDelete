@@ -17,12 +17,22 @@ test.beforeAll(async () => {
    app = await electron.launch({ args: ["./"] });
 
    // Create temporary directory.
-   const testDirectory = path.join(os.tmpdir(), "/kod-test/");
-   fs.mkdir(testDirectory, { recursive: true }, (err) => {
+   const testDirPath = path.join(os.tmpdir(), "/kod-test/");
+
+   // Clean temporary directory if it exists.
+   if (fs.existsSync(testDirPath)) {
+      fs.rmdir(testDirPath, (err) => {
+         if (err) throw err;
+      })
+   }
+
+   // Create temporary directory.
+   fs.mkdir(testDirPath, { recursive: true }, (err) => {
       if (err) throw err;
    });
 
-   expect(fs.existsSync(testDirectory));
+   // Verify that temporary directory exists.
+   expect(fs.existsSync(testDirPath));
 });
 
 //closing app
