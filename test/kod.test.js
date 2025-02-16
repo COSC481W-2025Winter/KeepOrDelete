@@ -17,7 +17,7 @@ test.beforeAll(async () => {
    app = await electron.launch({ args: ["./"] });
 
    // Create temporary directory.
-   const testDirPath = path.join(os.tmpdir(), "/kod-test/");
+   const testDirPath = path.join(os.tmpdir(), "kod-test");
 
    // Clean temporary directory if it exists.
    if (fs.existsSync(testDirPath)) {
