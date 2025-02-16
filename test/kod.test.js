@@ -22,7 +22,7 @@ test.beforeAll(async () => {
 
    // Clean temporary directory if it exists.
    if (fs.existsSync(testDirPath)) {
-      fs.rmdir(testDirPath, (err) => {
+      fs.rm(testDirPath, { recursive: true, force: true }, (err) => {
          if (err) throw err;
       })
    }
