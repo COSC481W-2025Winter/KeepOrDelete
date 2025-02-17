@@ -1,7 +1,6 @@
 const { _electron: electron, test, expect } = require("@playwright/test");
 const path = require("path");
 const fs = require("node:fs");
-const fsp = require("fs/promises");
 const os = require("node:os");
 const mime = require("mime");
 
@@ -9,10 +8,6 @@ let electronApp;
 
 /** Generate temporary directory path. */
 const testDirPath = path.join(os.tmpdir(), "keepordelete-preview-tests");
-
-const newTestFilePath = function(filename) {
-   return path.join(testDirPath, filename);
-};
 
 /** Forcefully delete test directory if it exists. */
 const cleanTestDir = function() {
@@ -22,8 +17,22 @@ const cleanTestDir = function() {
          if (err) throw err;
       })
    }
-
 }
+
+/** Bundles filenames with contents. */
+class TestFile {
+   constructor(name, contents) {
+      this.name = name;
+      this.path = path.join(testDirPath, name);
+      this.contents = contents;
+   }
+}
+
+const testFiles = [
+   TestFile("test.txt", "Standard text file", "utf8"),
+   TestFile("test.csv", "Comma-separated values file", "utf8"),
+   TestFile("test.jpeg", Buffer.from([0x50, 0x4B, 0x03, 0x04])),
+]
 
 test.beforeAll(async () => {
    electronApp = await electron.launch({ args: ["./"] });
@@ -39,11 +48,9 @@ test.beforeAll(async () => {
    expect(fs.existsSync(testDirPath));
 
    // Create various files inside the temporary directory.
-   await Promise.all([
-      fsp.writeFile(newTestFilePath("test.txt"), "Standard text file", "utf8"),
-      fsp.writeFile(newTestFilePath("test.csv"), "Comma-separated values file", "utf8"),
-      fsp.writeFile(newTestFilePath("test.jpeg"), Buffer.from([0x50, 0x4B, 0x03, 0x04]), "binary"),
-   ]);
+   for (const file of testFiles) {
+      fs.writeFileSync(file.path, file.contents)
+   }
 
    console.log(fs.readdir)
 });
