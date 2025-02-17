@@ -87,7 +87,7 @@ test("Navigate to KeepOrDelete page", async () => {
       console.log(`path=${path}`)
       console.log(`mimeType=${mimeType}`)
 
-      // Cycle to next file with a minor temporal buffer.
+      // Cycle to next file.
       await window.click("#nextButton");
    }
 });
