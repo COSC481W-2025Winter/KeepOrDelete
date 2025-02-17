@@ -34,6 +34,11 @@ const testFiles = [
    new TestFile("test.jpeg", Buffer.from([0x50, 0x4B, 0x03, 0x04])),
 ]
 
+// Print test file data
+for (tf of testFiles) {
+   console.log(tf);
+}
+
 test.beforeAll(async () => {
    electronApp = await electron.launch({ args: ["./"] });
 
