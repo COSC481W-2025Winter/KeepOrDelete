@@ -3,6 +3,7 @@ const path = require("path");
 const fs = require("node:fs");
 const fsp = require("fs/promises");
 const os = require("node:os");
+const mime = require("mime");
 const { test, expect } = require("@playwright/test");
 
 let app;
@@ -84,4 +85,13 @@ test("Navigate to KeepOrDelete page", async ({ page }) => {
 
    // Await for KeepOrDelete page to load.
    await page.waitForSelector("#backButton")
+
+   for (let i = 0; i < 3; i++) {
+      const filepath = document.getElementById("currentItem").innerText;
+      const mimeType = mime.getType(filepath);
+
+      // Cycle to next file with a minor temporal buffer.
+      await page.click("#nextButton");
+      await page.waitForTimeout(300);
+   }
 });
