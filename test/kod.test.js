@@ -80,7 +80,7 @@ test("Navigate to KeepOrDelete page", async () => {
       const path = await window.locator("#currentItem").innerText();
 
       // Mime library doesn't like some paths. Just serve it the basename
-      const basename = path.basename(path);
+      const basename = require("node:path").basename(path);
 
       const mimeType = mime.getType(basename);
 
