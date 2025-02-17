@@ -57,7 +57,15 @@ window.onload = async function () {
                     }
                 }
                 files = newArr; // Update files array
+
+                // When deleting final file, display second to last file.
+                if (currentIndex == files.length) {
+                   currentIndex--;
+                }
+
                 displayCurrentFile();
+                refreshPreview();
+
                 //files = files.filter(file => file !== filePath); //dynamically filter files that gets rid of deleted
                 //this creates a new array called that has the condition that it is not filePath
 
@@ -197,16 +205,17 @@ window.onload = async function () {
     }
 
    function displayCurrentFile() {
-      if (currentIndex < files.length) {
+      if (currentIndex < 0 || currentIndex >= files.length) {
+         document.getElementById("currentItem").innerText = "No files in queue.";
+      } else {
          filename = files[currentIndex];
          document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
-         refreshPreview(filename)
-      } else {
-         document.getElementById("currentItem").innerText = "No files in queue.";
+         refreshPreview()
       }
    }
 
-    function refreshPreview(filename) {
+    function refreshPreview() {
+        const filename = files[currentIndex];
         var container = document.getElementById("previewContainer");
 
         const mimeType = window.file.getMimeType(filename);
