@@ -95,6 +95,9 @@ test("Navigate to KeepOrDelete page", async ({ page }) => {
 
       const mimeType = mime.getType(filepath);
 
+      console.log(`filepath=${filepath}`)
+      console.log(`mimeType=${mimeType}`)
+
       // Cycle to next file with a minor temporal buffer.
       await page.click("#nextButton");
       await page.waitForTimeout(300);
