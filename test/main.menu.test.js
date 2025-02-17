@@ -1,98 +1,95 @@
-const { _electron: electron } = require("playwright");
+const { test, expect, _electron: electron } = require("@playwright/test");
 const path = require("path");
-const { test, expect } = require("@playwright/test");
+const fs = require("fs/promises");
 
 let app;
 //init path
 const filePath = path.resolve(__dirname, "../src/main_menu.html");
 const fileUrl = `file://${filePath}`;
 
+//test directory
+const testDirectory = path.join(__dirname, "test-files");
+
 //setting up app
 test.beforeAll(async () => {
-    app = await electron.launch({ args: ["./"] });
+  app = await electron.launch({ args: ["./"] });
+  await fs.mkdir(testDirectory, { recursive: true });
 });
 
 //closing app
 test.afterAll(async () => {
-    await app.close();
+  await app.close();
+  try {
+    await fs.rm(testDirectory, { recursive: true, force: true });
+    console.log(`Deleted test directory: ${testDirectory}`);
+  } catch (error) {
+    console.error(`Error deleting test directory: ${error}`);
+  }
 });
 
-//settings page button test
-test("navigate to settings page", async ({ page }) => {
-    //navigate to main menu
-    await page.goto(fileUrl);
+//settings window button test
+test("navigate to settings window", async () => {
+  const window = await app.firstWindow();
+  //navigate to main menu
+  await window.goto(fileUrl);
 
-    //wait for settings button and then click
-    await page.waitForSelector("#settings");
-    await page.click("#settings");
+  //wait for settings button and then click
+  await window.waitForSelector("#settings");
+  await window.click("#settings");
 
-    //wait for element from settings page to confirm page loaded
-    const element = await page.waitForSelector("#text_file");
+  //wait for element from settings window to confirm window loaded
+  const element = await window.waitForSelector("#text_file");
 
-    //assert element is present
-    expect(element).not.toBeNull();
-});
-
-//select directory button test
-test("select directory functionality", async ({ page }) => {
-    //navigate to main menu
-    await page.goto(fileUrl);
-
-    //wait for select button and click
-    await page.waitForSelector("#SelectButton");
-    await page.click("#SelectButton");
-
-    // mock a selected file path in the filepath element
-    const mockedFilePath = "/mock/selected/directory";
-    await page.evaluate((mockedFilePath) => {
-        document.getElementById("filepath").innerText = mockedFilePath;
-    }, mockedFilePath);
-
-    //wait for the file path and check if file path was updated correctly
-    const filePathElement = await page.waitForSelector("#filepath", {
-        state: "visible",
-    });
-    const updatedFilePath = await filePathElement.innerText();
-    expect(updatedFilePath).toBe(mockedFilePath);
+  //assert element is present
+  expect(element).not.toBeNull();
 });
 
 //test go button when user doesn't select file
-test("go button with no file path", async ({ page }) => {
-    //navigate to main menu
-    await page.goto(fileUrl); // Navigate to the main menu page
+test("go button with no file path", async () => {
+  const window = await app.firstWindow();
+  //navigate to main menu
+  await window.goto(fileUrl); // Navigate to the main menu window
 
-    //wait and click go button
-    await page.waitForSelector("#goButton");
-    await page.click("#goButton");
+  // listen for alert dialog (window.on is required for dialog box handling afik)
+  window.on("dialog", async (dialog) => {
+    //check if alert box pops up and is correct
+    expect(dialog.type()).toBe("alert");
+    expect(dialog.message()).toContain("Please select a directory first.");
+    //accept alert
+    await dialog.accept();
+  });
 
-    // listen for alert dialog (page.on is required for dialog box handling afik)
-    page.on("dialog", async (dialog) => {
-        //check if alert box pops up and is correct
-        expect(dialog.type()).toBe("alert");
-        expect(dialog.message()).toContain("Please select a directory first.");
-        //accept alert
-        await dialog.accept();
-    });
+  //wait and click go button
+  await window.waitForSelector("#goButton");
+  await window.click("#goButton");
 });
 
 //test go button with selected file
-test("go button with valid file path", async ({ page }) => {
-    //navigate to main menu
-    await page.goto(fileUrl);
+test("go button with valid file path", async () => {
+  const window = await app.firstWindow();
+  //navigate to main menu
+  await window.goto(fileUrl);
 
-    //mock file path and put in the filepath element
-    const mockedFilePath = "/mock/selected/directory";
-    await page.evaluate((mockedFilePath) => {
-        document.getElementById("filepath").innerText = mockedFilePath;
-    }, mockedFilePath);
+  // Intercept file selection dialog
+  await app.evaluate(({ dialog }, testDirectory) => {
+    dialog.showOpenDialog = async () => ({
+      canceled: false,
+      filePaths: [testDirectory], // Inject the test directory
+    });
+  }, testDirectory);
 
-    //wait for go button and click
-    await page.waitForSelector("#goButton");
-    await page.click("#goButton");
+  await window.locator("#SelectButton").click();
 
-    //wait for a selector from keep_or_delete page
-    await page.waitForSelector("h1");
-    const pageTitle = await page.innerText("h1");
-    //compare the text of the selector to confirm page
-    expect(pageTitle).toBe("KeepOrDelete");
+  //wait for go button and click
+  await window.waitForSelector("#goButton");
+  await window.click("#goButton");
+
+  //wait for a selector from keep_or_delete window
+  await window.waitForSelector("h1");
+
+  // Get the title of the window
+  const windowTitle = await window.innerText("h1");
+
+  // compare the text of the selector to confirm window
+  expect(windowTitle).toBe("KeepOrDelete");
 });
