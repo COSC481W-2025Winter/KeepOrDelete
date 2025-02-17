@@ -18,7 +18,7 @@ window.onload = async function () {
         }
 
         if (files.length > 0) {
-            displayFile(files[currentIndex]);
+            displayCurrentFile();
         } else {
             document.getElementById("currentItem").innerText = "No files found.";
         }
@@ -57,7 +57,7 @@ window.onload = async function () {
                     }
                 }
                 files = newArr; // Update files array
-
+                displayCurrentFile();
                 //files = files.filter(file => file !== filePath); //dynamically filter files that gets rid of deleted
                 //this creates a new array called that has the condition that it is not filePath
 
@@ -90,7 +90,7 @@ window.onload = async function () {
         if (files.length > 0) {
             if (currentIndex < files.length - 1) {
                 currentIndex = (currentIndex + 1);
-                displayFile(files[currentIndex]);
+                displayCurrentFile();
             }
             else {
                 window.file.showMessageBox({
@@ -106,7 +106,7 @@ window.onload = async function () {
         if (files.length > 0) {
             if (currentIndex > 0) {
                 currentIndex = (currentIndex - 1);
-                displayFile(files[currentIndex]);
+                displayCurrentFile();
             }
             else {
                 window.file.showMessageBox({
@@ -162,7 +162,7 @@ window.onload = async function () {
             if (response.success) {
                 showNotification(`File renamed successfully to ${finalName}`, 'success');
                 files[currentIndex] = newFilePath;
-                displayFile(newFilePath);
+                displayCurrentFile();
                 resetRenameInput(renameContainer);
             } else {
                 showNotification(response.message || 'Failed to rename the file.', 'error');
@@ -196,10 +196,15 @@ window.onload = async function () {
         });
     }
 
-    function displayFile(filename) {
-        document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
-        refreshPreview(filename)
-    }
+   function displayCurrentFile() {
+      if (currentIndex < files.length) {
+         filename = files[currentIndex];
+         document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
+         refreshPreview(filename)
+      } else {
+         document.getElementById("currentItem").innerText = "No files in queue.";
+      }
+   }
 
     function refreshPreview(filename) {
         var container = document.getElementById("previewContainer");
