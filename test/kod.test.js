@@ -29,9 +29,9 @@ class TestFile {
 }
 
 const testFiles = [
-   TestFile("test.txt", "Standard text file", "utf8"),
-   TestFile("test.csv", "Comma-separated values file", "utf8"),
-   TestFile("test.jpeg", Buffer.from([0x50, 0x4B, 0x03, 0x04])),
+   new TestFile("test.txt", "Standard text file", "utf8"),
+   new TestFile("test.csv", "Comma-separated values file", "utf8"),
+   new TestFile("test.jpeg", Buffer.from([0x50, 0x4B, 0x03, 0x04])),
 ]
 
 test.beforeAll(async () => {
