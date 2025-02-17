@@ -109,8 +109,18 @@ test("Navigate to KeepOrDelete page", async () => {
 
       previousPath = path;
 
-      const expectedPreviewContents = testFiles.find((tf) => tf.basename == basename).contents
-      console.log(`Expected contents: ${expectedPreviewContents}`)
+      if (mimeType.startsWith("text")) {
+         // Fetch this file's contents from the array.
+         const expectedPreview = testFiles.find((tf) => tf.basename == basename).contents
+
+         console.log(`Expected preview: ${expectedPreview}`)
+
+         // Expect this file's contents to be visible on screen.
+         expect(preview).toEqual(expectedPreview)
+      } else {
+         // Some text like "no preview available for this filetype".
+         expect(preview).toMatch(/no.*available/i)
+      }
 
       // Cycle to next file.
       await window.click("#nextButton");
