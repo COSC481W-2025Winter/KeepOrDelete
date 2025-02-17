@@ -73,6 +73,8 @@ test("Navigate to KeepOrDelete page", async () => {
    await window.locator("#goButton").click();
    await window.waitForURL("**/keep_or_delete.html");
 
+   const previousPath = null;
+
    for (let i = 0; i < 3; i++) {
       const path = await window.locator("#currentItem").innerText();
 
@@ -87,6 +89,13 @@ test("Navigate to KeepOrDelete page", async () => {
       const preview = await window.locator("#previewContainer").innerText();
 
       console.log(`preview=${preview}`);
+
+      // Freak out if the file path didn't change.
+      if (previousPath != null && path == previousPath) {
+         expect(false).toBe(true);
+      }
+
+      previousPath = path;
 
       // Cycle to next file.
       await window.click("#nextButton");
