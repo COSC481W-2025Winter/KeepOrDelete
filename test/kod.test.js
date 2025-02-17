@@ -73,7 +73,7 @@ test("Navigate to KeepOrDelete page", async () => {
    await window.locator("#goButton").click();
    await window.waitForURL("**/keep_or_delete.html");
 
-   const previousPath = null;
+   let previousPath = null;
 
    for (let i = 0; i < 3; i++) {
       const path = await window.locator("#currentItem").innerText();
