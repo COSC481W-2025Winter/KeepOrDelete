@@ -77,15 +77,14 @@ test("Navigate to KeepOrDelete page", async () => {
    await window.waitForURL("**/keep_or_delete.html");
 
    for (let i = 0; i < 3; i++) {
-      const filepath = "";
+      const path = await window.locator("#currentItem").innerText();
 
-      await window.evaluate(() => {
-         filepath = document.getElementById("currentItem").innerText;
-      })
+      // Mime library doesn't like some paths. Just serve it the basename
+      const basename = path.basename(path);
 
-      const mimeType = mime.getType(filepath);
+      const mimeType = mime.getType(basename);
 
-      console.log(`filepath=${filepath}`)
+      console.log(`path=${path}`)
       console.log(`mimeType=${mimeType}`)
 
       // Cycle to next file with a minor temporal buffer.
