@@ -28,12 +28,7 @@ const cleanTestDir = function() {
 test.beforeAll(async () => {
    electronApp = await electron.launch({ args: ["./"] });
 
-   // Clean temporary directory if it exists.
-   if (fs.existsSync(testDirPath)) {
-      fs.rm(testDirPath, { recursive: true, force: true }, (err) => {
-         if (err) throw err;
-      })
-   }
+   cleanTestDir();
 
    // Create temporary directory.
    fs.mkdir(testDirPath, { recursive: true }, (err) => {
@@ -49,6 +44,8 @@ test.beforeAll(async () => {
       fsp.writeFile(newTestFilePath("test.csv"), "Comma-separated values file", "utf8"),
       fsp.writeFile(newTestFilePath("test.jpeg"), Buffer.from([0x50, 0x4B, 0x03, 0x04]), "binary"),
    ]);
+
+   console.log(fs.readdir)
 });
 
 //closing app
