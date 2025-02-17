@@ -104,6 +104,9 @@ test("Navigate to KeepOrDelete page", async () => {
 
       previousPath = path;
 
+      const expectedPreviewContents = testFiles.find((tf) => tf.path == path).contents
+      console.log(`Expected contents: ${expectedPreviewContents}`)
+
       // Cycle to next file.
       await window.click("#nextButton");
    }
