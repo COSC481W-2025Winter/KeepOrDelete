@@ -61,19 +61,21 @@ test.afterAll(async () => {
 test("Navigate to KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
 
-   await window.evaluate((testDirPath) => {
-      document.getElementById("filepath").innerText = testDirPath;
+   await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+
+   // Intercept file selection dialog
+   await electronApp.evaluate(({ dialog }, testDirPath) => {
+      dialog.showOpenDialog = async () => ({
+         canceled: false,
+         filePaths: [testDirPath], // Inject test dir path
+      });
    }, testDirPath);
 
-   //wait for the file path and check if file path was updated correctly
-   const filePathElement = await window.waitForSelector("#filepath", {
-      state: "visible",
-   });
-   const updatedFilePath = await filePathElement.innerText();
-   expect(updatedFilePath).toBe(testDirPath);
+   // Click to open file picker, but our override will inject testDirPath
+   await window.locator("#SelectButton").click();
+   await window.locator("#goButton").click();
+   await window.waitForURL("**/keep_or_delete.html");
 
-   await window.click('#goButton');
-   expect(window.url()).toContain('keep_or_delete.html');
 
    for (let i = 0; i < 3; i++) {
       const filepath = "";
