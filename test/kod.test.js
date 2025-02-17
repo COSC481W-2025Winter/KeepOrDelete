@@ -87,7 +87,10 @@ test("Navigate to KeepOrDelete page", async ({ page }) => {
    await page.waitForSelector("#backButton")
 
    for (let i = 0; i < 3; i++) {
-      const filepath = document.getElementById("currentItem").innerText;
+      await page.evaluate(() => {
+         const filepath = document.getElementById("currentItem").innerText;
+      })
+
       const mimeType = mime.getType(filepath);
 
       // Cycle to next file with a minor temporal buffer.
