@@ -18,7 +18,7 @@ const newTestFilePath = function(filename) {
 const cleanTestDir = function() {
    // Clean temporary directory if it exists.
    if (fs.existsSync(testDirPath)) {
-      fs.rm(testDirPath, { recursive: true, force: true }, (err) => {
+      fs.rmSync(testDirPath, { recursive: true, force: true }, (err) => {
          if (err) throw err;
       })
    }
