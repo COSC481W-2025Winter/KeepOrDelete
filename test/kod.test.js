@@ -84,8 +84,12 @@ test("Navigate to KeepOrDelete page", async () => {
 
       const mimeType = mime.getType(basename);
 
-      console.log(`path=${path}`)
-      console.log(`mimeType=${mimeType}`)
+      console.log(`path=${path}`);
+      console.log(`mimeType=${mimeType}`);
+
+      const preview = await window.locator("#previewContainer").innerText();
+
+      console.log(`previewContainer=${previewContainer}`);
 
       // Cycle to next file.
       await window.click("#nextButton");
