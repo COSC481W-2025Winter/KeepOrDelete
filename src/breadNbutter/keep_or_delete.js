@@ -50,7 +50,18 @@ window.onload = async function () {
             // - bridge but actually exists at line 52 of index.js
 
             if (result.success) {
-                files = files.filter(file => file !== filePath); //dynamically filter files that gets rid of deleted
+                let newArr = [];
+                for (let file of files) {
+                    if (file !== filePath) {
+                        newArr.push(file);
+                    }
+                }
+                files = newArr; // Update files array
+
+                //files = files.filter(file => file !== filePath); //dynamically filter files that gets rid of deleted
+                //this creates a new array called that has the condition that it is not filePath
+
+
                 //success is a built in boolean callback
                 //await window.file.showMessageBox({
                 //    type: "info",
