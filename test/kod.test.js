@@ -71,11 +71,10 @@ test("Navigate to KeepOrDelete page", async () => {
       });
    }, testDirPath);
 
-   // Click to open file picker, but our override will inject testDirPath
+   // Navigate to next page using the override
    await window.locator("#SelectButton").click();
    await window.locator("#goButton").click();
    await window.waitForURL("**/keep_or_delete.html");
-
 
    for (let i = 0; i < 3; i++) {
       const filepath = "";
