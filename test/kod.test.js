@@ -89,7 +89,7 @@ test("Navigate to KeepOrDelete page", async () => {
 
       const preview = await window.locator("#previewContainer").innerText();
 
-      console.log(`previewContainer=${previewContainer}`);
+      console.log(`preview=${preview}`);
 
       // Cycle to next file.
       await window.click("#nextButton");
