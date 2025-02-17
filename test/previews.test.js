@@ -35,7 +35,7 @@ const testFiles = [
 ]
 
 // Print test file data
-for (tf of testFiles) {
+for (let tf of testFiles) {
    console.log(tf);
 }
 
