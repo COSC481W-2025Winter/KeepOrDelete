@@ -44,6 +44,35 @@ test.afterAll(async () => {
 });
 
 
+test("shows error notification for empty rename input (single file)", async ({ page }) => {
+    const window = await electronApp.firstWindow();
+    
+    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+
+    await electronApp.evaluate(({ dialog }, testDirectory) => {
+        dialog.showOpenDialog = async () => ({
+            canceled: false,
+            filePaths: [testDirectory],
+        });
+    }, testDirectory);
+
+    await window.locator("#SelectButton").click();
+    await window.locator("#goButton").click();
+    await window.waitForURL("**/keep_or_delete.html");
+
+    // Ensure input is empty and click rename button
+    await window.locator("#renameInput").fill("");
+    await window.locator("#renameButton").click();
+
+    // Explicitly wait for the error notification
+    const notification = window.locator("#notification");
+    await expect(notification).toBeVisible()
+    await expect(notification).toHaveText("Please enter a new file name.");
+});
+
+
+
+
 test("will rename common file types", async () => {
     const window = await electronApp.firstWindow();
 
@@ -76,6 +105,7 @@ test("will rename common file types", async () => {
         await window.locator("#nextButton").click();
     }
 });
+
 
 
 
