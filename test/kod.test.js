@@ -1,15 +1,11 @@
-const { _electron: electron } = require("playwright");
+const { _electron: electron, test, expect } = require("@playwright/test");
 const path = require("path");
 const fs = require("node:fs");
 const fsp = require("fs/promises");
 const os = require("node:os");
 const mime = require("mime");
-const { test, expect } = require("@playwright/test");
 
-let app;
-//init path
-const filePath = path.resolve(__dirname, "../src/main_menu.html");
-const fileUrl = `file://${filePath}`;
+let electronApp;
 
 /** Generate temporary directory path. */
 const testDirPath = path.join(os.tmpdir(), "keepordelete-preview-tests");
@@ -30,7 +26,7 @@ const cleanTestDir = function() {
 }
 
 test.beforeAll(async () => {
-   app = await electron.launch({ args: ["./"] });
+   electronApp = await electron.launch({ args: ["./"] });
 
    // Clean temporary directory if it exists.
    if (fs.existsSync(testDirPath)) {
@@ -57,13 +53,13 @@ test.beforeAll(async () => {
 
 //closing app
 test.afterAll(async () => {
-   await app.close();
+   await electronApp.close();
 
    cleanTestDir();
 });
 
 test("Navigate to KeepOrDelete page", async () => {
-   const window = await app.firstWindow();
+   const window = await electronApp.firstWindow();
 
    await window.evaluate((testDirPath) => {
       document.getElementById("filepath").innerText = testDirPath;
