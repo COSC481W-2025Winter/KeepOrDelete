@@ -62,34 +62,27 @@ test.afterAll(async () => {
    cleanTestDir();
 });
 
-test("Navigate to KeepOrDelete page", async ({ page }) => {
-   //navigate to main menu
-   await page.goto(fileUrl);
+test("Navigate to KeepOrDelete page", async () => {
+   const window = await app.firstWindow();
 
-   //wait for select button and click
-   await page.waitForSelector("#SelectButton");
-   await page.click("#SelectButton");
-
-   await page.evaluate((testDirPath) => {
+   await window.evaluate((testDirPath) => {
       document.getElementById("filepath").innerText = testDirPath;
    }, testDirPath);
 
    //wait for the file path and check if file path was updated correctly
-   const filePathElement = await page.waitForSelector("#filepath", {
+   const filePathElement = await window.waitForSelector("#filepath", {
       state: "visible",
    });
    const updatedFilePath = await filePathElement.innerText();
    expect(updatedFilePath).toBe(testDirPath);
 
-   await page.click("#goButton");
-
-   // Await for KeepOrDelete page to load.
-   await page.waitForSelector("#backButton")
+   await window.click('#goButton');
+   expect(window.url()).toContain('keep_or_delete.html');
 
    for (let i = 0; i < 3; i++) {
       const filepath = "";
 
-      await page.evaluate(() => {
+      await window.evaluate(() => {
          filepath = document.getElementById("currentItem").innerText;
       })
 
@@ -99,7 +92,6 @@ test("Navigate to KeepOrDelete page", async ({ page }) => {
       console.log(`mimeType=${mimeType}`)
 
       // Cycle to next file with a minor temporal buffer.
-      await page.click("#nextButton");
-      await page.waitForTimeout(300);
+      await window.click("#nextButton");
    }
 });
