@@ -21,9 +21,9 @@ const cleanTestDir = function() {
 
 /** Bundles filenames with contents. */
 class TestFile {
-   constructor(name, contents) {
-      this.name = name;
-      this.path = path.join(testDirPath, name);
+   constructor(basename, contents) {
+      this.basename = basename;
+      this.path = path.join(testDirPath, basename);
       this.contents = contents;
    }
 }
@@ -109,7 +109,7 @@ test("Navigate to KeepOrDelete page", async () => {
 
       previousPath = path;
 
-      const expectedPreviewContents = testFiles.find((tf) => tf.path == path).contents
+      const expectedPreviewContents = testFiles.find((tf) => tf.basename == basename).contents
       console.log(`Expected contents: ${expectedPreviewContents}`)
 
       // Cycle to next file.
