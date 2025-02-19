@@ -81,11 +81,11 @@ code {
 }
 
 .txtPreview {
-   border: 2px solid #bbbbbb;
    background-color: #e5e5e5;
-   overflow: hidden;
+   border: 2px solid #bbbbbb;
+   border-radius: 3px;
+   overflow: auto;
    font-family: monospace;
-   border-radius: 10px;
    text-align: left;
    height: inherit;
 }
