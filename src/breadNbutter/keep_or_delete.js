@@ -18,7 +18,7 @@ window.onload = async function () {
         }
 
         if (files.length > 0) {
-            displayFile(files[currentIndex]);
+            displayCurrentFile();
         } else {
             document.getElementById("currentItem").innerText = "No files found.";
         }
@@ -44,8 +44,20 @@ window.onload = async function () {
     });
 
     document.getElementById("deleteButton").addEventListener("click", async () => { //gets the html element containing the button for delete
-        const filePath = files[currentIndex]; //gets the current index, in the array of files that the user selected
+
+        // Don't attempt deletion if there are no [more] files.
+        if (files.length == 0) {
+            await window.file.showMessageBox({
+                 type: "error",
+                 title: "Error",
+                 message: "No file(s) to delete."
+            });
+
+            return;
+        }
+
         try {
+            const filePath = files[currentIndex]; //gets the current index, in the array of files that the user selected
             const result = await window.file.deleteFile(filePath); //calls the preload.js and invokes method that is contained in context
             // - bridge but actually exists at line 52 of index.js
 
@@ -57,6 +69,13 @@ window.onload = async function () {
                     }
                 }
                 files = newArr; // Update files array
+
+                // When deleting final file, display second to last file.
+                if (currentIndex == files.length) {
+                   currentIndex--;
+                }
+
+                displayCurrentFile();
 
                 //files = files.filter(file => file !== filePath); //dynamically filter files that gets rid of deleted
                 //this creates a new array called that has the condition that it is not filePath
@@ -90,7 +109,7 @@ window.onload = async function () {
         if (files.length > 0) {
             if (currentIndex < files.length - 1) {
                 currentIndex = (currentIndex + 1);
-                displayFile(files[currentIndex]);
+                displayCurrentFile();
             }
             else {
                 window.file.showMessageBox({
@@ -106,7 +125,7 @@ window.onload = async function () {
         if (files.length > 0) {
             if (currentIndex > 0) {
                 currentIndex = (currentIndex - 1);
-                displayFile(files[currentIndex]);
+                displayCurrentFile();
             }
             else {
                 window.file.showMessageBox({
@@ -162,7 +181,7 @@ window.onload = async function () {
             if (response.success) {
                 showNotification(`File renamed successfully to ${finalName}`, 'success');
                 files[currentIndex] = newFilePath;
-                displayFile(newFilePath);
+                displayCurrentFile();
                 resetRenameInput(renameContainer);
             } else {
                 showNotification(response.message || 'Failed to rename the file.', 'error');
@@ -196,13 +215,27 @@ window.onload = async function () {
         });
     }
 
-    function displayFile(filename) {
-        document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
-        refreshPreview(filename)
-    }
+   function displayCurrentFile() {
+      // Preview fn handles its own array length conditions.
+      refreshPreview()
 
-    function refreshPreview(filename) {
+      if (currentIndex < 0 || currentIndex >= files.length) {
+         document.getElementById("currentItem").innerText = "No files in queue.";
+      } else {
+         filename = files[currentIndex];
+         document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
+      }
+   }
+
+    function refreshPreview() {
         var container = document.getElementById("previewContainer");
+
+        if (files.length == 0) {
+            container.innerHTML = "";
+            return;
+        }
+
+        const filename = files[currentIndex];
 
         const mimeType = window.file.getMimeType(filename);
 
