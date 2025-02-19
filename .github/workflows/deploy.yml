@@ -1,0 +1,48 @@
+name: Deploy to drafted release
+
+on:
+  push:
+    tags:
+      - '*' # Trigger workflow on new tags
+
+# Necessary for automatic publishing of binaries.
+permissions:
+  contents: write
+
+jobs:
+  # Execute build/test workflow before deployment.
+  build:
+    uses: ./.github/workflows/build.yml
+
+  deploy:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest] # Run build on three platforms
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v1
+        with:
+          node-version: 22.12
+
+      # Fixes temporary file conflicts.
+      - name: Clean cache
+        run: rm -rf ~/.cache/electron-builder
+        # Resolves command portability.
+        shell: bash
+
+      - name: Build/release Electron app
+        uses: Yan-Jobs/action-electron-builder@v1.7.0
+        with:
+          # GitHub token, automatically provided to the action
+          # (No need to define this secret in the repo settings)
+          github_token: ${{ secrets.github_token }}
+
+          # If the commit is tagged with a version (e.g. "v1.0.0"),
+          # release the app after building
+          release: ${{ startsWith(github.ref, 'refs/tags/v') }}

@@ -1,31 +1,20 @@
-const { contextBridge } = require('electron/renderer')
-const fs = require("node:fs")
-const os = require("node:os")
-const path = require("node:path")
-
-const filePath = path.join(os.tmpdir(), "electronfile")
-const contents = `👋 Hello from ${filePath}!\n`
+const { contextBridge, ipcRenderer } = require('electron');
+const fs = require("node:fs");
+const mime = require("mime");
+const path = require('path');
 
 contextBridge.exposeInMainWorld('file', {
-   getFilePath: () => filePath,
-   fileExists: () => {
-      return fs.existsSync(filePath);
-   },
-   createFile: () => {
-      fs.writeFile(filePath, contents, function(err) {
-         if (err) throw err;
-         console.log(`Wrote file ${filePath}.`);
-      });
-   },
-   removeFile: () => {
-      fs.rm(filePath, function() { }) // is a dummy function a valid callback?
-      console.log(`Removed file ${filePath}.`)
-   },
-   getFileContents: () => {
-      return fs.readFileSync(filePath).toString();
-   },
-   getTimeStamp: () => {
-      const date = new Date();
-      return date.toTimeString();
-   }
-})
+   getFilePath: () => ipcRenderer.invoke('getFilePath'),
+   getFileContents: (path) => fs.readFileSync(path).toString(),
+   getMimeType: (path) => mime.getType(path),
+   setFilePath: (filePath) => ipcRenderer.send('setFilePath', filePath),
+   getTimeStamp: () => new Date().toTimeString(),
+   selectDirectory: async () => await ipcRenderer.invoke('selectDirectory'), // Always fetch latest value
+   getFilesInDirectory: () => ipcRenderer.invoke('getFilesInDirectory'), // Fetch file list
+   renameFile: (oldPath, newPath) => ipcRenderer.invoke('renameFile', { oldPath, newPath }),
+   pathJoin: (dir, file) => path.join(dir, file),
+   pathDirname: (file) => path.dirname(file),
+   pathBasename: (filePath) => path.basename(filePath),
+   deleteFile: (filePath) => ipcRenderer.invoke('delete-file', filePath), //delete file
+   showMessageBox: (options) => ipcRenderer.invoke('show-message-box', options), //message box to replace alerts
+});

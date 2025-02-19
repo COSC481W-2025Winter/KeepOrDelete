@@ -1,11 +1,102 @@
+/* General page styling */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  text-align: center;
 }
 
+/* Headings */
+h1 {
+  margin-bottom: 1em;
+}
+
+/* Container elements (if needed) */
+#dirDisplay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1em;
+}
+
+/* Modern button styling */
+button {
+  padding: 0.75em 1.5em;
+  margin: 0.5em;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+/* Button hover and active states */
+button:hover {
+  background-color: #0056b3;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+#backButton {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 0.5em 1em;
+  font-size: 0.9rem;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+  margin-top: auto;
+}
+
+/* Optional: Styling for the disclaimer and other texts */
 .disclaimer {
-   color: #777777
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1em;
+}
+
+/* Code block styling */
+code {
+  background-color: #eaeaea;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+#previewContainer {
+   font-size: 1rem;
+   width: 500px;
+   height: 300px;
+}
+
+.txtPreview {
+   border: 2px solid #bbbbbb;
+   background-color: #e5e5e5;
+   overflow: hidden;
+   font-family: monospace;
+   border-radius: 10px;
+   text-align: left;
+   height: inherit;
+}
+
+.txtPreview * {
+   margin: 8px;
+}
+
+.unsupportedPreview {
+   text-align: center;
+   color: #777777;
+   line-height: 300px;
+   margin: auto;
 }

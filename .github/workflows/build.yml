@@ -1,18 +1,16 @@
-name: Build/release
+name: Test/build
 
-on: push
-
-# Necessary for automatic publishing of binaries.
-permissions:
-  contents: write
+on:
+  workflow_call: # Allows workflow to be invoked by other workflows
+  pull_request:
+    types: [opened, reopened, edited]
+  push:
+    branches: [main, "*print*"]
 
 jobs:
-  release:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+  # Run tests before building (only once on Windows)
+  test:
+    runs-on: windows-latest
 
     steps:
       - name: Check out Git repository
@@ -23,18 +21,24 @@ jobs:
         with:
           node-version: 22.12
 
-      # Fixes temporary file conflicts.
-      - name: Clean cache
-        run: rm -rf ~/.cache/electron-builder
-        shell: bash # Resolves command portability.
+      # Install dependencies (including dev dependencies)
+      - name: Install dependencies
+        run:
+          npm ci # Ensures exact dependencies from package-lock.json
 
-      - name: Build/release Electron app
-        uses: Yan-Jobs/action-electron-builder@v1.7.0
-        with:
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.github_token }}
 
-          # If the commit is tagged with a version (e.g. "v1.0.0"),
-          # release the app after building
-          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
+      #install playwright browsers onto build agent 
+
+      - name: Install Playwright Browsers
+        run: npx playwright install
+
+      #Run actual tests
+      - name: Run Playwright Tests
+        run: npx playwright test
+        env:
+          NODE_ENV: test
+
+      # Compile and run application
+      - name: Build app
+        run: npm run package

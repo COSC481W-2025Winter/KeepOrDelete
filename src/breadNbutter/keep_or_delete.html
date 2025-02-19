@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <meta charset="UTF-8" />
+   <!-- Content Security Policy settings as before -->
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+   <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+   <link rel="stylesheet" href="../stylesheet.css">
+   <title>KeepOrDelete</title>
+</head>
+<!-- Here u can add other tabs and compnents for display-->
+
+<body>
+   <h1>KeepOrDelete</h1>
+   <div id="dirDisplay">
+      <p id="dirPath"></p>
+      <div id="previewContainer"></div>
+   </div>
+
+   <div id="notification" style="display: none; background-color: lightblue; padding: 10px; margin-top: 10px; border: 1px solid #007BFF; border-radius: 5px;">
+   </div>   
+
+   <div id="renameContainer">
+      <input type="text" id="renameInput" placeholder="Enter new file name">
+  </div>
+  <button id="renameButton">Rename File</button>  
+
+   <button id="backButton">Change Directory</button> 
+
+   <p id="currentItem"></p>
+
+   <div class="button-container">
+      <button id="prevButton">Previous</button>
+      <button id="deleteButton">Delete</button>
+      <button id="nextButton">Next</button>
+   </div>
+
+</body>
+<script src="./keep_or_delete.js"></script>
+
+</html>
