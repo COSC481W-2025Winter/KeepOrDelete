@@ -76,7 +76,6 @@ window.onload = async function () {
                 }
 
                 displayCurrentFile();
-                refreshPreview();
 
                 //files = files.filter(file => file !== filePath); //dynamically filter files that gets rid of deleted
                 //this creates a new array called that has the condition that it is not filePath
