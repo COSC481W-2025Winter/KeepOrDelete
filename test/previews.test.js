@@ -31,7 +31,7 @@ class TestFile {
 const testFiles = [
    new TestFile("test.txt", "Standard text file", "utf8"),
    new TestFile("test.csv", "Comma-separated values file", "utf8"),
-   new TestFile("test.jpeg", Buffer.from([0x50, 0x4B, 0x03, 0x04])),
+   new TestFile("test.png", Buffer.from([0x50, 0x4B, 0x03, 0x04])),
 ]
 
 // Print test file data
@@ -109,7 +109,7 @@ test("Navigate to KeepOrDelete page", async () => {
 
       previousPath = path;
 
-      if (mimeType.startsWith("text")) {
+      if (mimeType.startsWith("text") || mimeType.startsWith("image")) {
          // Fetch this file's contents from the array.
          const expectedPreview = testFiles.find((tf) => tf.basename == basename).contents
 
