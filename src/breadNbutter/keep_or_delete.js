@@ -216,18 +216,26 @@ window.onload = async function () {
     }
 
    function displayCurrentFile() {
+      // Preview fn handles its own array length conditions.
+      refreshPreview()
+
       if (currentIndex < 0 || currentIndex >= files.length) {
          document.getElementById("currentItem").innerText = "No files in queue.";
       } else {
          filename = files[currentIndex];
          document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
-         refreshPreview()
       }
    }
 
     function refreshPreview() {
-        const filename = files[currentIndex];
         var container = document.getElementById("previewContainer");
+
+        if (files.length == 0) {
+            container.innerHTML = "";
+            return;
+        }
+
+        const filename = files[currentIndex];
 
         const mimeType = window.file.getMimeType(filename);
 
