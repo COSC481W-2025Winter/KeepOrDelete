@@ -44,8 +44,20 @@ window.onload = async function () {
     });
 
     document.getElementById("deleteButton").addEventListener("click", async () => { //gets the html element containing the button for delete
-        const filePath = files[currentIndex]; //gets the current index, in the array of files that the user selected
+
+        // Don't attempt deletion if there are no [more] files.
+        if (files.length == 0) {
+            await window.file.showMessageBox({
+                 type: "error",
+                 title: "Error",
+                 message: "No file(s) to delete."
+            });
+
+            return;
+        }
+
         try {
+            const filePath = files[currentIndex]; //gets the current index, in the array of files that the user selected
             const result = await window.file.deleteFile(filePath); //calls the preload.js and invokes method that is contained in context
             // - bridge but actually exists at line 52 of index.js
 
