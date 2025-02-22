@@ -80,6 +80,11 @@ code {
    height: 300px;
 }
 
+#previewContainer * {
+   width: inherit;
+   height: inherit;
+}
+
 .txtPreview {
    border: 2px solid #bbbbbb;
    background-color: #e5e5e5;
@@ -87,16 +92,10 @@ code {
    font-family: monospace;
    border-radius: 10px;
    text-align: left;
-   height: inherit;
 }
 
 .txtPreview * {
    margin: 8px;
-}
-
-.pdfPreview, .pdfPreview iframe {
-   width: inherit;
-   height: inherit;
 }
 
 .unsupportedPreview {
