@@ -94,9 +94,9 @@ code {
    margin: 8px;
 }
 
-.pdfPreview {
-   width: 100%;
-   height: 100%;
+.pdfPreview, .pdfPreview iframe {
+   width: inherit;
+   height: inherit;
 }
 
 .unsupportedPreview {
