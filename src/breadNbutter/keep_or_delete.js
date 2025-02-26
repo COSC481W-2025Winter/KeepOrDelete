@@ -110,6 +110,7 @@ window.onload = async function () {
             if (currentIndex < files.length - 1) {
                 currentIndex = (currentIndex + 1);
                 displayCurrentFile();
+                LLM();
             }
             else {
                 window.file.showMessageBox({
@@ -126,6 +127,7 @@ window.onload = async function () {
             if (currentIndex > 0) {
                 currentIndex = (currentIndex - 1);
                 displayCurrentFile();
+                LLM();
             }
             else {
                 window.file.showMessageBox({
@@ -252,5 +254,27 @@ window.onload = async function () {
         } else {
             container.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
         }
+    }
+    function LLM(){
+        const filename = files[currentIndex];
+        const fileContents = window.file.getFileContents(filename);
+        
+        // Here id implenment a if statement to check file type and change the API Call
+        // Chat can take images so .png or .jpg will have a different call.
+        window.openai.openaiRequest([
+        { role: "system", content: "You will review the following text and give a proper file name suggestion for it. Do not include the file extension." },
+        { role: "user", content: fileContents }
+        ])
+        .then(response => {
+            //This is the suggested name 
+            const suggestion = response.choices[0].message.content;
+            console.log(`Suggested name: ${suggestion}`);
+            //This is the original name
+            const originalName = window.file.pathBasename(filename);
+            console.log(`Original name: ${originalName}`);
+        })
+        .catch(error => {
+            console.error('Error sending OpenAI request:', error);
+        });
     }
 };

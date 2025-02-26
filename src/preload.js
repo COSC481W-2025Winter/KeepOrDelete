@@ -18,3 +18,8 @@ contextBridge.exposeInMainWorld('file', {
    deleteFile: (filePath) => ipcRenderer.invoke('delete-file', filePath), //delete file
    showMessageBox: (options) => ipcRenderer.invoke('show-message-box', options), //message box to replace alerts
 });
+
+// Create bridge for OpenAI
+contextBridge.exposeInMainWorld('openai', {
+   openaiRequest: (messages) => ipcRenderer.invoke('openai-request', messages),
+});

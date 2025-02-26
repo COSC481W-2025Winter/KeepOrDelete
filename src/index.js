@@ -1,7 +1,9 @@
+const dotenv = require('dotenv');
 const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const path = require("node:path");
 const fs = require("fs");
 const { promises: fsPromises } = require('fs');
+const OpenAI = require("openai");
 
 let selectedFilePath = ""; // Ensure this updates dynamically
 let mainWindow;
@@ -91,4 +93,27 @@ app.on("window-all-closed", () => {
 //handles message box to replace alerts
 ipcMain.handle('show-message-box', async (event, options) => {
    return dialog.showMessageBox(mainWindow, options);
+});
+
+// Grabs the API key
+dotenv.config();
+
+// Module for OpenAI
+const openai = new OpenAI({
+   // Securly accesing the API
+ apiKey: process.env.OPENAI_API_KEY 
+});
+// Handles OpenAI requests securely
+// We set event as first parameter because in an Electron IPC handler, the first parameter is the event.
+ipcMain.handle('openai-request', async (event, messages = {}) => {
+   try {
+      const result = await openai.chat.completions.create({
+         model: "gpt-4o-mini",
+         messages
+       });
+       return result;
+
+   } catch (error) {
+      console.error('Error sending OpenAI request:', error);
+   }
 });
