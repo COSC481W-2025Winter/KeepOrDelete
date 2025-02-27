@@ -258,11 +258,11 @@ window.onload = async function () {
     function LLM(){
         const filename = files[currentIndex];
         const fileContents = window.file.getFileContents(filename);
-        
+
         // Here id implenment a if statement to check file type and change the API Call
         // Chat can take images so .png or .jpg will have a different call.
         window.openai.openaiRequest([
-        { role: "system", content: "You will review the following text and give a proper file name suggestion for it. Do not include the file extension." },
+        { role: "system", content: "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension." },
         { role: "user", content: fileContents }
         ])
         .then(response => {
