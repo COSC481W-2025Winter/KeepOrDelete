@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 const fs = require("node:fs");
 const mime = require("mime");
 const path = require('path');
+const docx = require('docx-preview');
 
 contextBridge.exposeInMainWorld('file', {
    getFilePath: () => ipcRenderer.invoke('getFilePath'),
@@ -17,4 +18,14 @@ contextBridge.exposeInMainWorld('file', {
    pathBasename: (filePath) => path.basename(filePath),
    deleteFile: (filePath) => ipcRenderer.invoke('delete-file', filePath), //delete file
    showMessageBox: (options) => ipcRenderer.invoke('show-message-box', options), //message box to replace alerts
+   renderDocx: (filename, domElement) => {
+      const buffer = fs.readFileSync(filename);
+
+      const blob = new Blob([buffer]);
+
+      docx.renderAsync(
+         blob,
+         domElement
+      ).then(x => console.log("docx: finished"));
+   },
 });

@@ -251,6 +251,10 @@ window.onload = async function () {
             container.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
         } else if (mimeType != null && mimeType == "application/pdf") {
             container.innerHTML = `<div class="pdfPreview"><iframe src="${filename}"></iframe></div>`;
+        } else if (filename.includes("docx")) {
+            container.innerHTML = `<div id="docxPreview" class="docxPreview"></div>`;
+            const element = document.getElementById("docxPreview");
+            window.file.renderDocx(filename, element);
         } else {
             container.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
         }

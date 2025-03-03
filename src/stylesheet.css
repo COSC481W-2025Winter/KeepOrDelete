@@ -104,3 +104,9 @@ code {
    line-height: 300px;
    margin: auto;
 }
+
+.docxPreview {
+   overflow: scroll;
+   background-color: white;
+   text-align: left;
+}
