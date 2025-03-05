@@ -15,12 +15,15 @@ window.onload = async function () {
         if (dirPath) {
             // Fetch files in the directory
             files = await window.file.getFilesInDirectory();
-            removedFileTypes = window.file.getRemovedFileTypes();
+            removedFileTypes = new Set (await window.file.getRemovedFileTypes());
+            console.log(typeof removedFileTypes); // Should print "object"
+            console.log(removedFileTypes instanceof Set); // Should print true
+            console.log(removedFileTypes);
 
             // Keep only files not in removedFileTypes
             files = files.filter(file => {
                 const fileType = file.split(".").pop(); 
-                return !removedFileTypes.includes(fileType); 
+                return !removedFileTypes.has(fileType); 
             });
         }
 

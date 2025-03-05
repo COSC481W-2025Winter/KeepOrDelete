@@ -38,7 +38,7 @@ test("navigate to settings window", async () => {
   await window.click("#settings");
 
   //wait for element from settings window to confirm window loaded
-  const element = await window.waitForSelector("#text_file");
+  const element = await window.waitForSelector("#txt");
 
   //assert element is present
   expect(element).not.toBeNull();

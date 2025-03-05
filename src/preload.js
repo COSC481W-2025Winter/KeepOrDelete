@@ -19,5 +19,5 @@ contextBridge.exposeInMainWorld('file', {
    showMessageBox: (options) => ipcRenderer.invoke('show-message-box', options), //message box to replace alerts
    removeFileType: (fileType) => ipcRenderer.invoke('removeFileType', fileType),
    addFileType: (fileType) => ipcRenderer.invoke('addFileType', fileType),
-   getRemovedFileTypes: () => ipcRenderer.invoke("getRemovedFileTypes")
+   getRemovedFileTypes: () => ipcRenderer.invoke("getRemovedFileTypes"),
 });

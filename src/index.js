@@ -2,10 +2,12 @@ const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const path = require("node:path");
 const fs = require("fs");
 const { promises: fsPromises } = require('fs');
+const configPath = path.join(app.getPath('userData'), 'config.json');
+
 
 let selectedFilePath = ""; // Ensure this updates dynamically
 let mainWindow;
-let removedFileTypes = new Set();
+
 
 const createWindow = () => {
    mainWindow = new BrowserWindow({
@@ -83,9 +85,30 @@ ipcMain.handle("delete-file", async (event, filePath) => { //filePath gets sent 
    }
 });
 
+//helper method to get config data 
+const getConfig = () => {
+   let config = {};
+   if (fs.existsSync(configPath)) {
+      const fileContent = fs.readFileSync(configPath, 'utf-8');
+      config = JSON.parse(fileContent);
+   }
+   return config;
+};
+
+
+
+//method to add a file type to the removeFileType
 ipcMain.handle("removeFileType", async (event, fileType) => {
    try {
-      removedFileTypes.add(fileType);
+      // Read the existing config file
+      let config = getConfig();
+
+      // Add the fileType to the removedFileTypes array (avoid duplicates)
+      config.removedFileTypes = Array.from(new Set([...config.removedFileTypes || [], fileType]));
+
+      // Write the updated config back to the JSON file
+      fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
       console.log(`Removed file type: ${fileType}`);
       return { success: true, message: `File type ${fileType} removed.` };
    } catch (error) {
@@ -96,21 +119,42 @@ ipcMain.handle("removeFileType", async (event, fileType) => {
 
 ipcMain.handle("addFileType", async (event, fileType) => {
    try {
-      removedFileTypes.delete(fileType);
-   }
-   catch {
-      console.error("Error removing file type.");
+      // Read the existing config file
+      let config = getConfig();
+
+      // Remove the fileType from the removedFileTypes array
+      if (config.removedFileTypes) {
+         config.removedFileTypes = config.removedFileTypes.filter(type => type !== fileType);
+      } else {
+         config.removedFileTypes = [];
+      }
+
+      // Write the updated config back to the JSON file
+      fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+      console.log(`Added file type: ${fileType}`);
+      return { success: true, message: `File type ${fileType} added.` };
+   } catch (error) {
+      console.error("Error adding file type:", error);
+      return { success: false, message: "Error adding file type." };
    }
 });
 
 ipcMain.handle("getRemovedFileTypes", async (event) => {
    try {
-      return removedFileTypes;
-   }
-   catch {
-      console.error("Error getting removed file types.");
+      // Read the existing config file
+      let config = getConfig();
+
+      // Return the removedFileTypes array, default to an empty array if not found
+      return config.removedFileTypes || [];
+   } catch (error) {
+      console.error("Error getting removed file types:", error);
+      return [];
    }
 });
+
+
+
 
 
 app.whenReady().then(createWindow);
