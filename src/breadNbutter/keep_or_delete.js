@@ -4,6 +4,9 @@
 window.onload = async function () {
     let files = [];
     let currentIndex = 0;
+    let filesToBeDeleted = []; //global array of files waiting to be deleted --the chopping block
+    //this array is going to need to be sent over to another js page that can store the real delete function, move
+    //this delete function will just populate the array and the next one will execute the node trash removal
 
     try {
         // Fetch the selected directory path
@@ -43,56 +46,64 @@ window.onload = async function () {
         window.location.href = "../main_menu.html";
     });
 
-    document.getElementById("deleteButton").addEventListener("click", async () => { //gets the html element containing the button for delete
-
-        // Don't attempt deletion if there are no [more] files.
-        if (files.length == 0) {
-            await window.file.showMessageBox({
-                 type: "error",
-                 title: "Error",
-                 message: "No file(s) to delete."
-            });
-
-            return;
-        }
-
-        try {
-            const filePath = files[currentIndex]; //gets the current index, in the array of files that the user selected
-            const result = await window.file.deleteFile(filePath); //calls the preload.js and invokes method that is contained in context
-            // - bridge but actually exists at line 52 of index.js
-
-            if (result.success) {
-                let newArr = [];
-                for (let file of files) {
-                    if (file !== filePath) {
-                        newArr.push(file);
-                    }
-                }
-                files = newArr; // Update files array
-
-                // When deleting final file, display second to last file.
-                if (currentIndex == files.length) {
-                   currentIndex--;
-                }
-
-                displayCurrentFile();
-
-                //files = files.filter(file => file !== filePath); //dynamically filter files that gets rid of deleted
-                //this creates a new array called that has the condition that it is not filePath
-
-
-                //success is a built in boolean callback
-                //await window.file.showMessageBox({
-                //    type: "info",
-                //    title: "Success",
-                //    message: "File deleted successfully"
-                //}); //THIS SHOULD GET REMOVED EVENTUALLY, IT IS JUST FOR DEBUGGING TO KNOW WHETHER IT WORKED OR NOT 
-            } else {
+    //THIS MOVES TO FINAL PAGE, WHEN HITTING A DELETE ALL BUTTON TO CONFIRM, filesToBeDeleted should be sent over
+    /*
+    document.getElementById("deleteAll").addEventListener("click", async () => {
+        for (let i = 0; i < filesToBeDeleted.length; i++) {
+            const result = await window.file.filesToBeDeleted[i]
+            if (!result.success) {
                 await window.file.showMessageBox({
                     type: "error",
-                    title: "Error",
+                    title: "Error deleting file",
                     message: result.message
                 });
+                console.log(`error deleting "${filesToBeDeleted[i]}"`);
+                break;
+            }
+        }
+    });
+
+    document.getElementById("deleteExecute").addEventListener("click", async () => {
+        const filePath = files[currentIndex];
+        const result = await window.file.deleteFile(filePath); //calls the preload.js and invokes method that is contained in context
+        if (!result.success) {
+            await window.file.showMessageBox({
+                type: "error",
+                title: "Error deleting file",
+                message: result.message
+            });
+        }
+    });
+*/
+
+    document.getElementById("deleteButton").addEventListener("click", async () => { //gets the html element containing the button for delete
+        const filePath = files[currentIndex];
+        //dont attempt deletion if there are no [more] files.
+        if (files.length == 0) {
+            await window.file.showMessageBox({
+                type: "error",
+                title: "Error",
+                message: "No file(s) to delete."
+            });
+            return;
+        }
+        try {
+            //now this function just updates are of files and removes file to be deleted, and adds it to the array that
+            //is waiting to be deleted
+            filesToBeDeleted.push(filePath); //add the file to the array that is waiting to be deleted
+            // - bridge but actually exists at line 52 of index.js
+            console.log(filesToBeDeleted[0]);
+            let newArr = [];
+            for (let file of files) {
+                if (file !== filePath) {
+                    newArr.push(file);
+                }
+                files = newArr; // Update files array
+                // When deleting final file, display second to last file.
+                if (currentIndex == files.length) {
+                    currentIndex--;
+                }
+                displayCurrentFile();
             }
         } catch (error) {
             console.error("Error deleting file:", error);
@@ -104,7 +115,7 @@ window.onload = async function () {
         }
     });
 
-    // Go through files in directory +1
+    //go through files in directory +1
     document.getElementById("nextButton").addEventListener("click", async () => {
         if (files.length > 0) {
             if (currentIndex < files.length - 1) {
@@ -215,17 +226,17 @@ window.onload = async function () {
         });
     }
 
-   function displayCurrentFile() {
-      // Preview fn handles its own array length conditions.
-      refreshPreview()
+    function displayCurrentFile() {
+        // Preview fn handles its own array length conditions.
+        refreshPreview()
 
-      if (currentIndex < 0 || currentIndex >= files.length) {
-         document.getElementById("currentItem").innerText = "No files in queue.";
-      } else {
-         filename = files[currentIndex];
-         document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
-      }
-   }
+        if (currentIndex < 0 || currentIndex >= files.length) {
+            document.getElementById("currentItem").innerText = "No files in queue.";
+        } else {
+            filename = files[currentIndex];
+            document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
+        }
+    }
 
     function refreshPreview() {
         var container = document.getElementById("previewContainer");
