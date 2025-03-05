@@ -17,4 +17,11 @@ contextBridge.exposeInMainWorld('file', {
    pathBasename: (filePath) => path.basename(filePath),
    deleteFile: (filePath) => ipcRenderer.invoke('delete-file', filePath), //delete file
    showMessageBox: (options) => ipcRenderer.invoke('show-message-box', options), //message box to replace alerts
+   quitApp: () => ipcRenderer.send('quit-app') //allow quitting the app
+});
+
+contextBridge.exposeInMainWorld('fileFinal', {
+   getKeptFiles: () => JSON.parse(localStorage.getItem("keptFiles")) || [],
+   getDeletedFiles: () => JSON.parse(localStorage.getItem("deletedFiles")) || [],
+   renameFile: (oldPath, newPath) => ipcRenderer.invoke('renameFile', { oldPath, newPath }),
 });
