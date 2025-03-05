@@ -121,6 +121,7 @@ window.onload = async function () {
             if (currentIndex < files.length - 1) {
                 currentIndex = (currentIndex + 1);
                 displayCurrentFile();
+                keepCurrentFile(currentIndex - 1);
             }
             else {
                 window.file.showMessageBox({
@@ -128,6 +129,7 @@ window.onload = async function () {
                     title: "No Next File",
                     message: "No more files in selected Directory"
                 });
+                keepCurrentFile(currentIndex);
             }
         }
     });
@@ -264,4 +266,22 @@ window.onload = async function () {
             container.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
         }
     }
+
+    //track Kept Files
+    function keepCurrentFile(index) {
+        if (files.length > 0) {
+            const currentFile = files[index];
+            if (!keptFiles.includes(currentFile)) {
+                keptFiles.push(currentFile);
+            }
+        }
+    }
+
+    //button to go to the final page
+    document.getElementById("finalPageButton").addEventListener("click", () => {
+        localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
+        localStorage.setItem("deletedFiles", JSON.stringify(deletedFiles));
+        window.location.href = "../final_page.html";
+    });
+
 };
