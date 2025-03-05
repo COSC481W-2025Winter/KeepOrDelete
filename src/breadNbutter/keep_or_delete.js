@@ -15,6 +15,13 @@ window.onload = async function () {
         if (dirPath) {
             // Fetch files in the directory
             files = await window.file.getFilesInDirectory();
+            removedFileTypes = window.file.getRemovedFileTypes();
+
+            // Keep only files not in removedFileTypes
+            files = files.filter(file => {
+                const fileType = file.split(".").pop(); 
+                return !removedFileTypes.includes(fileType); 
+            });
         }
 
         if (files.length > 0) {

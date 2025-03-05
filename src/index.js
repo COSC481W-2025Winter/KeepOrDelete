@@ -5,6 +5,7 @@ const { promises: fsPromises } = require('fs');
 
 let selectedFilePath = ""; // Ensure this updates dynamically
 let mainWindow;
+let removedFileTypes = new Set();
 
 const createWindow = () => {
    mainWindow = new BrowserWindow({
@@ -81,6 +82,36 @@ ipcMain.handle("delete-file", async (event, filePath) => { //filePath gets sent 
       return { success: false, message: error.message };
    }
 });
+
+ipcMain.handle("removeFileType", async (event, fileType) => {
+   try {
+      removedFileTypes.add(fileType);
+      console.log(`Removed file type: ${fileType}`);
+      return { success: true, message: `File type ${fileType} removed.` };
+   } catch (error) {
+      console.error("Error removing file type:", error);
+      return { success: false, message: "Error removing file type." };
+   }
+});
+
+ipcMain.handle("addFileType", async (event, fileType) => {
+   try {
+      removedFileTypes.delete(fileType);
+   }
+   catch {
+      console.error("Error removing file type.");
+   }
+});
+
+ipcMain.handle("getRemovedFileTypes", async (event) => {
+   try {
+      return removedFileTypes;
+   }
+   catch {
+      console.error("Error getting removed file types.");
+   }
+});
+
 
 app.whenReady().then(createWindow);
 
