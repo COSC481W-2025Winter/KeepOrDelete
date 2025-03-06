@@ -18,13 +18,10 @@ contextBridge.exposeInMainWorld('file', {
    deleteFile: (filePath) => ipcRenderer.invoke('delete-file', filePath), //delete file
    showMessageBox: (options) => ipcRenderer.invoke('show-message-box', options), //message box to replace alerts
 });
-
-
 // Create bridge for OpenAI API call through Lambda via HTTPS
 contextBridge.exposeInMainWorld('openai', {
    openaiRequest: async (messages = {}) => {
       // API Gateway URL
-     //const lambdaUrl = 'https://610op4g6ei.execute-api.us-east-1.amazonaws.com/default/GPT_Renaming';
      const response = await fetch('https://610op4g6ei.execute-api.us-east-1.amazonaws.com/default/GPT_Renaming', {
        method: 'POST',
        headers: {

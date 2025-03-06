@@ -3,7 +3,6 @@ const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const path = require("node:path");
 const fs = require("fs");
 const { promises: fsPromises } = require('fs');
-//const OpenAI = require("openai");
 
 let selectedFilePath = ""; // Ensure this updates dynamically
 let mainWindow;
@@ -23,12 +22,14 @@ const createWindow = () => {
 
    // Modify CORS headers for all responses
      // Set CSP using session.defaultSession
+
    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
       callback({
          responseHeaders: {
             ...details.responseHeaders,
             "Content-Security-Policy": [
                "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; " +
+               //Allows us to make API calls to Lambda via https trigger
                "connect-src 'self' https://610op4g6ei.execute-api.us-east-1.amazonaws.com; object-src 'none'; frame-src 'none';"
             ],
          },
@@ -108,26 +109,3 @@ app.on("window-all-closed", () => {
 ipcMain.handle('show-message-box', async (event, options) => {
    return dialog.showMessageBox(mainWindow, options);
 });
-
-// // Grabs the API key
-// dotenv.config();
-
-// // Module for OpenAI
-// const openai = new OpenAI({
-//    // Securly accesing the API
-//  apiKey: process.env.OPENAI_API_KEY 
-// });
-// // Handles OpenAI requests securely
-// // We set event as first parameter because in an Electron IPC handler, the first parameter is the event.
-// ipcMain.handle('openai-request', async (event, messages = {}) => {
-//    try {
-//       const result = await openai.chat.completions.create({
-//          model: "gpt-4o-mini",
-//          messages
-//        });
-//        return result;
-
-//    } catch (error) {
-//       console.error('Error sending OpenAI request:', error);
-//    }
-// });
