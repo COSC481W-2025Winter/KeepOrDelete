@@ -19,7 +19,22 @@ contextBridge.exposeInMainWorld('file', {
    showMessageBox: (options) => ipcRenderer.invoke('show-message-box', options), //message box to replace alerts
 });
 
-// Create bridge for OpenAI
+
+// Create bridge for OpenAI API call through Lambda via HTTPS
 contextBridge.exposeInMainWorld('openai', {
-   openaiRequest: (messages) => ipcRenderer.invoke('openai-request', messages),
-});
+   openaiRequest: async (messages = {}) => {
+      // API Gateway URL
+     //const lambdaUrl = 'https://610op4g6ei.execute-api.us-east-1.amazonaws.com/default/GPT_Renaming';
+     const response = await fetch('https://610op4g6ei.execute-api.us-east-1.amazonaws.com/default/GPT_Renaming', {
+       method: 'POST',
+       headers: {
+          'Content-Type': 'application/json'
+       },
+       body: JSON.stringify({ messages })
+     });
+     if (!response.ok) {
+       throw new Error(`HTTP error! status: ${response.status}`);
+     }
+     return await response.json();
+   }
+ });
