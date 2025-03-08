@@ -227,7 +227,7 @@ window.onload = async function () {
       }
    }
 
-    function refreshPreview() {
+    async function refreshPreview() {
         var container = document.getElementById("previewContainer");
 
         if (files.length == 0) {
@@ -252,9 +252,8 @@ window.onload = async function () {
         } else if (mimeType != null && mimeType == "application/pdf") {
             container.innerHTML = `<div class="pdfPreview"><iframe src="${filename}"></iframe></div>`;
         } else if (filename.includes("docx")) {
-            container.innerHTML = `<div id="docxPreview" class="docxPreview"></div>`;
-            const element = document.getElementById("docxPreview");
-            window.file.renderDocx(filename, element);
+            const pdfPath = await window.file.convertDocxToPdf(filename);
+            container.innerHTML = `<div class="pdfPreview"><iframe src="${pdfPath}"></iframe></div>`;
         } else {
             container.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
         }
