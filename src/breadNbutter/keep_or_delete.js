@@ -237,7 +237,7 @@ window.onload = async function () {
             // <pre> tag displays preformatted text. Displays all whitespace chars.
             previewContainer.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
         } else if (mimeType != null && mimeType == "application/pdf") {
-            container.innerHTML = `<div class="pdfPreview"><iframe src="${filename}"></iframe></div>`;
+            previewContainer.innerHTML = `<div class="pdfPreview"><iframe src="${filename}#toolbar=0"></iframe></div>`;
         } else {
             previewContainer.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
         }
@@ -319,8 +319,6 @@ window.onload = async function () {
         // Starts animation based on speed of swipe or distance swiped
         if (Math.abs(diffX) > 50 || velocity > 0.6) {
             animateSwipe(diffX < 0 ? "right" : "left");
-        } else if (mimeType != null && mimeType == "application/pdf") {
-            container.innerHTML = `<div class="pdfPreview"><iframe src="${filename}"></iframe></div>`;
         } else {
             resetPreviewPosition();
         }
