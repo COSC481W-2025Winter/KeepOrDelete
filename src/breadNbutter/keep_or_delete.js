@@ -278,13 +278,12 @@ window.onload = async function () {
         previewContainer.style.transform = `translateX(${translateX}) rotate(${rotateDeg})`;
         previewContainer.style.opacity = "0";
 
-        // Sets how fast after animation we want to process file
-        // Shorter time will make it seem snappier
-        setTimeout(() => {
+        // File handling will occurr after CSS animation
+        previewContainer.addEventListener("transitionend", function handleTransitionEnd() {
             if (direction === "left") nextFile();
             else deleteFile();
-            icon.classList.remove("show");
-        }, 200);
+            previewContainer.removeEventListener("transitionend", handleTransitionEnd);
+        });
     }
 
     // Detects when swipe is started
