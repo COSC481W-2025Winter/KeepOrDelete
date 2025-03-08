@@ -97,6 +97,11 @@ code {
    font-family: monospace;
    border-radius: 10px;
    text-align: left;
+   user-select: none;
+}
+
+.pdfPreview iframe {
+  pointer-events: none;
 }
 
 .txtPreview * {

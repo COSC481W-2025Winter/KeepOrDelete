@@ -5,6 +5,7 @@ window.onload = async function () {
     let files = [];
     let currentIndex = 0;
     const previewContainer = document.getElementById("previewContainer");
+    let inspectMode = false;
 
     try {
         // Fetch the selected directory path
@@ -288,6 +289,8 @@ window.onload = async function () {
 
     // Detects when swipe is started
     function startSwipe(e) {
+        // Prevent swiping in Inspect Mode
+        if (inspectMode) return; 
         // Starting position
         startX = e.clientX || e.touches[0].clientX;
         currentX = startX;
@@ -308,7 +311,7 @@ window.onload = async function () {
     }
 
     function endSwipe(e) {
-        if (!isSwiping) return;
+        if (!isSwiping || inspectMode) return;
         isSwiping = false;
         // Get final distance swiped
         let diffX = currentX - startX;
@@ -336,4 +339,25 @@ window.onload = async function () {
         document.addEventListener("touchmove", moveSwipe);
         document.addEventListener("touchend", endSwipe);
     });
+
+    document.getElementById("inspectButton").addEventListener("click", () => {
+        const iframe = document.querySelector("#previewContainer iframe");
+        const textPreview = document.querySelector("#previewContainer pre");
+        // Toggle inspect mode state
+        inspectMode = !inspectMode; 
+    
+        if (iframe) {
+            // Toggle pointer-events for PDF(allows pdf interaction)
+            iframe.style.pointerEvents = inspectMode ? "auto" : "none";
+        }
+    
+        if (textPreview) {
+            // Toggle user-select for text files (allows highlighting)
+            textPreview.style.userSelect = inspectMode ? "text" : "none";
+        }
+    
+        // Update button text
+        document.getElementById("inspectButton").innerText = inspectMode ? "Exit Inspect" : "Inspect Document";
+    });
+    
 };
