@@ -39,7 +39,7 @@ for (let tf of testFiles) {
    console.log(tf);
 }
 
-test.beforeAll(async () => {
+test.beforeEach(async () => {
    electronApp = await electron.launch({ args: ["./"] });
 
    cleanTestDir();
@@ -61,7 +61,7 @@ test.beforeAll(async () => {
 });
 
 //closing app
-test.afterAll(async () => {
+test.afterEach(async () => {
    await electronApp.close();
 
    cleanTestDir();
@@ -126,3 +126,68 @@ test("Navigate to KeepOrDelete page", async () => {
       await window.click("#nextButton");
    }
 });
+
+test("Swiping on KeepOrDelete page", async () => {
+   const window = await electronApp.firstWindow();
+
+   await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+
+   // Intercept file selection dialog
+   await electronApp.evaluate(({ dialog }, testDirPath) => {
+      dialog.showOpenDialog = async () => ({
+         canceled: false,
+         filePaths: [testDirPath], // Inject test dir path
+      });
+   }, testDirPath);
+
+   // Navigate to next page using the override
+   await window.locator("#SelectButton").click();
+   await window.locator("#goButton").click();
+   await window.waitForURL("**/keep_or_delete.html");
+
+   let previousPath = null;
+
+   for (let i = 0; i < 3; i++) {
+      const path = await window.locator("#currentItem").innerText();
+
+      // Mime library doesn't like some paths. Just serve it the basename
+      const basename = require("node:path").basename(path);
+
+      const mimeType = mime.getType(basename);
+
+      console.log(`path=${path}`);
+      console.log(`mimeType=${mimeType}`);
+
+      let preview = await window.locator("#previewContainer").innerText();
+      // Remove emojis using regex
+      preview = preview.replace(/✅|🗑️/g, "").trim(); 
+
+      // Freak out if the file path didn't change.
+      if (previousPath != null && path == previousPath) {
+         expect(false).toBe(true);
+      }
+
+      previousPath = path;
+
+      if (mimeType.startsWith("text")) {
+         // Fetch this file's contents from the array.
+         const expectedPreview = testFiles.find((tf) => tf.basename == basename).contents
+
+         console.log(`Expected preview: ${expectedPreview}`)
+
+         // Expect this file's contents to be visible on screen.
+         expect(preview).toEqual(expectedPreview)
+      } else {
+         // Some text like "no preview available for this filetype".
+         expect(preview).toMatch(/no.*available/i)
+      }
+
+      // Cycle to next file.
+      const previewContainer = await window.locator("#previewContainer");
+      await previewContainer.hover();
+      await previewContainer.dragTo(await window.locator("#nextButton"));
+      // Need timeout to account for animation!!
+      await window.waitForTimeout(500);
+   }
+});
+
