@@ -256,6 +256,8 @@ window.onload = async function () {
         }
     }
     function LLM(){
+        popup.style.display = 'inline-block';
+        popupContent.textContent = 'Thinking...';
         const filename = files[currentIndex];
         const fileContents = window.file.getFileContents(filename);
 
@@ -266,12 +268,23 @@ window.onload = async function () {
         { role: "user", content: fileContents }
         ])
         .then(response => {
-            //This is the suggested name 
-            const suggestion = response.choices[0].message.content;
-            console.log(`Suggested name: ${suggestion}`);
-            //This is the original name
-            const originalName = window.file.pathBasename(filename);
-            console.log(`Original name: ${originalName}`);
+            const suggestion = response.choices[0].message;
+            console.log("Renaming Suggestion:", suggestion.content);
+
+            // Display the popup and suggested name. 
+            const popup = document.getElementById('popup');
+            const popupContent = document.getElementById('popupContent');
+            popupContent.textContent = suggestion.content;
+
+            // Add a click event listener to the popup. Populates the input field wih the suggestion.
+            popup.onclick = () => {
+            const renameInput = document.getElementById('renameInput');
+            if (renameInput && !renameInput.value.trim()) {
+                renameInput.value = suggestion.content;
+            }
+            popup.style.display = 'none';
+        }
+           
         })
         .catch(error => {
             console.error('Error sending OpenAI request:', error);

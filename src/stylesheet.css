@@ -100,3 +100,20 @@ code {
    line-height: 300px;
    margin: auto;
 }
+
+.popup {
+  position: relative;
+  display: inline-block;
+  font-family: monospace;
+  background: #08c27b56; 
+  border: 1px solid #ccc; 
+  border-radius: 10px;
+  padding: 10px; 
+  box-shadow: 0 0 10px rgba(0,0,0,0.2); 
+  cursor: pointer; 
+  opacity: .5;                
+}
+
+.popup:hover {
+  opacity: 1;
+}
