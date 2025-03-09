@@ -4,6 +4,7 @@
 window.onload = async function () {
     let files = [];
     let currentIndex = 0;
+    let keptFiles = [];
     let filesToBeDeleted = []; //global array of files waiting to be deleted --the chopping block
     //this array is going to need to be sent over to another js page that can store the real delete function, move
     //this delete function will just populate the array and the next one will execute the node trash removal
@@ -102,6 +103,8 @@ window.onload = async function () {
                 // When deleting final file, display second to last file.
                 if (currentIndex == files.length) {
                     currentIndex--;
+                } else {
+                    currentIndex++;
                 }
                 displayCurrentFile();
             }
@@ -280,8 +283,12 @@ window.onload = async function () {
     //button to go to the final page
     document.getElementById("finalPageButton").addEventListener("click", () => {
         localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
-        localStorage.setItem("deletedFiles", JSON.stringify(deletedFiles));
+        localStorage.setItem("deletedFiles", JSON.stringify(filesToBeDeleted));
         window.location.href = "../final_page.html";
     });
 
+    document.getElementById("trash_button").addEventListener("click", () => {
+        localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
+        localStorage.setItem("deletedFiles", JSON.stringify(filesToBeDeleted));
+    });
 };

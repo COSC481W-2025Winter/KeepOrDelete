@@ -9,6 +9,13 @@ body {
   text-align: center;
 }
 
+/* button to view recently deleted */
+#trash_button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
 /* Headings */
 h1 {
   margin-bottom: 1em;
@@ -75,28 +82,28 @@ code {
 }
 
 #previewContainer {
-   font-size: 1rem;
-   width: 500px;
-   height: 300px;
+  font-size: 1rem;
+  width: 500px;
+  height: 300px;
 }
 
 .txtPreview {
-   border: 2px solid #bbbbbb;
-   background-color: #e5e5e5;
-   overflow: hidden;
-   font-family: monospace;
-   border-radius: 10px;
-   text-align: left;
-   height: inherit;
+  border: 2px solid #bbbbbb;
+  background-color: #e5e5e5;
+  overflow: hidden;
+  font-family: monospace;
+  border-radius: 10px;
+  text-align: left;
+  height: inherit;
 }
 
 .txtPreview * {
-   margin: 8px;
+  margin: 8px;
 }
 
 .unsupportedPreview {
-   text-align: center;
-   color: #777777;
-   line-height: 300px;
-   margin: auto;
+  text-align: center;
+  color: #777777;
+  line-height: 300px;
+  margin: auto;
 }
