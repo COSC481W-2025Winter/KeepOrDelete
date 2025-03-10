@@ -3,7 +3,6 @@ const fs = require("node:fs");
 const mime = require("mime");
 const path = require('path');
 const os = require('node:os');
-const docx = require('docx-preview');
 const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
 const mammoth = require('mammoth');
