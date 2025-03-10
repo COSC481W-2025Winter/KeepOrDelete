@@ -1,21 +1,91 @@
 window.onload = async function () {
+    // Get references to the kept and deleted files 
     const keptFilesList = document.getElementById("keptFilesList");
     const deletedFilesList = document.getElementById("deletedFilesList");
 
-    const keptFiles = JSON.parse(localStorage.getItem("keptFiles")) || [];
-    const deletedFiles = JSON.parse(localStorage.getItem("deletedFiles")) || [];
+    let keptFiles = JSON.parse(localStorage.getItem("keptFiles")) || [];
+    let deletedFiles = JSON.parse(localStorage.getItem("deletedFiles")) || [];
+
+    // Remove duplicate file entries
+    keptFiles = [...new Set(keptFiles)];
 
     if (keptFiles.length === 0) {
         keptFilesList.innerHTML = "<p>No kept files.</p>";
     } else {
+        // Loop through each kept file and create a renameable input field
         keptFiles.forEach(file => {
+            const fileName = window.file.pathBasename(file); // Extract full filename
+
             const listItem = document.createElement("li");
-            listItem.innerHTML = `
-                ${file} 
-                <input type="text" placeholder="Rename file" data-oldname="${file}">
-                <button class="renameBtn">Rename</button>
-            `;
+            const renameInput = document.createElement("input");
+
+            renameInput.type = "text";
+            renameInput.value = fileName; // Display full name, including extension
+            renameInput.classList.add("rename-input");
+            renameInput.dataset.oldname = file; // Store full path for renaming
+
+            listItem.appendChild(renameInput);
             keptFilesList.appendChild(listItem);
+
+            // Enable renaming on Enter key press
+            renameInput.addEventListener("keypress", async function (event) {
+                if (event.key === "Enter") {
+                    let newName = renameInput.value.trim();
+                    const oldName = renameInput.dataset.oldname;
+
+                    if (!newName || newName === fileName) return;
+                    renameInput.blur(); // Remove focus if no change
+
+                    // Extract original extension
+                    const originalExtension = fileName.includes('.') ? fileName.split('.').pop() : '';
+                    const newExtension = newName.includes('.') ? newName.split('.').pop() : '';
+
+                    // Ensure the correct extension
+                    if (originalExtension && originalExtension !== newExtension) {
+                        newName = `${newName}.${originalExtension}`;
+                    }
+
+                    const directoryPath = window.file.pathDirname(oldName);
+                    const newFilePath = window.file.pathJoin(directoryPath, newName);
+
+                    try {
+                        const allFilePaths = await window.file.getFilesInDirectory();
+                        const allFileNames = allFilePaths.map(filePath => window.file.pathBasename(filePath));
+
+                        if (allFileNames.includes(newName)) {
+                            await window.file.showMessageBox({
+                                type: "error",
+                                title: "Error",
+                                message: "A file named " + newName + " already exists."
+                            });
+                            renameInput.value = fileName; // Reset input
+                            renameInput.blur(); // Remove focus
+                            return;
+                        }
+
+                        //Rename the file
+                        const response = await window.file.renameFile(oldName, newFilePath);
+                        if (response.success) {
+                            renameInput.dataset.oldname = newFilePath; // Update stored path
+                            renameInput.value = newName; //Display new file name
+                            renameInput.blur(); // Remove focus after renaming
+                        } else {
+                            await window.file.showMessageBox({
+                                type: "error",
+                                title: "Error",
+                                message: "Error renaming file: " + error.message
+                            });
+                        }
+                    } catch (error) {
+                        console.error("Error renaming file:", error);
+                        await window.file.showMessageBox({
+                            type: "error",
+                            title: "Error",
+                            message: "An error occured: " + error.message
+                        });
+                    }
+                }
+            });
         });
     }
 
@@ -29,30 +99,14 @@ window.onload = async function () {
         });
     }
 
-    /*
-    document.querySelectorAll(".renameBtn").forEach(button => {
-        button.addEventListener("click", async () => {
-            const inputField = button.previousElementSibling;
-            const oldName = inputField.getAttribute("data-oldname");
-            const newName = inputField.value.trim();
-
-            if (newName) {
-                const response = await window.file.renameFile(oldName, newName);
-                if (response.success) {
-                    alert(`Renamed to ${newName}`);
-                } else {
-                    alert("Rename failed.");
-                }
-            } else {
-                alert("Invalid name.");
-            }
-        });
+    //Back button functionality
+    document.getElementById("backButton").addEventListener("click", () => {
+        window.location.href = "./breadNbutter/keep_or_delete.html";
     });
-    */
 
     document.getElementById("finalizeButton").addEventListener("click", async () => {
-        localStorage.clear(); //clears stored session data
-        window.file.quitApp(); //calls the function to quit the app
+        localStorage.clear(); // Clears stored session data
+        window.file.quitApp(); // Calls the function to quit the app
     });
     
 };

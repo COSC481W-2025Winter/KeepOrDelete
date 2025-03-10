@@ -100,3 +100,91 @@ code {
    line-height: 300px;
    margin: auto;
 }
+
+.final-page .rename-input {
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  text-align: left;
+  width: 100%;
+  outline: none;
+}
+
+.final-page .rename-input:hover {
+  background: #f0f0f0;
+  cursor: text;
+}
+
+/* Two-column layout for kept and deleted files */
+.file-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 80%;
+  margin: auto;
+}
+
+/* Kept files (left side) */
+.kept-files {
+  flex: 1;
+  text-align: left;
+  max-width: 45%;
+}
+
+/* Deleted files (right side) */
+.deleted-files {
+  flex: 1;
+  text-align: left;
+  max-width: 45%;
+}
+
+/* Remove bullet points */
+#keptFilesList, #deletedFilesList {
+  list-style-type: none;
+  padding: 0;
+}
+
+/* Rename input styling */
+.rename-input {
+  border: 1px solid transparent; /* Initially transparent */
+  background: #fafafa;
+  font-size: 1rem;
+  text-align: left;
+  width: 100%;
+  outline: none;
+  padding: 5px;
+  margin-bottom: 5px;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.rename-input:hover {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  cursor: text;
+}
+
+/* When focused (clicked), emphasize it */
+.rename-input:focus {
+  background: white;
+  border: 1px solid #007bff;
+  box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Button Styling */
+#finalizeButton {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#finalizeButton:hover {
+  background-color: #0056b3;
+}
