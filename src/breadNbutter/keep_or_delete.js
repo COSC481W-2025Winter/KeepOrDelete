@@ -71,12 +71,13 @@ window.onload = async function () {
                     newArr.push(file);
                 }
                 files = newArr; // Update files array
+                currentIndex = 0;
                 // When deleting final file, display second to last file.
-                if (currentIndex == files.length) {
+                /*if (currentIndex == files.length) {
                     currentIndex--;
                 } else {
                     currentIndex++;
-                }
+                }*/
                 displayCurrentFile();
             }
         } catch (error) {

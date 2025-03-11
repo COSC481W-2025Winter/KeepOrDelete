@@ -10,7 +10,7 @@ window.onload = async function () {
         keptFiles.forEach(file => {
             //this block ensures we dont get duplicates and we only display files, if they don't exist in the other array
             let filecheck = false;
-            for (let i = 0; i < deletedFiles.length; i++) {
+            for (let i = 0; i < deletedFiles.length; i++) { //since deletedFiles IS correct, we base our keptFiles off them not existing in deleted
                 if (deletedFiles[i] === file) {
                     filecheck = true;
                 }
