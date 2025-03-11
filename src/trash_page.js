@@ -13,7 +13,7 @@ window.onload = async function () {
             listItem.innerText = file;
             const deleteButton = document.createElement("button");
             deleteButton.innerText = "Undo";
-            deleteButton.id = "deleteUndo";
+            deleteButton.classList.add("deleteUndo");
             deleteButton.dataset.file = file;
             listItem.appendChild(deleteButton);
             deletedFilesList.appendChild(listItem);
@@ -34,12 +34,16 @@ window.onload = async function () {
                     <button class="renameBtn">Rename</button>
                 `;
                 //keptFilesList.appendChild(newListItem);
+                if (deletedFiles.length === 0) {
+                    deletedFilesList.innerHTML = "<p>No deleted files.</p>";
+                }
                 console.log(keptFiles[keptFiles.length - 1]); //debugging, checks that it got added to array
             });
         });
     }
 };
 document.getElementById("navMainMenu").onclick = function () {
-    localStorage.clear(); //clears stored session data
+    //localStorage.clear(); //clears stored session data
+
     window.location.href = "./breadNbutter/keep_or_delete.html"
 }

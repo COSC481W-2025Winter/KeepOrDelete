@@ -47,35 +47,6 @@ window.onload = async function () {
         window.location.href = "../main_menu.html";
     });
 
-    //THIS MOVES TO FINAL PAGE, WHEN HITTING A DELETE ALL BUTTON TO CONFIRM, filesToBeDeleted should be sent over
-    /*
-    document.getElementById("deleteAll").addEventListener("click", async () => {
-        for (let i = 0; i < filesToBeDeleted.length; i++) {
-            const result = await window.file.filesToBeDeleted[i]
-            if (!result.success) {
-                await window.file.showMessageBox({
-                    type: "error",
-                    title: "Error deleting file",
-                    message: result.message
-                });
-                console.log(`error deleting "${filesToBeDeleted[i]}"`);
-                break;
-            }
-        }
-    });
-
-    document.getElementById("deleteExecute").addEventListener("click", async () => {
-        const filePath = files[currentIndex];
-        const result = await window.file.deleteFile(filePath); //calls the preload.js and invokes method that is contained in context
-        if (!result.success) {
-            await window.file.showMessageBox({
-                type: "error",
-                title: "Error deleting file",
-                message: result.message
-            });
-        }
-    });
-*/
 
     document.getElementById("deleteButton").addEventListener("click", async () => { //gets the html element containing the button for delete
         const filePath = files[currentIndex];

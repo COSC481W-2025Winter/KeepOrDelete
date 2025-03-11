@@ -58,15 +58,44 @@ test("will delete common file types", async ({ page }) => {
         expect(fileExists).toBe(true); //iterate through array, stat sees if they exist
     }
     //loop for going through files and deleting each
-    for (let index of testFiles) {
-        await window.waitForTimeout(100);
-        await window.locator("#deleteButton").click(); //click delete
-        await window.waitForTimeout(100); //wait to ensure it completes
-        const fileExists = await fs.stat(testFiles[testFiles.indexOf(index)]).then(() => true).catch(() => false);
-        expect(fileExists).toBe(false); //same thing as last test, but ensure it is FALSE now
-        await window.locator("#nextButton").click(); //next file
-        //await window.waitForTimeout(100);
-    }
+
+    await window.waitForTimeout(100);
+    await window.locator("#deleteButton").click(); //click delete
+    await window.waitForTimeout(300); //wait to ensure it completes
+    await window.locator("#deleteButton").click();
+    await window.waitForTimeout(300);
+    await window.locator("#trash_button").click();
+
+    let ul = await window.locator("ul"); // Adjust the locator if necessary to target the right <ul>
+    let ulText = await ul.innerHTML();
+    expect(ulText).not.toContain("No deleted files.");
+    const undoButtonLocator = window.locator(".deleteUndo"); // Use class to target multiple undo buttons
+    await undoButtonLocator.first().waitFor();
+    await undoButtonLocator.first().click(); // Click the first undo button
+    await window.waitForTimeout(300);
+    await undoButtonLocator.first().click(); // Click the first undo button
+    await window.waitForTimeout(300);
+    const deletedFilesList = await window.locator("#deletedFilesList");
+    await deletedFilesList.waitFor(); // Ensure the deleted files list is available
+    ulText = await deletedFilesList.innerHTML();
+    expect(ulText).toContain("No deleted files.");
+    await window.locator("#navMainMenu").click();
+    await window.waitForTimeout(300);
+    await window.locator("#nextButton").click();
+    await window.waitForTimeout(200);
+    await window.locator("#deleteButton").click(); //click delete
+    await window.waitForTimeout(300);
+    await window.locator("#finalPageButton").click();
+    ul = await window.locator("#keptFilesList");
+    ulText = await ul.innerHTML();
+    expect(ulText).not.toContain("No kept files.");
+    ul = await window.locator("#deletedFilesList");
+    ulText = await ul.innerHTML();
+    expect(ulText).not.toContain("No deleted files.")
+    //const fileExists = await fs.stat(testFiles[testFiles.indexOf(index)]).then(() => true).catch(() => false);
+    //expect(fileExists).toBe(false); //same thing as last test, but ensure it is FALSE now
+    //await window.waitForTimeout(100);
+
 });
 
 
