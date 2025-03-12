@@ -1,13 +1,16 @@
 //const path = require("node:path");
 //const fs = require("fs");
 
+
 window.onload = async function () {
     let files = [];
     let currentIndex = 0;
     const previewContainer = document.getElementById("previewContainer");
     let inspectMode = false;
     let keptFiles = [];
-    let filesToBeDeleted = []; //global array of files waiting to be deleted --the chopping block
+    let filesToBeDeleted = [];
+
+ //global array of files waiting to be deleted --the chopping block
     //this array is going to need to be sent over to another js page that can store the real delete function, move
     //this delete function will just populate the array and the next one will execute the node trash removal
 
@@ -80,6 +83,7 @@ window.onload = async function () {
             return;
         }
         try {
+            const filePath = files[currentIndex];
             //now this function just updates are of files and removes file to be deleted, and adds it to the array that
             //is waiting to be deleted
             filesToBeDeleted.push(filePath); //add the file to the array that is waiting to be deleted
