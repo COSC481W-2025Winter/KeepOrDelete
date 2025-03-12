@@ -167,3 +167,7 @@ app.on("window-all-closed", () => {
 ipcMain.handle('show-message-box', async (event, options) => {
    return dialog.showMessageBox(mainWindow, options);
 });
+
+ipcMain.on('quit-app', () => {
+   app.quit(); //this will close the entire Electron app
+});

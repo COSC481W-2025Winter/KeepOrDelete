@@ -4,6 +4,8 @@
 window.onload = async function () {
     let files = [];
     let currentIndex = 0;
+    let keptFiles = [];
+    let deletedFiles = [];
     const previewContainer = document.getElementById("previewContainer");
     let inspectMode = false;
 
@@ -124,10 +126,16 @@ window.onload = async function () {
         resetPreviewPosition();
     };
 
+    // Go through files in directory +1
+    document.getElementById("nextButton").addEventListener("click", async () => {
+        nextFile();
+    });
+
     // Next file function (aka Keep)
     function nextFile() {
         if (files.length > 0 && currentIndex < files.length - 1) {
             currentIndex++;
+            keepCurrentFile(currentIndex - 1);
             displayCurrentFile();
         } else {
             window.file.showMessageBox({
@@ -135,8 +143,9 @@ window.onload = async function () {
                 title: "No Next File",
                 message: "No more files in selected Directory"
             });
-            resetPreviewPosition();
-        }
+          keepCurrentFile(currentIndex);
+          resetPreviewPosition();
+       }
     }
 
     document.getElementById('renameButton').addEventListener('click', async (event) => {
@@ -333,6 +342,22 @@ window.onload = async function () {
             resetPreviewPosition();
         }
     }
+
+    //track Kept Files
+    function keepCurrentFile(index) {
+        if (files.length > 0) {
+            const currentFile = files[index];
+            if (!keptFiles.includes(currentFile)) {
+                keptFiles.push(currentFile);
+            }
+        }
+    }
+
+    //button to go to the final page
+    document.getElementById("finalPageButton").addEventListener("click", () => {
+        localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
+        localStorage.setItem("deletedFiles", JSON.stringify(deletedFiles));
+        window.location.href = "../final_page.html";
 
     // Mouse event listeners for swipe
     previewContainer.addEventListener("mousedown", (e) => {
