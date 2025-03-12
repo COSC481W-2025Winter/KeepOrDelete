@@ -16,7 +16,7 @@ window.onload = async function () {
             // Fetch files in the directory
             files = await window.file.getFilesInDirectory();
             removedFileTypes = new Set (await window.file.getRemovedFileTypes());
-            console.log(removedFileTypes);
+            console.log("Removed file types: " + removedFileTypes);
 
             // Keep only files not in removedFileTypes
             files = files.filter(file => {
