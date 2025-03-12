@@ -17,6 +17,14 @@ window.onload = async function () {
         if (dirPath) {
             // Fetch files in the directory
             files = await window.file.getFilesInDirectory();
+            removedFileTypes = new Set (await window.file.getRemovedFileTypes());
+            console.log("Removed file types: " + removedFileTypes);
+
+            // Keep only files not in removedFileTypes
+            files = files.filter(file => {
+                const fileType = file.split(".").pop(); 
+                return !removedFileTypes.has(fileType); 
+            });
         }
 
         if (files.length > 0) {
@@ -26,7 +34,7 @@ window.onload = async function () {
         }
 
     } catch (error) {
-        console.error("Failed to fetch directory path or files:", error);
+        console.error(error);
     }
 
     function showNotification(message) {

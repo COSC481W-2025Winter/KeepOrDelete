@@ -128,3 +128,17 @@ code {
 .swipeIcon.show {
   opacity: 1;
 }
+
+
+/* settings styling */
+.settings {
+  display: flex;
+  justify-content: space-between;
+}
+.settings-row {
+  flex: 1;
+  padding: 10px;
+}
+.settings-row h3 {
+  text-align: center;
+}
