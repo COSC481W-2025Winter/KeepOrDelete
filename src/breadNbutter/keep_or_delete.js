@@ -32,7 +32,7 @@ window.onload = async function () {
         }
 
     } catch (error) {
-        console.error("Failed to fetch directory path or files:", error);
+        console.error(error);
     }
 
     function showNotification(message) {
