@@ -127,7 +127,7 @@ test("Navigate to KeepOrDelete page", async () => {
    }
 });
 
-test("Swiping on KeepOrDelete page", async () => {
+test("Swipe to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
 
    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
