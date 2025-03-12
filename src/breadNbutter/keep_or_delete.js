@@ -72,6 +72,7 @@ window.onload = async function () {
                 }
                 files = newArr; // Update files array
                 currentIndex = 0;
+                //code below doesnt work
                 // When deleting final file, display second to last file.
                 /*if (currentIndex == files.length) {
                     currentIndex--;
@@ -90,6 +91,7 @@ window.onload = async function () {
         }
     });
 
+    //!!!!!!!my resolution is that we do the same logic as delete making a new array since this is a one way traversal
     //go through files in directory +1
     document.getElementById("nextButton").addEventListener("click", async () => {
         if (files.length > 0) {
