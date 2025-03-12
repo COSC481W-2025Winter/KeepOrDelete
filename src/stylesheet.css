@@ -100,3 +100,18 @@ code {
    line-height: 300px;
    margin: auto;
 }
+
+
+
+/* settings styling */
+.settings {
+  display: flex;
+  justify-content: space-between;
+}
+.settings-row {
+  flex: 1;
+  padding: 10px;
+}
+.settings-row h3 {
+  text-align: center;
+}
