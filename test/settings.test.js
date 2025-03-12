@@ -30,21 +30,27 @@ test('Settings page selectables are checked', async () => {
     
     await window.click('#settings');
 
+    //get status of check boxes bofore clicking 
+    const txtCheckedBefore = await window.evaluate(() => document.getElementById('txt').checked);
+    const pdfCheckedBefore = await window.evaluate(() => document.getElementById('pdf').checked);
+    const mp4CheckedBefore = await window.evaluate(() => document.getElementById('mp4').checked);
+    const javaCheckedBefore = await window.evaluate(() => document.getElementById('java').checked);
+
     //Clicking all checkboxes
-    await window.click('#text_file');
-    await window.click('#docx_file');
-    await window.click('#image_file');
-    await window.click('#html_file');
+    await window.click('#txt');
+    await window.click('#pdf');
+    await window.click('#mp4');
+    await window.click('#java');
 
     //Checking if checkboxes are checked
-    const txtChecked = await window.evaluate(() => document.getElementById('text_file').checked);
-    await expect(txtChecked).toBe(true);
-    const docxChecked = await window.evaluate(() => document.getElementById('docx_file').checked);
-    await expect(docxChecked).toBe(true);
-    const imgChecked = await window.evaluate(() => document.getElementById('image_file').checked);
-    await expect(imgChecked).toBe(true);
-    const htmlChecked = await window.evaluate(() => document.getElementById('html_file').checked);
-    await expect(htmlChecked).toBe(true);
+    const txtChecked = await window.evaluate(() => document.getElementById('txt').checked);
+    await expect(txtChecked).toEqual(txtCheckedBefore).toBe(false);
+    const pdfChecked = await window.evaluate(() => document.getElementById('pdf').checked);
+    await expect(pdfChecked).toBe(true);
+    const mp4Checked = await window.evaluate(() => document.getElementById('mp4').checked);
+    await expect(mp4Checked).toBe(true);
+    const javaChecked = await window.evaluate(() => document.getElementById('java').checked);
+    await expect(javaChecked).toBe(true);
     
     // Vice versa
     await window.click('#text_file');
