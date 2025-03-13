@@ -1,4 +1,8 @@
 /* General page styling */
+html, body {
+  overflow: hidden;
+}
+
 body {
   position: relative;
   margin: 0;
@@ -75,9 +79,15 @@ code {
 }
 
 #previewContainer {
+   user-select: none;
    font-size: 1rem;
    width: 500px;
    height: 300px;
+}
+
+#previewContainer * {
+   width: inherit;
+   height: inherit;
 }
 
 .txtPreview {
@@ -87,11 +97,20 @@ code {
    font-family: monospace;
    border-radius: 10px;
    text-align: left;
-   height: inherit;
+   user-select: none;
+}
+
+.pdfPreview iframe {
+  pointer-events: none;
 }
 
 .txtPreview * {
    margin: 8px;
+}
+
+.imgPreview img {
+   width: auto !important; /* Maintain aspect ratio. */
+   pointer-events: none /* Dragging images conflicts with swiping. */
 }
 
 .unsupportedPreview {
@@ -99,6 +118,128 @@ code {
    color: #777777;
    line-height: 300px;
    margin: auto;
+}
+
+.docxPreview {
+   overflow: scroll;
+   background-color: white;
+   text-align: left;
+}
+
+.final-page .rename-input {
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  text-align: left;
+  width: 100%;
+  outline: none;
+}
+
+.final-page .rename-input:hover {
+  background: #f0f0f0;
+  cursor: text;
+}
+
+/* Two-column layout for kept and deleted files */
+.file-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 80%;
+  margin: auto;
+}
+
+/* Kept files (left side) */
+.kept-files {
+  flex: 1;
+  text-align: left;
+  max-width: 45%;
+}
+
+/* Deleted files (right side) */
+.deleted-files {
+  flex: 1;
+  text-align: left;
+  max-width: 45%;
+}
+
+/* Remove bullet points */
+#keptFilesList, #deletedFilesList {
+  list-style-type: none;
+  padding: 0;
+}
+
+/* Rename input styling */
+.rename-input {
+  border: 1px solid transparent; /* Initially transparent */
+  background: #fafafa;
+  font-size: 1rem;
+  text-align: left;
+  width: 100%;
+  outline: none;
+  padding: 5px;
+  margin-bottom: 5px;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.rename-input:hover {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  cursor: text;
+}
+
+/* When focused (clicked), emphasize it */
+.rename-input:focus {
+  background: white;
+  border: 1px solid #007bff;
+  box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Button Styling */
+#finalizeButton {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#finalizeButton:hover {
+  background-color: #0056b3;
+}
+
+.swipeIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10rem;
+  opacity: 0;
+  transition: opacity 0.25s ease-out;
+}
+
+.swipeIcon.show {
+  opacity: 1;
+}
+
+
+/* settings styling */
+.settings {
+  display: flex;
+  justify-content: space-between;
+}
+.settings-row {
+  flex: 1;
+  padding: 10px;
+}
+.settings-row h3 {
+  text-align: center;
 }
 
 .popup {

@@ -43,8 +43,12 @@
   "dependencies": {
     "dotenv": "^16.4.7",
     "electron-squirrel-startup": "^1.0.1",
+    "html-to-pdfmake": "^2.5.23",
+    "jsdom": "^26.0.0",
+    "mammoth": "^1.9.0",
     "mime": "^3.0.0",
     "openai": "^4.85.4",
+    "pdfmake": "^0.2.18",
     "playwright": "^1.50.1"
   },
   "keywords": [],
