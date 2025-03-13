@@ -231,7 +231,6 @@ window.onload = async function () {
    }
 
     async function refreshPreview() {
-        var container = document.getElementById("previewContainer");
         if (files.length == 0) {
             previewContainer.innerHTML = "";
             return;
@@ -240,9 +239,21 @@ window.onload = async function () {
         const filename = files[currentIndex];
         const mimeType = window.file.getMimeType(filename);
 
+        // Declaring this function here so I can short circuit on null
+        // mime type AND use it as a fallback on unsupported mime type.
+        const displayUnsupported = function () {
+           previewContainer.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
+        };
+
         console.log(`${filename} has MIME type ${mimeType}.`);
 
-        if (mimeType != null && mimeType.startsWith("text/")) {
+        // Handle null MIME so we don't have to check for it later.
+        if (mimeType == null) {
+           displayUnsupported();
+           return;
+        }
+
+        if (mimeType.startsWith("text/")) {
             var fileContents = window.file.getFileContents(filename).replaceAll("<", "&lt;");
 
             // Escape HTML tags so they aren't interpreted as actual HTML.
@@ -251,10 +262,12 @@ window.onload = async function () {
             // <pre> tag displays preformatted text. Displays all whitespace chars.
             previewContainer.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
         } else if (mimeType != null && mimeType == "application/pdf") {
-            container.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${filename}#toolbar=0"></iframe></div>`;
+            previewContainer.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${filename}#toolbar=0"></iframe></div>`;
         } else if (filename.includes("docx")) {
             const pdfPath = await window.file.convertDocxToPdf(filename);
-            container.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${pdfPath}#toolbar=0"></iframe></div>`;
+            previewContainer.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${pdfPath}#toolbar=0"></iframe></div>`;
+        } else if (mimeType.startsWith("image/")) {
+            previewContainer.innerHTML = `<div class="imgPreview"><img src="${filename}" /></div>`;
         } else {
             previewContainer.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
         }
