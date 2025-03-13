@@ -358,7 +358,7 @@ window.onload = async function () {
         localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
         localStorage.setItem("deletedFiles", JSON.stringify(deletedFiles));
         window.location.href = "../final_page.html";
-
+    });
     // Mouse event listeners for swipe
     previewContainer.addEventListener("mousedown", (e) => {
         startSwipe(e);
@@ -392,4 +392,4 @@ window.onload = async function () {
         document.getElementById("inspectButton").innerText = inspectMode ? "Exit Inspect" : "Inspect Document";
     });
     
-};
+ };
