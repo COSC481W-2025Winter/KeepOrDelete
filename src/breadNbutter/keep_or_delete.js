@@ -270,7 +270,7 @@ window.onload = async function () {
         } else if (mimeType.startsWith("image/")) {
             previewContainer.innerHTML = `<div class="imgPreview"><img data-testid="img-element" src="${filename}" alt="Image failed to load." /></div>`;
         } else if (mimeType.startsWith("video/")) {
-            previewContainer.innerHTML = `<div class="videoPreview"><video controls autoplay muted disablepictureinpicture><source data-testid="video-source" src="${filename}" alt="Video failed to load." /></video></div>`;
+            previewContainer.innerHTML = `<div class="videoPreview"><video controls autoplay muted disablepictureinpicture><source data-testid="video-src" src="${filename}" alt="Video failed to load." /></video></div>`;
         } else {
             previewContainer.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
         }
