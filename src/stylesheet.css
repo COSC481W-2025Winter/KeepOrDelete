@@ -108,8 +108,9 @@ code {
    margin: 8px;
 }
 
-.imgPreview, .imgPreview img {
-   height: inherit;
+.imgPreview img {
+   width: auto !important; /* Maintain aspect ratio. */
+   pointer-events: none /* Dragging images conflicts with swiping. */
 }
 
 .unsupportedPreview {
