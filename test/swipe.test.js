@@ -25,7 +25,7 @@ test.beforeEach(async () => {
    cleanTestDir();
 
    // Create temporary directory.
-   fs.mkdir(testDirPath, { recursive: true }, (err) => {
+   fs.mkdirSync(testDirPath, { recursive: true }, (err) => {
       if (err) throw err;
    });
 

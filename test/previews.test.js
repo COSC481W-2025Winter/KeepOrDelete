@@ -43,7 +43,7 @@ test.beforeAll(async () => {
    // Remove test directory if it exists.
    rmTestDir();
 
-   fs.mkdir(testDirPath, { recursive: true }, (err) => {
+   fs.mkdirSync(testDirPath, { recursive: true }, (err) => {
       if (err) throw err;
    });
 
