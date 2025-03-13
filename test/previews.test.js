@@ -1,5 +1,6 @@
 const { _electron: electron, test, expect } = require("@playwright/test");
 const path = require("path");
+const crypto = require("crypto");
 const fs = require("node:fs");
 const os = require("node:os");
 const mime = require("mime");
@@ -81,8 +82,16 @@ const noPreviewMsg = /no.*available/i
 async function setupWithTestFile(testFile) {
    window = await electronApp.firstWindow();
 
-   // Write the TestFile to the temporary directory.
-   fs.writeFileSync(testFile.path, testFile.contents)
+   // Write the input file to the temporary directory. Has two modes, dependent on the input:
+   // (1) TestFile instance. Write it to the test directory.
+   // (2) Path to an existing file. Copy it to the test directory.
+   if (testFile instanceof TestFile) {
+      fs.writeFileSync(testFile.path, testFile.contents)
+   } else {
+      await fs.copyFile(testFile, path.join(testDirPath, path.basename(testFile)), (err) => {
+         if (err) throw err;
+      })
+   }
 
    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
 
@@ -118,6 +127,29 @@ test("Preview `.csv`", async () => {
    expect(preview).toEqual(f.contents);
 })
 
+test("Preview `.pdf`", async () => {
+   const srcPath = path.join("test", "res", "small.pdf");
+   await setupWithTestFile(srcPath);
+
+   const srcContents = fs.readFileSync(srcPath, (err) => {
+      if (err) throw err;
+   })
+
+   const srcHash = crypto.createHash("md5").update(srcContents).digest("hex");
+
+   const preview = await window.locator("#previewContainer").innerText();
+
+   const previewPdfPath = await window.getByTestId("pdf-iframe").getAttribute("src");
+
+   const previewPdfContents = fs.readFileSync(previewPdfPath, (err) => {
+      if (err) throw err;
+   })
+
+   const previewHash = crypto.createHash("md5").update(previewPdfContents).digest("hex");
+
+   expect(srcHash).toEqual(previewHash);
+})
+
 test("Preview `.frog` (unsupported)", async () => {
    const f = new TestFile("tree.frog", "Frog file contents ribbit", "utf8");
    await setupWithTestFile(f);
@@ -126,48 +158,3 @@ test("Preview `.frog` (unsupported)", async () => {
 
    expect(preview).toMatch(noPreviewMsg);
 })
-
-/**
-test("Navigate to KeepOrDelete page", async () => {
-   let previousPath = null;
-
-   for (let i = 0; i < 3; i++) {
-      const path = await window.locator("#currentItem").innerText();
-
-      // Mime library doesn't like some paths. Just serve it the basename
-      const basename = require("node:path").basename(path);
-
-      const mimeType = mime.getType(basename);
-
-      console.log(`path=${path}`);
-      console.log(`mimeType=${mimeType}`);
-
-      const preview = await window.locator("#previewContainer").innerText();
-
-      console.log(`preview=${preview}`);
-
-      // Freak out if the file path didn't change.
-      if (previousPath != null && path == previousPath) {
-         expect(false).toBe(true);
-      }
-
-      previousPath = path;
-
-      if (mimeType.startsWith("text")) {
-         // Fetch this file's contents from the array.
-         const expectedPreview = testFiles.find((tf) => tf.basename == basename).contents
-
-         console.log(`Expected preview: ${expectedPreview}`)
-
-         // Expect this file's contents to be visible on screen.
-         expect(preview).toEqual(expectedPreview)
-      } else {
-         // Some text like "no preview available for this filetype".
-         expect(preview).toMatch()
-      }
-
-      // Cycle to next file.
-      await window.click("#nextButton");
-   }
-});
-*/

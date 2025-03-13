@@ -250,10 +250,10 @@ window.onload = async function () {
             // <pre> tag displays preformatted text. Displays all whitespace chars.
             container.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
         } else if (mimeType != null && mimeType == "application/pdf") {
-            container.innerHTML = `<div class="pdfPreview"><iframe src="${filename}"></iframe></div>`;
+            container.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${filename}"></iframe></div>`;
         } else if (filename.includes("docx")) {
             const pdfPath = await window.file.convertDocxToPdf(filename);
-            container.innerHTML = `<div class="pdfPreview"><iframe src="${pdfPath}"></iframe></div>`;
+            container.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${pdfPath}"></iframe></div>`;
         } else {
             container.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
         }
