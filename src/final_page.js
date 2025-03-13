@@ -36,6 +36,13 @@ window.onload = async function () {
                     if (!newName || newName === fileName) return;
                     renameInput.blur(); // Remove focus if no change
 
+                    // Check for illegal characters and warn the user
+                    if (containsIllegalCharacters(newName)) {
+                        showNotification('⚠️ File name contains illegal characters. Avoid using \\ / : * ? " < > | on Windows, and / or : on macOS/Linux.', 'error');
+                        renameInput.value = fileName; // Reset input
+                        return;
+                    }
+
                     // Extract original extension
                     const originalExtension = fileName.includes('.') ? fileName.split('.').pop() : '';
                     const newExtension = newName.includes('.') ? newName.split('.').pop() : '';
@@ -87,6 +94,34 @@ window.onload = async function () {
                 }
             });
         });
+    }
+
+    function containsIllegalCharacters(name) {
+        const illegalWindows = /[\/\\:*?"<>|]/;
+        const illegalMacLinux = /\//;
+        const illegalMac = /:/;
+    
+        const platform = window.file.platform; // Get platform from preload.js
+    
+        const isWindows = platform === 'win32';
+        const isMac = platform === 'darwin';
+    
+        if (isWindows && illegalWindows.test(name)) return true;
+        if (isMac && (illegalMacLinux.test(name) || illegalMac.test(name))) return true;
+        if (!isWindows && !isMac && illegalMacLinux.test(name)) return true;
+    
+        return false;
+    }
+
+    function showNotification(message) {
+        const notification = document.getElementById('notification');
+        notification.innerText = message;
+        notification.style.display = 'block';
+
+        // Hide the message after 3 seconds
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
     }
 
     if (deletedFiles.length === 0) {

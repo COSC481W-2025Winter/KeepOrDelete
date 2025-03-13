@@ -232,10 +232,10 @@ window.onload = async function () {
         const illegalMacLinux = /\//;
         const illegalMac = /:/;
     
-        const platform = navigator.platform.toLowerCase();
+        const platform = window.file.platform; // Get platform from preload.js
     
-        const isWindows = platform.includes('win');
-        const isMac = platform.includes('mac');
+        const isWindows = platform === 'win32';
+        const isMac = platform === 'darwin';
     
         if (isWindows && illegalWindows.test(name)) return true;
         if (isMac && (illegalMacLinux.test(name) || illegalMac.test(name))) return true;
