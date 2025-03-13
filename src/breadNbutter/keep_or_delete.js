@@ -163,6 +163,13 @@ window.onload = async function () {
             return;
         }
 
+        // Check for illegal characters and warn the user
+        if (containsIllegalCharacters(newName)) {
+            showNotification('⚠️ File name contains illegal characters. Avoid using \\ / : * ? " < > | on Windows, and / or : on macOS/Linux.', 'error');
+            resetRenameInput(renameContainer);
+            return;
+        }
+
         // Ensure the new name has the correct file extension
         const originalExtension = currentFile.substring(currentFile.lastIndexOf('.'));
         const finalName = newName.includes('.') ? newName : `${newName}${originalExtension}`;
@@ -223,6 +230,23 @@ window.onload = async function () {
         newRenameInput.addEventListener('focus', () => {
             console.log('Input refocused when user interacts.');
         });
+    }
+
+    function containsIllegalCharacters(name) {
+        const illegalWindows = /[\/\\:*?"<>|]/;
+        const illegalMacLinux = /\//;
+        const illegalMac = /:/;
+    
+        const platform = navigator.platform.toLowerCase();
+    
+        const isWindows = platform.includes('win');
+        const isMac = platform.includes('mac');
+    
+        if (isWindows && illegalWindows.test(name)) return true;
+        if (isMac && (illegalMacLinux.test(name) || illegalMac.test(name))) return true;
+        if (!isWindows && !isMac && illegalMacLinux.test(name)) return true;
+    
+        return false;
     }
 
    function displayCurrentFile() {
