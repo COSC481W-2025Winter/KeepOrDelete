@@ -139,7 +139,9 @@ test("Preview `.pdf`", async () => {
 
    const preview = await window.locator("#previewContainer").innerText();
 
-   const previewPdfPath = await window.getByTestId("pdf-iframe").getAttribute("src");
+   let previewPdfPath = await window.getByTestId("pdf-iframe").getAttribute("src");
+   // Remove iframe configuration attribute(s) from the path.
+   previewPdfPath = previewPdfPath.replace("#toolbar=0", "");
 
    const previewPdfContents = fs.readFileSync(previewPdfPath, (err) => {
       if (err) throw err;
@@ -160,7 +162,9 @@ test("Preview `.docx`", async () => {
 
    const preview = await window.locator("#previewContainer").innerText();
 
-   const previewPdfPath = await window.getByTestId("pdf-iframe").getAttribute("src");
+   let previewPdfPath = await window.getByTestId("pdf-iframe").getAttribute("src");
+   // Remove iframe configuration attribute(s) from the path.
+   previewPdfPath = previewPdfPath.replace("#toolbar=0", "");
 
    // Word docs are currently converted to pdf for preview purposes.
    // The pdf is generated asynchronously, so wait for a little bit.

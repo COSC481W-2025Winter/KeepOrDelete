@@ -4,6 +4,10 @@
 window.onload = async function () {
     let files = [];
     let currentIndex = 0;
+    let keptFiles = [];
+    let deletedFiles = [];
+    const previewContainer = document.getElementById("previewContainer");
+    let inspectMode = false;
 
     try {
         // Fetch the selected directory path
@@ -15,6 +19,14 @@ window.onload = async function () {
         if (dirPath) {
             // Fetch files in the directory
             files = await window.file.getFilesInDirectory();
+            removedFileTypes = new Set (await window.file.getRemovedFileTypes());
+            console.log("Removed file types: " + removedFileTypes);
+
+            // Keep only files not in removedFileTypes
+            files = files.filter(file => {
+                const fileType = file.split(".").pop(); 
+                return !removedFileTypes.has(fileType); 
+            });
         }
 
         if (files.length > 0) {
@@ -24,7 +36,7 @@ window.onload = async function () {
         }
 
     } catch (error) {
-        console.error("Failed to fetch directory path or files:", error);
+        console.error(error);
     }
 
     function showNotification(message) {
@@ -43,8 +55,13 @@ window.onload = async function () {
         window.location.href = "../main_menu.html";
     });
 
-    document.getElementById("deleteButton").addEventListener("click", async () => { //gets the html element containing the button for delete
+    // Delete button press
+    document.getElementById("deleteButton").addEventListener("click", async () => {
+        deleteFile();
+    });
 
+    // Delete function
+    async function deleteFile() {
         // Don't attempt deletion if there are no [more] files.
         if (files.length == 0) {
             await window.file.showMessageBox({
@@ -52,7 +69,6 @@ window.onload = async function () {
                  title: "Error",
                  message: "No file(s) to delete."
             });
-
             return;
         }
 
@@ -102,41 +118,30 @@ window.onload = async function () {
                 message: "Error deleting file: " + error.message
             });
         }
-    });
+        resetPreviewPosition();
+    };
 
     // Go through files in directory +1
     document.getElementById("nextButton").addEventListener("click", async () => {
-        if (files.length > 0) {
-            if (currentIndex < files.length - 1) {
-                currentIndex = (currentIndex + 1);
-                displayCurrentFile();
-            }
-            else {
-                window.file.showMessageBox({
-                    type: "warning",
-                    title: "No Next File",
-                    message: "No more files in selected Directory"
-                });
-            }
-        }
+        nextFile();
     });
-    // Go through files in directory - 1
-    document.getElementById("prevButton").addEventListener("click", () => {
-        if (files.length > 0) {
-            if (currentIndex > 0) {
-                currentIndex = (currentIndex - 1);
-                displayCurrentFile();
-            }
-            else {
-                window.file.showMessageBox({
-                    type: "warning",
-                    title: "No Previous File",
-                    message: "No previous files in selected Directory"
-                });
-            }
-        }
 
-    });
+    // Next file function (aka Keep)
+    function nextFile() {
+        if (files.length > 0 && currentIndex < files.length - 1) {
+            currentIndex++;
+            keepCurrentFile(currentIndex - 1);
+            displayCurrentFile();
+        } else {
+            window.file.showMessageBox({
+                type: "warning",
+                title: "No Next File",
+                message: "No more files in selected Directory"
+            });
+          keepCurrentFile(currentIndex);
+          resetPreviewPosition();
+       }
+    }
 
     document.getElementById('renameButton').addEventListener('click', async (event) => {
         event.preventDefault();
@@ -216,27 +221,23 @@ window.onload = async function () {
     }
 
    function displayCurrentFile() {
-      // Preview fn handles its own array length conditions.
-      refreshPreview()
-
       if (currentIndex < 0 || currentIndex >= files.length) {
          document.getElementById("currentItem").innerText = "No files in queue.";
       } else {
          filename = files[currentIndex];
          document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
+         refreshPreview();
       }
    }
 
     async function refreshPreview() {
         var container = document.getElementById("previewContainer");
-
         if (files.length == 0) {
-            container.innerHTML = "";
+            previewContainer.innerHTML = "";
             return;
         }
 
         const filename = files[currentIndex];
-
         const mimeType = window.file.getMimeType(filename);
 
         console.log(`${filename} has MIME type ${mimeType}.`);
@@ -248,14 +249,146 @@ window.onload = async function () {
             fileContents.replaceAll("<", "&lt;");
 
             // <pre> tag displays preformatted text. Displays all whitespace chars.
-            container.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
+            previewContainer.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
         } else if (mimeType != null && mimeType == "application/pdf") {
-            container.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${filename}"></iframe></div>`;
+            container.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${filename}#toolbar=0"></iframe></div>`;
         } else if (filename.includes("docx")) {
             const pdfPath = await window.file.convertDocxToPdf(filename);
-            container.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${pdfPath}"></iframe></div>`;
+            container.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${pdfPath}#toolbar=0"></iframe></div>`;
         } else {
-            container.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
+            previewContainer.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
+        }
+        resetPreviewPosition();
+    }
+
+
+    // Resets preview container position post swipe
+    function resetPreviewPosition() {
+        previewContainer.style.transition = "transform 0.2s ease-out";
+        previewContainer.style.transform = "translateX(0px) rotate(0deg)";
+        previewContainer.style.opacity = "1";
+    }
+
+    // Swipe animation handler
+    function animateSwipe(direction) {
+        const icon = document.createElement("div");
+        icon.classList.add("swipeIcon");
+        // Keep Icon
+        if (direction === "left") {
+            icon.innerHTML = "✅"; 
+            icon.style.color = "green";
+            translateX = "120%";
+            rotateDeg = "20deg";
+        // Delete Icon
+        } else {
+            icon.innerHTML = "🗑️"; 
+            icon.style.color = "red";
+            translateX = "-120%";
+            rotateDeg = "-20deg";
+        }
+        previewContainer.appendChild(icon); 
+        icon.classList.add("show");
+        
+        // Swipe animation
+        previewContainer.style.transition = "transform 0.25s ease-out, opacity 0.25s ease-out";
+        previewContainer.style.transform = `translateX(${translateX}) rotate(${rotateDeg})`;
+        previewContainer.style.opacity = "0";
+
+        // File handling will occurr after CSS animation
+        previewContainer.addEventListener("transitionend", function handleTransitionEnd() {
+            if (direction === "left") nextFile();
+            else deleteFile();
+            previewContainer.removeEventListener("transitionend", handleTransitionEnd);
+        });
+    }
+
+    // Detects when swipe is started
+    function startSwipe(e) {
+        // Prevent swiping in Inspect Mode
+        if (inspectMode) return; 
+        // Starting position
+        startX = e.clientX || e.touches[0].clientX;
+        currentX = startX;
+        // Track swiping state
+        isSwiping = true;
+        startTime = new Date().getTime();
+    }
+    
+    // Tracks swipe movement
+    function moveSwipe(e) {
+        if (!isSwiping) return;
+        // Get current position
+        currentX = e.clientX || e.touches[0].clientX;
+        // Calculate distance moved
+        let diffX = currentX - startX;
+        // Use distance moved to move the previewContainer
+        previewContainer.style.transform = `translateX(${diffX}px) rotate(${diffX / 15}deg)`;
+    }
+
+    function endSwipe(e) {
+        if (!isSwiping || inspectMode) return;
+        isSwiping = false;
+        // Get final distance swiped
+        let diffX = currentX - startX;
+        // Swipe duration
+        let timeTaken = new Date().getTime() - startTime;
+        // Swipe speed
+        let velocity = Math.abs(diffX) / timeTaken;
+        // Starts animation based on speed of swipe or distance swiped
+        if (Math.abs(diffX) > 50 || velocity > 0.6) {
+            animateSwipe(diffX < 0 ? "right" : "left");
+        } else {
+            resetPreviewPosition();
         }
     }
-};
+
+    //track Kept Files
+    function keepCurrentFile(index) {
+        if (files.length > 0) {
+            const currentFile = files[index];
+            if (!keptFiles.includes(currentFile)) {
+                keptFiles.push(currentFile);
+            }
+        }
+    }
+
+    //button to go to the final page
+    document.getElementById("finalPageButton").addEventListener("click", () => {
+        localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
+        localStorage.setItem("deletedFiles", JSON.stringify(deletedFiles));
+        window.location.href = "../final_page.html";
+    });
+    // Mouse event listeners for swipe
+    previewContainer.addEventListener("mousedown", (e) => {
+        startSwipe(e);
+        document.addEventListener("mousemove", moveSwipe);
+        document.addEventListener("mouseup", endSwipe);
+    });
+    // Touch event listeners for swipe
+    previewContainer.addEventListener("touchstart", (e) => {
+        startSwipe(e);
+        document.addEventListener("touchmove", moveSwipe);
+        document.addEventListener("touchend", endSwipe);
+    });
+
+    document.getElementById("inspectButton").addEventListener("click", () => {
+        const iframe = document.querySelector("#previewContainer iframe");
+        const textPreview = document.querySelector("#previewContainer pre");
+        // Toggle inspect mode state
+        inspectMode = !inspectMode; 
+    
+        if (iframe) {
+            // Toggle pointer-events for PDF(allows pdf interaction)
+            iframe.style.pointerEvents = inspectMode ? "auto" : "none";
+        }
+    
+        if (textPreview) {
+            // Toggle user-select for text files (allows highlighting)
+            textPreview.style.userSelect = inspectMode ? "text" : "none";
+        }
+    
+        // Update button text
+        document.getElementById("inspectButton").innerText = inspectMode ? "Exit Inspect" : "Inspect Document";
+    });
+    
+ };

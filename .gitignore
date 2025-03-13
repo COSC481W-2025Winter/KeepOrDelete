@@ -98,3 +98,6 @@ test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+#config
+src/config.json

@@ -56,4 +56,14 @@ contextBridge.exposeInMainWorld('file', {
 
       return pdfPath;
    },
+   removeFileType: (fileType) => ipcRenderer.invoke('removeFileType', fileType),
+   addFileType: (fileType) => ipcRenderer.invoke('addFileType', fileType),
+   getRemovedFileTypes: () => ipcRenderer.invoke("getRemovedFileTypes"),
+   quitApp: () => ipcRenderer.send('quit-app') //allow quitting the app
+});
+
+contextBridge.exposeInMainWorld('fileFinal', {
+   getKeptFiles: () => JSON.parse(localStorage.getItem("keptFiles")) || [],
+   getDeletedFiles: () => JSON.parse(localStorage.getItem("deletedFiles")) || [],
+   renameFile: (oldPath, newPath) => ipcRenderer.invoke('renameFile', { oldPath, newPath }),
 });
