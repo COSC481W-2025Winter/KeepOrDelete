@@ -2,7 +2,6 @@ const { _electron: electron, test, expect } = require("@playwright/test");
 const path = require("path");
 const fs = require("node:fs");
 const os = require("node:os");
-const mime = require("mime");
 
 let electronApp;
 let swapper;
@@ -94,7 +93,7 @@ test("Button press to keep on KeepOrDelete page", async () => {
    }
 });
 
-test("Arrow key press to keep on KeepOrDelete page", async () => {
+test("Touch swipe to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
 
    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
@@ -131,24 +130,28 @@ test("Arrow key press to keep on KeepOrDelete page", async () => {
       previousPath = path;
       if (swapper == 0) {
          const previewContainer = await window.locator("#previewContainer");
+         const box = await previewContainer.boundingBox();
          await previewContainer.hover();
-         await previewContainer.dragTo(await window.locator("#deleteButton"));
+         await window.mouse.down();
+         await window.mouse.move(box.x + 500, box.y);
+         await window.mouse.up();
          // Need timeout to account for animation!!
          await window.waitForTimeout(500);
          swapper++;
       }
       else{
          const previewContainer = await window.locator("#previewContainer");
+         const box = await previewContainer.boundingBox();
          await previewContainer.hover();
-         await previewContainer.dragTo(await window.locator("#finalPageButton"));
+         await window.mouse.down();
+         await window.mouse.move(box.x - 500, box.y);   
+         await window.mouse.up();
          // Need timeout to account for animation!!
          await window.waitForTimeout(500);
       }
-      // Cycle to next file.
-      
    }
 });
-test("Touch Swipe to keep on KeepOrDelete page", async () => {
+test("Arrow key Swipe to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
 
    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
