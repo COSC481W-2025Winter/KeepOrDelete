@@ -244,6 +244,29 @@ test("Preview `.mp4`", async () => {
    expect(srcHash).toEqual(previewHash);
 })
 
+test("Preview `.mov`", async () => {
+   const srcPath = path.join("test", "res", "small.mov");
+   await setupWithTestFile(srcPath);
+
+   const srcContents = fs.readFileSync(srcPath, (err) => {
+      if (err) throw err;
+   })
+
+   const srcHash = crypto.createHash("md5").update(srcContents).digest("hex");
+
+   const preview = await window.locator("#previewContainer").innerText();
+
+   const previewFilePath = await window.getByTestId("video-src").getAttribute("src");
+
+   const previewFileContents = fs.readFileSync(previewFilePath, (err) => {
+      if (err) throw err;
+   })
+
+   const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
+
+   expect(srcHash).toEqual(previewHash);
+})
+
 test("Preview `.frog` (unsupported)", async () => {
    const f = new TestFile("tree.frog", "Frog file contents ribbit", "utf8");
    await setupWithTestFile(f);
