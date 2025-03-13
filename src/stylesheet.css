@@ -126,6 +126,11 @@ code {
    text-align: left;
 }
 
+.videoPreview, .videoPreview video {
+   width: auto !important; /* Match width of controls with width of video. */
+   max-width: 100%; /* Remain within bounds of the preview container. */
+}
+
 .final-page .rename-input {
   border: none;
   background: transparent;

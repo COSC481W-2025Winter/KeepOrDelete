@@ -262,13 +262,15 @@ window.onload = async function () {
 
             // <pre> tag displays preformatted text. Displays all whitespace chars.
             previewContainer.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
-        } else if (mimeType != null && mimeType == "application/pdf") {
+        } else if (mimeType == "application/pdf") {
             previewContainer.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${filename}#toolbar=0"></iframe></div>`;
         } else if (filename.includes("docx")) {
             const pdfPath = await window.file.convertDocxToPdf(filename);
             previewContainer.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${pdfPath}#toolbar=0"></iframe></div>`;
         } else if (mimeType.startsWith("image/")) {
             previewContainer.innerHTML = `<div class="imgPreview"><img data-testid="img-element" src="${filename}" alt="Image failed to load." /></div>`;
+        } else if (mimeType.startsWith("video/")) {
+            previewContainer.innerHTML = `<div class="videoPreview"><video controls autoplay muted disablepictureinpicture><source data-testid="video-source" src="${filename}" alt="Video failed to load." /></video></div>`;
         } else {
             previewContainer.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
         }
