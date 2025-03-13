@@ -250,6 +250,7 @@ window.onload = async function () {
         // Handle null MIME so we don't have to check for it later.
         if (mimeType == null) {
            displayUnsupported();
+           resetPreviewPosition();
            return;
         }
 
