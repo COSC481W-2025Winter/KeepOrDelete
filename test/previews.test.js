@@ -164,7 +164,7 @@ test("Preview `.docx`", async () => {
 
    // Word docs are currently converted to pdf for preview purposes.
    // The pdf is generated asynchronously, so wait for a little bit.
-   await new Promise(r => setTimeout(r, 850 /* ms */));
+   await window.waitForTimeout(850)
 
    const previewFileExists = fs.existsSync(previewPdfPath);
 
