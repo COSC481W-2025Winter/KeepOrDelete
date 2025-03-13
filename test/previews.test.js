@@ -152,6 +152,52 @@ test("Preview `.pdf`", async () => {
    expect(srcHash).toEqual(previewHash);
 })
 
+test("Preview `.png`", async () => {
+   const srcPath = path.join("test", "res", "small.png");
+   await setupWithTestFile(srcPath);
+
+   const srcContents = fs.readFileSync(srcPath, (err) => {
+      if (err) throw err;
+   })
+
+   const srcHash = crypto.createHash("md5").update(srcContents).digest("hex");
+
+   const preview = await window.locator("#previewContainer").innerText();
+
+   let previewPath = await window.getByTestId("img-element").getAttribute("src");
+
+   const previewFileContents = fs.readFileSync(previewPath, (err) => {
+      if (err) throw err;
+   })
+
+   const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
+
+   expect(srcHash).toEqual(previewHash);
+})
+
+test("Preview `.jpg`", async () => {
+   const srcPath = path.join("test", "res", "small.jpg");
+   await setupWithTestFile(srcPath);
+
+   const srcContents = fs.readFileSync(srcPath, (err) => {
+      if (err) throw err;
+   })
+
+   const srcHash = crypto.createHash("md5").update(srcContents).digest("hex");
+
+   const preview = await window.locator("#previewContainer").innerText();
+
+   let previewPath = await window.getByTestId("img-element").getAttribute("src");
+
+   const previewFileContents = fs.readFileSync(previewPath, (err) => {
+      if (err) throw err;
+   })
+
+   const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
+
+   expect(srcHash).toEqual(previewHash);
+})
+
 test("Preview `.docx`", async () => {
    const srcPath = path.join("test", "res", "small.docx");
    await setupWithTestFile(srcPath);

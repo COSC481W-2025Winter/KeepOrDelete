@@ -108,6 +108,11 @@ code {
    margin: 8px;
 }
 
+.imgPreview img {
+   width: auto !important; /* Maintain aspect ratio. */
+   pointer-events: none /* Dragging images conflicts with swiping. */
+}
+
 .unsupportedPreview {
    text-align: center;
    color: #777777;
