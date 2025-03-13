@@ -311,7 +311,7 @@ window.onload = async function () {
 
         // File handling will occurr after CSS animation
         previewContainer.addEventListener("transitionend", function handleTransitionEnd() {
-            if (direction === "left") nextFile();
+            if (direction === "right") nextFile();
             else deleteFile();
             previewContainer.removeEventListener("transitionend", handleTransitionEnd);
         });
@@ -415,6 +415,39 @@ window.onload = async function () {
         }
     });
     
+    // Checks to see if user is a test agent
+    const isTesting = navigator.userAgent.includes("Playwright");
+    let tooltip;
 
-    
+    // Only runs if user is real
+    if (!isTesting) {
+        tooltip = document.getElementById("tooltip");
+        tooltip.classList.add("show");
+
+        // Dismiss tooltip on user input
+        document.addEventListener("mousedown", dismissTooltip);
+        document.addEventListener("keydown", dismissTooltip);
+        document.addEventListener("touchstart", dismissTooltip);
+
+        // WIGGLE IS THE MOST IMPORTANT PART OF THE PROJECT
+        triggerWiggle();
+        setInterval(triggerWiggle, 3000);
+    }
+
+    // Dismiss tooltip
+    function dismissTooltip() {
+        tooltip.classList.remove("show");
+        tooltip.classList.add("hide");
+
+        clearInterval(wiggleInterval);
+        setTimeout(() => tooltip.remove(), 400);
+    }
+
+    // WIGGLE WIGGLE WIGGLE
+    function triggerWiggle() {
+        if (!tooltip.classList.contains("wiggle")) {
+            tooltip.classList.add("wiggle");
+            setTimeout(() => tooltip.classList.remove("wiggle"), 500);
+        }
+    }
  };
