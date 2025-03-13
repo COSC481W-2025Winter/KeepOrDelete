@@ -57,7 +57,7 @@ window.onload = async function () {
 
     // Delete button press
     document.getElementById("deleteButton").addEventListener("click", async () => {
-        deleteFile();
+        animateSwipe("left");;
     });
 
     // Delete function
@@ -123,7 +123,7 @@ window.onload = async function () {
 
     // Go through files in directory +1
     document.getElementById("nextButton").addEventListener("click", async () => {
-        nextFile();
+        animateSwipe("right");
     });
 
     // Next file function (aka Keep)
@@ -289,16 +289,17 @@ window.onload = async function () {
         icon.classList.add("swipeIcon");
         // Keep Icon
         if (direction === "left") {
-            icon.innerHTML = "✅"; 
-            icon.style.color = "green";
-            translateX = "120%";
-            rotateDeg = "20deg";
-        // Delete Icon
-        } else {
             icon.innerHTML = "🗑️"; 
             icon.style.color = "red";
             translateX = "-120%";
             rotateDeg = "-20deg";
+        // Delete Icon
+        } else {
+            icon.innerHTML = "✅"; 
+            icon.style.color = "green";
+            translateX = "120%";
+            rotateDeg = "20deg";
+
         }
         previewContainer.appendChild(icon); 
         icon.classList.add("show");
@@ -350,7 +351,7 @@ window.onload = async function () {
         let velocity = Math.abs(diffX) / timeTaken;
         // Starts animation based on speed of swipe or distance swiped
         if (Math.abs(diffX) > 50 || velocity > 0.6) {
-            animateSwipe(diffX < 0 ? "right" : "left");
+            animateSwipe(diffX > 0 ? "right" : "left");
         } else {
             resetPreviewPosition();
         }
@@ -404,5 +405,16 @@ window.onload = async function () {
         // Update button text
         document.getElementById("inspectButton").innerText = inspectMode ? "Exit Inspect" : "Inspect Document";
     });
+
+    // Arrow key file swiping
+    document.addEventListener("keydown", async (e) => {
+        if (e.key === "ArrowRight") {
+            animateSwipe("right");
+        } else if (e.key === "ArrowLeft") {
+            animateSwipe("left");
+        }
+    });
+    
+
     
  };
