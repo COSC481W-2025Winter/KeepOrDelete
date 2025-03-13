@@ -150,6 +150,27 @@ test("Preview `.pdf`", async () => {
    expect(srcHash).toEqual(previewHash);
 })
 
+test("Preview `.docx`", async () => {
+   const srcPath = path.join("test", "res", "small.docx");
+   await setupWithTestFile(srcPath);
+
+   const srcContents = fs.readFileSync(srcPath, (err) => {
+      if (err) throw err;
+   })
+
+   const preview = await window.locator("#previewContainer").innerText();
+
+   const previewPdfPath = await window.getByTestId("pdf-iframe").getAttribute("src");
+
+   // Word docs are currently converted to pdf for preview purposes.
+   // The pdf is generated asynchronously, so wait for a little bit.
+   await new Promise(r => setTimeout(r, 850 /* ms */));
+
+   const previewFileExists = fs.existsSync(previewPdfPath);
+
+   expect(previewFileExists).toBe(true);
+})
+
 test("Preview `.frog` (unsupported)", async () => {
    const f = new TestFile("tree.frog", "Frog file contents ribbit", "utf8");
    await setupWithTestFile(f);
