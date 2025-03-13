@@ -268,7 +268,7 @@ window.onload = async function () {
             const pdfPath = await window.file.convertDocxToPdf(filename);
             previewContainer.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${pdfPath}#toolbar=0"></iframe></div>`;
         } else if (mimeType.startsWith("image/")) {
-            previewContainer.innerHTML = `<div class="imgPreview"><img src="${filename}" alt="Image failed to load." /></div>`;
+            previewContainer.innerHTML = `<div class="imgPreview"><img data-testid="img-element" src="${filename}" alt="Image failed to load." /></div>`;
         } else {
             previewContainer.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
         }
