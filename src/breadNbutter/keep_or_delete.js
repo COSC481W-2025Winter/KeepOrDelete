@@ -60,11 +60,6 @@ window.onload = async function () {
         deleteFile();
     });
 
-    // Next file button press
-    document.getElementById("nextButton").addEventListener("click", async () => {
-        nextFile();
-    });
-
     // Delete function
     async function deleteFile() {
         // Don't attempt deletion if there are no [more] files.
