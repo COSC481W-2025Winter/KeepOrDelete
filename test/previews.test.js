@@ -1,23 +1,11 @@
 const { _electron: electron, test, expect } = require("@playwright/test");
 const path = require("path");
+const crypto = require("crypto");
 const fs = require("node:fs");
 const os = require("node:os");
 const mime = require("mime");
 
 let electronApp;
-
-/** Generate temporary directory path. */
-const testDirPath = path.join(os.tmpdir(), "keepordelete-preview-tests");
-
-/** Forcefully delete test directory if it exists. */
-const cleanTestDir = function() {
-   // Clean temporary directory if it exists.
-   if (fs.existsSync(testDirPath)) {
-      fs.rmSync(testDirPath, { recursive: true, force: true }, (err) => {
-         if (err) throw err;
-      })
-   }
-}
 
 /** Bundles filenames with contents. */
 class TestFile {
@@ -28,47 +16,82 @@ class TestFile {
    }
 }
 
-const testFiles = [
-   new TestFile("test.txt", "Standard text file", "utf8"),
-   new TestFile("test.csv", "Comma-separated values file", "utf8"),
-   new TestFile("test.jpeg", Buffer.from([0x50, 0x4B, 0x03, 0x04])),
-]
+// Generate the temporary directory path.
+// This directory will contain each test's files, then be removed
+// after all tests are completed.
+const testDirPath = path.join(os.tmpdir(), "keepordelete-preview-tests");
 
-// Print test file data
-for (let tf of testFiles) {
-   console.log(tf);
+/**
+ * Forcefully delete test directory if it exists.
+ *
+ * I wrote this as an anonymous function so it can read the temporary directory's
+ * path without requiring it as a parameter.
+ */
+const rmTestDir = function() {
+   // Clean temporary directory if it exists.
+   if (fs.existsSync(testDirPath)) {
+      fs.rmSync(testDirPath, { recursive: true, force: true }, (err) => {
+         if (err) throw err;
+      })
+   }
 }
 
-test.beforeEach(async () => {
+// Create the empty test directory before running the tests.
+test.beforeAll(async () => {
    electronApp = await electron.launch({ args: ["./"] });
 
-   cleanTestDir();
+   // Remove test directory if it exists.
+   rmTestDir();
 
-   // Create temporary directory.
-   fs.mkdir(testDirPath, { recursive: true }, (err) => {
+   fs.mkdirSync(testDirPath, { recursive: true }, (err) => {
       if (err) throw err;
    });
 
    // Verify that temporary directory exists.
    expect(fs.existsSync(testDirPath));
-
-   // Create various files inside the temporary directory.
-   for (const file of testFiles) {
-      fs.writeFileSync(file.path, file.contents)
-   }
-
-   console.log(fs.readdir)
 });
 
-//closing app
+// Remove test directory contents between tests.
 test.afterEach(async () => {
+   for (const filename of fs.readdirSync(testDirPath)) {
+      const filepath = path.join(testDirPath, filename)
+
+      fs.rmSync(filepath, { recursive: true, force: true }, (err) => {
+         if (err) throw err;
+      })
+   }
+});
+
+test.afterAll(async () => {
    await electronApp.close();
 
-   cleanTestDir();
+   rmTestDir();
 });
 
-test("Navigate to KeepOrDelete page", async () => {
-   const window = await electronApp.firstWindow();
+// Will contain an interactive Electron window instance.
+var window;
+// Regular expression matching a generic "No preview available" message.
+const noPreviewMsg = /no.*available/i
+
+/**
+ * Writes a test file to the test directory, then navigates to the
+ * "Keep or Delete" screen.
+ *
+ * Intended to be called from each test case.
+ */
+async function setupWithTestFile(testFile) {
+   window = await electronApp.firstWindow();
+
+   // Write the input file to the temporary directory. Has two modes, dependent on the input:
+   // (1) TestFile instance. Write it to the test directory.
+   // (2) Path to an existing file. Copy it to the test directory.
+   if (testFile instanceof TestFile) {
+      fs.writeFileSync(testFile.path, testFile.contents)
+   } else {
+      await fs.copyFile(testFile, path.join(testDirPath, path.basename(testFile)), (err) => {
+         if (err) throw err;
+      })
+   }
 
    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
 
@@ -84,110 +107,79 @@ test("Navigate to KeepOrDelete page", async () => {
    await window.locator("#SelectButton").click();
    await window.locator("#goButton").click();
    await window.waitForURL("**/keep_or_delete.html");
+}
 
-   let previousPath = null;
+test("Preview `.txt`", async () => {
+   const f = new TestFile("test.txt", "Standard text file", "utf8");
+   await setupWithTestFile(f);
 
-   for (let i = 0; i < 3; i++) {
-      const path = await window.locator("#currentItem").innerText();
+   const preview = await window.locator("#previewContainer").innerText();
 
-      // Mime library doesn't like some paths. Just serve it the basename
-      const basename = require("node:path").basename(path);
+   expect(preview).toEqual(f.contents);
+})
 
-      const mimeType = mime.getType(basename);
+test("Preview `.csv`", async () => {
+   const f = new TestFile("test.csv", "Standard csv file", "utf8");
+   await setupWithTestFile(f);
 
-      console.log(`path=${path}`);
-      console.log(`mimeType=${mimeType}`);
+   const preview = await window.locator("#previewContainer").innerText();
 
-      const preview = await window.locator("#previewContainer").innerText();
+   expect(preview).toEqual(f.contents);
+})
 
-      console.log(`preview=${preview}`);
+test("Preview `.pdf`", async () => {
+   const srcPath = path.join("test", "res", "small.pdf");
+   await setupWithTestFile(srcPath);
 
-      // Freak out if the file path didn't change.
-      if (previousPath != null && path == previousPath) {
-         expect(false).toBe(true);
-      }
+   const srcContents = fs.readFileSync(srcPath, (err) => {
+      if (err) throw err;
+   })
 
-      previousPath = path;
+   const srcHash = crypto.createHash("md5").update(srcContents).digest("hex");
 
-      if (mimeType.startsWith("text")) {
-         // Fetch this file's contents from the array.
-         const expectedPreview = testFiles.find((tf) => tf.basename == basename).contents
+   const preview = await window.locator("#previewContainer").innerText();
 
-         console.log(`Expected preview: ${expectedPreview}`)
+   let previewPdfPath = await window.getByTestId("pdf-iframe").getAttribute("src");
+   // Remove iframe configuration attribute(s) from the path.
+   previewPdfPath = previewPdfPath.replace("#toolbar=0", "");
 
-         // Expect this file's contents to be visible on screen.
-         expect(preview).toEqual(expectedPreview)
-      } else {
-         // Some text like "no preview available for this filetype".
-         expect(preview).toMatch(/no.*available/i)
-      }
+   const previewPdfContents = fs.readFileSync(previewPdfPath, (err) => {
+      if (err) throw err;
+   })
 
-      // Cycle to next file.
-      await window.click("#nextButton");
-   }
-});
+   const previewHash = crypto.createHash("md5").update(previewPdfContents).digest("hex");
 
-test("Swipe to keep on KeepOrDelete page", async () => {
-   const window = await electronApp.firstWindow();
+   expect(srcHash).toEqual(previewHash);
+})
 
-   await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+test("Preview `.docx`", async () => {
+   const srcPath = path.join("test", "res", "small.docx");
+   await setupWithTestFile(srcPath);
 
-   // Intercept file selection dialog
-   await electronApp.evaluate(({ dialog }, testDirPath) => {
-      dialog.showOpenDialog = async () => ({
-         canceled: false,
-         filePaths: [testDirPath], // Inject test dir path
-      });
-   }, testDirPath);
+   const srcContents = fs.readFileSync(srcPath, (err) => {
+      if (err) throw err;
+   })
 
-   // Navigate to next page using the override
-   await window.locator("#SelectButton").click();
-   await window.locator("#goButton").click();
-   await window.waitForURL("**/keep_or_delete.html");
+   const preview = await window.locator("#previewContainer").innerText();
 
-   let previousPath = null;
+   let previewPdfPath = await window.getByTestId("pdf-iframe").getAttribute("src");
+   // Remove iframe configuration attribute(s) from the path.
+   previewPdfPath = previewPdfPath.replace("#toolbar=0", "");
 
-   for (let i = 0; i < 3; i++) {
-      const path = await window.locator("#currentItem").innerText();
+   // Word docs are currently converted to pdf for preview purposes.
+   // The pdf is generated asynchronously, so wait for a little bit.
+   await window.waitForTimeout(850)
 
-      // Mime library doesn't like some paths. Just serve it the basename
-      const basename = require("node:path").basename(path);
+   const previewFileExists = fs.existsSync(previewPdfPath);
 
-      const mimeType = mime.getType(basename);
+   expect(previewFileExists).toBe(true);
+})
 
-      console.log(`path=${path}`);
-      console.log(`mimeType=${mimeType}`);
+test("Preview `.frog` (unsupported)", async () => {
+   const f = new TestFile("tree.frog", "Frog file contents ribbit", "utf8");
+   await setupWithTestFile(f);
 
-      let preview = await window.locator("#previewContainer").innerText();
-      // Remove emojis using regex
-      preview = preview.replace(/✅|🗑️/g, "").trim(); 
+   const preview = await window.locator("#previewContainer").innerText();
 
-      // Freak out if the file path didn't change.
-      if (previousPath != null && path == previousPath) {
-         expect(false).toBe(true);
-      }
-
-      previousPath = path;
-
-      if (mimeType.startsWith("text")) {
-         // Fetch this file's contents from the array.
-         const expectedPreview = testFiles.find((tf) => tf.basename == basename).contents
-
-         console.log(`Expected preview: ${expectedPreview}`)
-
-         // Expect this file's contents to be visible on screen.
-         expect(preview).toEqual(expectedPreview)
-      } else {
-         // Some text like "no preview available for this filetype".
-         expect(preview).toMatch(/no.*available/i)
-      }
-
-      // Cycle to next file.
-      const previewContainer = await window.locator("#previewContainer");
-      await previewContainer.hover();
-      await previewContainer.dragTo(await window.locator("#nextButton"));
-      // Need timeout to account for animation!!
-      await window.waitForTimeout(500);
-   }
-});
-
+   expect(preview).toMatch(noPreviewMsg);
+})

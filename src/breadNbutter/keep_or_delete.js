@@ -230,7 +230,8 @@ window.onload = async function () {
       }
    }
 
-    function refreshPreview() {
+    async function refreshPreview() {
+        var container = document.getElementById("previewContainer");
         if (files.length == 0) {
             previewContainer.innerHTML = "";
             return;
@@ -250,7 +251,10 @@ window.onload = async function () {
             // <pre> tag displays preformatted text. Displays all whitespace chars.
             previewContainer.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
         } else if (mimeType != null && mimeType == "application/pdf") {
-            previewContainer.innerHTML = `<div class="pdfPreview"><iframe src="${filename}#toolbar=0"></iframe></div>`;
+            container.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${filename}#toolbar=0"></iframe></div>`;
+        } else if (filename.includes("docx")) {
+            const pdfPath = await window.file.convertDocxToPdf(filename);
+            container.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${pdfPath}#toolbar=0"></iframe></div>`;
         } else {
             previewContainer.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
         }

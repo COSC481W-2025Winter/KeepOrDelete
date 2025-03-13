@@ -115,6 +115,12 @@ code {
    margin: auto;
 }
 
+.docxPreview {
+   overflow: scroll;
+   background-color: white;
+   text-align: left;
+}
+
 .final-page .rename-input {
   border: none;
   background: transparent;
@@ -230,4 +236,3 @@ code {
 .settings-row h3 {
   text-align: center;
 }
-
