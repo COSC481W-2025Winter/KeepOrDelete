@@ -6,19 +6,6 @@ const mime = require("mime");
 
 let electronApp;
 
-/** Generate temporary directory path. */
-const testDirPath = path.join(os.tmpdir(), "keepordelete-preview-tests");
-
-/** Forcefully delete test directory if it exists. */
-const cleanTestDir = function() {
-   // Clean temporary directory if it exists.
-   if (fs.existsSync(testDirPath)) {
-      fs.rmSync(testDirPath, { recursive: true, force: true }, (err) => {
-         if (err) throw err;
-      })
-   }
-}
-
 /** Bundles filenames with contents. */
 class TestFile {
    constructor(basename, contents) {
@@ -28,47 +15,74 @@ class TestFile {
    }
 }
 
-const testFiles = [
-   new TestFile("test.txt", "Standard text file", "utf8"),
-   new TestFile("test.csv", "Comma-separated values file", "utf8"),
-   new TestFile("test.jpeg", Buffer.from([0x50, 0x4B, 0x03, 0x04])),
-]
+// Generate the temporary directory path.
+// This directory will contain each test's files, then be removed
+// after all tests are completed.
+const testDirPath = path.join(os.tmpdir(), "keepordelete-preview-tests");
 
-// Print test file data
-for (let tf of testFiles) {
-   console.log(tf);
+/**
+ * Forcefully delete test directory if it exists.
+ *
+ * I wrote this as an anonymous function so it can read the temporary directory's
+ * path without requiring it as a parameter.
+ */
+const rmTestDir = function() {
+   // Clean temporary directory if it exists.
+   if (fs.existsSync(testDirPath)) {
+      fs.rmSync(testDirPath, { recursive: true, force: true }, (err) => {
+         if (err) throw err;
+      })
+   }
 }
 
+// Create the empty test directory before running the tests.
 test.beforeAll(async () => {
    electronApp = await electron.launch({ args: ["./"] });
 
-   cleanTestDir();
+   // Remove test directory if it exists.
+   rmTestDir();
 
-   // Create temporary directory.
    fs.mkdir(testDirPath, { recursive: true }, (err) => {
       if (err) throw err;
    });
 
    // Verify that temporary directory exists.
    expect(fs.existsSync(testDirPath));
-
-   // Create various files inside the temporary directory.
-   for (const file of testFiles) {
-      fs.writeFileSync(file.path, file.contents)
-   }
-
-   console.log(fs.readdir)
 });
 
-//closing app
+// Remove test directory contents between tests.
+test.afterEach(async () => {
+   for (const filename of fs.readdirSync(testDirPath)) {
+      const filepath = path.join(testDirPath, filename)
+
+      fs.rmSync(filepath, { recursive: true, force: true }, (err) => {
+         if (err) throw err;
+      })
+   }
+});
+
 test.afterAll(async () => {
    await electronApp.close();
 
-   cleanTestDir();
+   rmTestDir();
 });
 
-test("Navigate to KeepOrDelete page", async () => {
-   const window = await electronApp.firstWindow();
+// Will contain an interactive Electron window instance.
+var window;
+// Regular expression matching a generic "No preview available" message.
+const noPreviewMsg = /no.*available/i
+
+/**
+ * Writes a test file to the test directory, then navigates to the
+ * "Keep or Delete" screen.
+ *
+ * Intended to be called from each test case.
+ */
+async function setupWithTestFile(testFile) {
+   window = await electronApp.firstWindow();
+
+   // Write the TestFile to the temporary directory.
+   fs.writeFileSync(testFile.path, testFile.contents)
 
    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
 
@@ -84,7 +98,37 @@ test("Navigate to KeepOrDelete page", async () => {
    await window.locator("#SelectButton").click();
    await window.locator("#goButton").click();
    await window.waitForURL("**/keep_or_delete.html");
+}
 
+test("Preview `.txt`", async () => {
+   const f = new TestFile("test.txt", "Standard text file", "utf8");
+   await setupWithTestFile(f);
+
+   const preview = await window.locator("#previewContainer").innerText();
+
+   expect(preview).toEqual(f.contents);
+})
+
+test("Preview `.csv`", async () => {
+   const f = new TestFile("test.csv", "Standard csv file", "utf8");
+   await setupWithTestFile(f);
+
+   const preview = await window.locator("#previewContainer").innerText();
+
+   expect(preview).toEqual(f.contents);
+})
+
+test("Preview `.frog` (unsupported)", async () => {
+   const f = new TestFile("tree.frog", "Frog file contents ribbit", "utf8");
+   await setupWithTestFile(f);
+
+   const preview = await window.locator("#previewContainer").innerText();
+
+   expect(preview).toMatch(noPreviewMsg);
+})
+
+/**
+test("Navigate to KeepOrDelete page", async () => {
    let previousPath = null;
 
    for (let i = 0; i < 3; i++) {
@@ -119,10 +163,11 @@ test("Navigate to KeepOrDelete page", async () => {
          expect(preview).toEqual(expectedPreview)
       } else {
          // Some text like "no preview available for this filetype".
-         expect(preview).toMatch(/no.*available/i)
+         expect(preview).toMatch()
       }
 
       // Cycle to next file.
       await window.click("#nextButton");
    }
 });
+*/
