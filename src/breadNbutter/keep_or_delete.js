@@ -232,7 +232,7 @@ window.onload = async function () {
             document.getElementById("currentItem").innerText = "No files in queue.";
         } else {
             filePath = files[currentIndex];
-            let fileName = filePath.split(/[\\/]/).pop();
+            let fileName = window.file.pathBasename(filePath)
             document.getElementById("currentItem").innerText = fileName;
 
             let stats = window.file.getFileSize(filePath);
