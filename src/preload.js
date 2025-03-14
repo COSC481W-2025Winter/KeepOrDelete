@@ -12,6 +12,7 @@ const htmlToPdfmake = require('html-to-pdfmake');
 
 contextBridge.exposeInMainWorld('file', {
    getFilePath: () => ipcRenderer.invoke('getFilePath'),
+   getFileSize: (path) => fs.statSync(path),
    getFileContents: (path) => fs.readFileSync(path).toString(),
    getMimeType: (path) => mime.getType(path),
    setFilePath: (filePath) => ipcRenderer.send('setFilePath', filePath),
