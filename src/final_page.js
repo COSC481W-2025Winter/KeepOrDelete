@@ -16,6 +16,7 @@ window.onload = async function () {
         keptFiles.forEach(file => {
 
             const fileName = window.file.pathBasename(file); // Extract full filename
+            const renameInput = document.createElement("input");
             renameInput.type = "text";
             renameInput.value = fileName; // Display full name, including extension
             renameInput.classList.add("rename-input");
@@ -30,7 +31,6 @@ window.onload = async function () {
             //only display if file doesn't exist in both arrays
             if (!filecheck) {
                 const listItem = document.createElement("li");
-                const renameInput = document.createElement("input");
                 listItem.appendChild(renameInput);
                 keptFilesList.appendChild(listItem);
             }
