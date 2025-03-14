@@ -1,4 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron');
+const { generatePreviewHTML } = require("./preview.js");
 const fs = require("node:fs");
 const mime = require("mime");
 const path = require('path');
@@ -24,6 +25,7 @@ contextBridge.exposeInMainWorld('file', {
    pathBasename: (filePath) => path.basename(filePath),
    deleteFile: (filePath) => ipcRenderer.invoke('delete-file', filePath), //delete file
    showMessageBox: (options) => ipcRenderer.invoke('show-message-box', options), //message box to replace alerts
+   generatePreviewHTML: async (filepath) => await generatePreviewHTML(filepath),
    convertDocxToPdf: async (filepath) => {
       /// Converts from DOCX to PDF for previewing purposes.
       var html;
