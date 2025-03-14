@@ -1,13 +1,11 @@
-//const path = require("node:path");
-//const fs = require("fs");
 
 window.onload = async function () {
-    let files = [];
+    let files = JSON.parse(localStorage.getItem("files")) || [];
     let currentIndex = 0;
-    let keptFiles = [];
-    let deletedFiles = [];
     const previewContainer = document.getElementById("previewContainer");
     let inspectMode = false;
+    let keptFiles = JSON.parse(localStorage.getItem("keptFiles")) || [];
+    let filesToBeDeleted = JSON.parse(localStorage.getItem("deletedFiles")) || [];
 
     try {
         // Fetch the selected directory path
@@ -19,14 +17,27 @@ window.onload = async function () {
         if (dirPath) {
             // Fetch files in the directory
             files = await window.file.getFilesInDirectory();
-            removedFileTypes = new Set (await window.file.getRemovedFileTypes());
-            console.log("Removed file types: " + removedFileTypes);
-
-            // Keep only files not in removedFileTypes
+            localStorage.setItem("files", JSON.stringify(files));
+            console.log("Filtered file list:", files);
+            //removedFileTypes = new Set(await window.file.getRemovedFileTypes());
+            console.log("Initial file list:", files);
+            //console.log("Removed file types:", Array.from(removedFileTypes));
+            // Keep only files not in removedFileTypes 
             files = files.filter(file => {
-                const fileType = file.split(".").pop(); 
-                return !removedFileTypes.has(fileType); 
+                const fileName = file.split("/").pop();
+                const shouldKeep = fileName !== ".DS_Store";
+                if (!shouldKeep) {
+                    console.log(`Removing: ${file} (Reason: ${fileName === ".DS_Store" ? "DS_Store file" : "Blocked file type"})`);
+                }
+
+                return shouldKeep;
             });
+            //if there is anything kept or deleted already, filter files on page load
+            if (keptFiles.length > 0 || filesToBeDeleted.length > 0) {
+                files = files.filter(file =>
+                    !(keptFiles.includes(file) || filesToBeDeleted.includes(file))
+                );
+            }
         }
 
         if (files.length > 0) {
@@ -55,6 +66,7 @@ window.onload = async function () {
         window.location.href = "../main_menu.html";
     });
 
+
     // Delete button press
     document.getElementById("deleteButton").addEventListener("click", async () => {
         deleteFile();
@@ -63,54 +75,41 @@ window.onload = async function () {
     // Delete function
     async function deleteFile() {
         // Don't attempt deletion if there are no [more] files.
-        if (files.length == 0) {
+        if (files.length === 0) {
             await window.file.showMessageBox({
-                 type: "error",
-                 title: "Error",
-                 message: "No file(s) to delete."
+                type: "error",
+                title: "Error",
+                message: "No file(s) to delete."
             });
             return;
         }
-
         try {
-            const filePath = files[currentIndex]; //gets the current index, in the array of files that the user selected
-            const result = await window.file.deleteFile(filePath); //calls the preload.js and invokes method that is contained in context
+            const filePath = files[currentIndex];
+            //now this function just updates are of files and removes file to be deleted, and adds it to the array that
+            //is waiting to be deleted
+            filesToBeDeleted.push(filePath); //add the file to the array that is waiting to be deleted
             // - bridge but actually exists at line 52 of index.js
-
-            if (result.success) {
-                let newArr = [];
-                for (let file of files) {
-                    if (file !== filePath) {
-                        newArr.push(file);
-                    }
+            console.log(filesToBeDeleted[0]);
+            let newArr = [];
+            for (let file of files) {
+                if (file !== filePath) {
+                    newArr.push(file);
                 }
-                files = newArr; // Update files array
-
-                // When deleting final file, display second to last file.
-                if (currentIndex == files.length) {
-                   currentIndex--;
-                }
-
-                displayCurrentFile();
-
-                //files = files.filter(file => file !== filePath); //dynamically filter files that gets rid of deleted
-                //this creates a new array called that has the condition that it is not filePath
-
-
-                //success is a built in boolean callback
-                //await window.file.showMessageBox({
-                //    type: "info",
-                //    title: "Success",
-                //    message: "File deleted successfully"
-                //}); //THIS SHOULD GET REMOVED EVENTUALLY, IT IS JUST FOR DEBUGGING TO KNOW WHETHER IT WORKED OR NOT 
-            } else {
-                await window.file.showMessageBox({
-                    type: "error",
-                    title: "Error",
-                    message: result.message
-                });
             }
-        } catch (error) {
+            files = newArr; // Update files array
+            localStorage.setItem("files", JSON.stringify(files));
+            localStorage.setItem("deletedFiles", JSON.stringify(filesToBeDeleted));
+            currentIndex = 0;
+            //code below doesnt work
+            // When deleting final file, display second to last file.
+            /*if (currentIndex == files.length) {
+                currentIndex--;
+            } else {
+                currentIndex++;
+            }*/
+            displayCurrentFile();
+        }
+        catch (error) {
             console.error("Error deleting file:", error);
             await window.file.showMessageBox({
                 type: "error",
@@ -127,20 +126,41 @@ window.onload = async function () {
     });
 
     // Next file function (aka Keep)
-    function nextFile() {
-        if (files.length > 0 && currentIndex < files.length - 1) {
-            currentIndex++;
-            keepCurrentFile(currentIndex - 1);
+    async function nextFile() {
+        if (files.length === 0) {
+            console.warn("No files left.");
+            return;
+        }
+        try {
+            const filePath = files[currentIndex];
+
+            keptFiles.push(filePath);
+            console.log(keptFiles[0]);
+            let newArr = [];
+            for (let file of files) {
+                if (file !== filePath) {
+                    newArr.push(file);
+                }
+            }
+            files = newArr; // Update files array
+            localStorage.setItem("files", JSON.stringify(files));
+            localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
+            currentIndex = 0;
+
             displayCurrentFile();
-        } else {
-            window.file.showMessageBox({
-                type: "warning",
-                title: "No Next File",
-                message: "No more files in selected Directory"
+            /*currentIndex++;
+            displayCurrentFile();
+            keepCurrentFile(currentIndex - 1);*/
+        } catch {
+            console.error("Error keeping file:", error);
+            await window.file.showMessageBox({
+                type: "error",
+                title: "Error",
+                message: "Error keeping file: " + error.message
             });
-          keepCurrentFile(currentIndex);
-          resetPreviewPosition();
-       }
+            resetPreviewPosition();
+            //keepCurrentFile(currentIndex);
+        }
     }
 
     document.getElementById('renameButton').addEventListener('click', async (event) => {
@@ -328,20 +348,20 @@ window.onload = async function () {
         icon.classList.add("swipeIcon");
         // Keep Icon
         if (direction === "left") {
-            icon.innerHTML = "✅"; 
+            icon.innerHTML = "✅";
             icon.style.color = "green";
             translateX = "120%";
             rotateDeg = "20deg";
-        // Delete Icon
+            // Delete Icon
         } else {
-            icon.innerHTML = "🗑️"; 
+            icon.innerHTML = "🗑️";
             icon.style.color = "red";
             translateX = "-120%";
             rotateDeg = "-20deg";
         }
-        previewContainer.appendChild(icon); 
+        previewContainer.appendChild(icon);
         icon.classList.add("show");
-        
+
         // Swipe animation
         previewContainer.style.transition = "transform 0.25s ease-out, opacity 0.25s ease-out";
         previewContainer.style.transform = `translateX(${translateX}) rotate(${rotateDeg})`;
@@ -358,7 +378,7 @@ window.onload = async function () {
     // Detects when swipe is started
     function startSwipe(e) {
         // Prevent swiping in Inspect Mode
-        if (inspectMode) return; 
+        if (inspectMode) return;
         // Starting position
         startX = e.clientX || e.touches[0].clientX;
         currentX = startX;
@@ -366,7 +386,7 @@ window.onload = async function () {
         isSwiping = true;
         startTime = new Date().getTime();
     }
-    
+
     // Tracks swipe movement
     function moveSwipe(e) {
         if (!isSwiping) return;
@@ -428,20 +448,42 @@ window.onload = async function () {
         const iframe = document.querySelector("#previewContainer iframe");
         const textPreview = document.querySelector("#previewContainer pre");
         // Toggle inspect mode state
-        inspectMode = !inspectMode; 
-    
+        inspectMode = !inspectMode;
+
         if (iframe) {
             // Toggle pointer-events for PDF(allows pdf interaction)
             iframe.style.pointerEvents = inspectMode ? "auto" : "none";
         }
-    
+
         if (textPreview) {
             // Toggle user-select for text files (allows highlighting)
             textPreview.style.userSelect = inspectMode ? "text" : "none";
         }
-    
+
         // Update button text
         document.getElementById("inspectButton").innerText = inspectMode ? "Exit Inspect" : "Inspect Document";
     });
-    
- };
+
+
+    //track Kept Files
+    function keepCurrentFile(index) {
+        if (files.length > 0) {
+            const currentFile = files[index];
+            if (!keptFiles.includes(currentFile)) {
+                keptFiles.push(currentFile);
+            }
+        }
+    }
+
+    //button to go to the final page
+    document.getElementById("finalPageButton").addEventListener("click", () => {
+        localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
+        localStorage.setItem("deletedFiles", JSON.stringify(filesToBeDeleted));
+        window.location.href = "../final_page.html";
+    });
+
+    document.getElementById("trash_button").addEventListener("click", () => {
+        localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
+        localStorage.setItem("deletedFiles", JSON.stringify(filesToBeDeleted));
+    });
+};
