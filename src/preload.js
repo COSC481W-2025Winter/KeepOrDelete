@@ -4,12 +4,6 @@ const fs = require("node:fs");
 const mime = require("mime");
 const path = require('path');
 const os = require('node:os');
-const jsdom = require('jsdom');
-const { JSDOM } = jsdom;
-const mammoth = require('mammoth');
-const pdfMake = require('pdfmake/build/pdfmake');
-const pdfFonts = require('pdfmake/build/vfs_fonts');
-const htmlToPdfmake = require('html-to-pdfmake');
 
 contextBridge.exposeInMainWorld('file', {
    getFilePath: () => ipcRenderer.invoke('getFilePath'),

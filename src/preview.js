@@ -1,6 +1,12 @@
 const fs = require("fs")
 const mime = require("mime");
 const path = require("node:path")
+const jsdom = require('jsdom');
+const { JSDOM } = jsdom;
+const mammoth = require('mammoth');
+const pdfMake = require('pdfmake/build/pdfmake');
+const pdfFonts = require('pdfmake/build/vfs_fonts');
+const htmlToPdfmake = require('html-to-pdfmake');
 
 /**
    * Generates HTML containing a preview of the contents of the input file.
