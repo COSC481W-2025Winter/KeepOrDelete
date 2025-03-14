@@ -27,73 +27,86 @@ window.onload = async function () {
             listItem.appendChild(renameInput);
             keptFilesList.appendChild(listItem);
 
-            // Enable renaming on Enter key press
             renameInput.addEventListener("keypress", async function (event) {
                 if (event.key === "Enter") {
-                    let newName = renameInput.value.trim();
-                    const oldName = renameInput.dataset.oldname;
-
-                    if (!newName || newName === fileName) return;
-                    renameInput.blur(); // Remove focus if no change
-
-                    // Check for illegal characters and warn the user
-                    if (containsIllegalCharacters(newName)) {
-                        showNotification('⚠️ File name contains illegal characters. Avoid using \\ / : * ? " < > | on Windows, and / or : on macOS/Linux.', 'error');
-                        renameInput.value = fileName; // Reset input
-                        return;
-                    }
-
-                    // Extract original extension
-                    const originalExtension = fileName.includes('.') ? fileName.split('.').pop() : '';
-                    const newExtension = newName.includes('.') ? newName.split('.').pop() : '';
-
-                    // Ensure the correct extension
-                    if (originalExtension && originalExtension !== newExtension) {
-                        newName = `${newName}.${originalExtension}`;
-                    }
-
-                    const directoryPath = window.file.pathDirname(oldName);
-                    const newFilePath = window.file.pathJoin(directoryPath, newName);
-
-                    try {
-                        const allFilePaths = await window.file.getFilesInDirectory();
-                        const allFileNames = allFilePaths.map(filePath => window.file.pathBasename(filePath));
-
-                        if (allFileNames.includes(newName)) {
-                            await window.file.showMessageBox({
-                                type: "error",
-                                title: "Error",
-                                message: "A file named " + newName + " already exists."
-                            });
-                            renameInput.value = fileName; // Reset input
-                            renameInput.blur(); // Remove focus
-                            return;
-                        }
-
-                        //Rename the file
-                        const response = await window.file.renameFile(oldName, newFilePath);
-                        if (response.success) {
-                            renameInput.dataset.oldname = newFilePath; // Update stored path
-                            renameInput.value = newName; //Display new file name
-                            renameInput.blur(); // Remove focus after renaming
-                        } else {
-                            await window.file.showMessageBox({
-                                type: "error",
-                                title: "Error",
-                                message: "Error renaming file: " + error.message
-                            });
-                        }
-                    } catch (error) {
-                        console.error("Error renaming file:", error);
-                        await window.file.showMessageBox({
-                            type: "error",
-                            title: "Error",
-                            message: "An error occured: " + error.message
-                        });
-                    }
+                    await handleRename(renameInput, fileName);
                 }
             });
+            
+            // Rename when clicking outside the input field
+            renameInput.addEventListener("blur", async function () {
+                await handleRename(renameInput, fileName);
+            });
         });
+    }
+
+    async function handleRename(renameInput) {
+        let newName = renameInput.value.trim();
+        const oldFilePath = renameInput.dataset.oldname;  // Ensure oldFilePath is correctly defined
+        if (!oldFilePath) return; // Prevent errors if filePath is undefined
+    
+        const directoryPath = window.file.pathDirname(oldFilePath);
+        const currentFileName = window.file.pathBasename(oldFilePath);  // Get current file name
+    
+        if (!newName || newName === currentFileName) return; // No change, no rename needed
+    
+        // Check for illegal characters
+        if (containsIllegalCharacters(newName)) {
+            showNotification('⚠️ Invalid characters in file name.', 'error');
+            renameInput.value = currentFileName; // Reset input
+            return;
+        }
+    
+        // Ensure correct file extension
+        const originalExtension = currentFileName.includes('.') ? currentFileName.split('.').pop() : '';
+        const newExtension = newName.includes('.') ? newName.split('.').pop() : '';
+    
+        if (originalExtension && originalExtension !== newExtension) {
+            newName = `${newName}.${originalExtension}`;
+        }
+    
+        const newFilePath = window.file.pathJoin(directoryPath, newName);
+    
+        try {
+            const allFilePaths = await window.file.getFilesInDirectory();
+    
+            // Exclude the current file from duplicate check
+            const isDuplicate = allFilePaths.some(filePath => 
+                filePath !== oldFilePath && window.file.pathBasename(filePath) === newName
+            );
+    
+            if (isDuplicate) {
+                await window.file.showMessageBox({
+                    type: "error",
+                    title: "Error",
+                    message: `A different file named "${newName}" already exists.`
+                });
+                renameInput.value = currentFileName; // Reset input
+                renameInput.blur();
+                return;
+            }
+    
+            // Perform rename
+            const response = await window.file.renameFile(oldFilePath, newFilePath);
+            if (response.success) {
+                renameInput.dataset.oldname = newFilePath; // Update dataset to new path
+                renameInput.value = newName;
+                renameInput.blur(); // Remove focus after renaming
+            } else {
+                await window.file.showMessageBox({
+                    type: "error",
+                    title: "Error",
+                    message: "Failed to rename file."
+                });
+            }
+        } catch (error) {
+            console.error("Error renaming file:", error);
+            await window.file.showMessageBox({
+                type: "error",
+                title: "Error",
+                message: "An error occurred: " + error.message
+            });
+        }
     }
 
     function containsIllegalCharacters(name) {
@@ -141,6 +154,10 @@ window.onload = async function () {
 
     document.getElementById("finalizeButton").addEventListener("click", async () => {
         localStorage.clear(); // Clears stored session data
+        window.location.href = "./main_menu.html";
+    });
+
+    document.getElementById("exitButton").addEventListener("click", async () => {
         window.file.quitApp(); // Calls the function to quit the app
     });
     

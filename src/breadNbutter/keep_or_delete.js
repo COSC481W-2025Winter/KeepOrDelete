@@ -146,48 +146,59 @@ window.onload = async function () {
     document.getElementById('renameButton').addEventListener('click', async (event) => {
         event.preventDefault();
         event.stopPropagation();
-
+        await handleRename();
+    });
+    
+    // Add event listener for Enter key
+    document.getElementById('renameInput').addEventListener('keypress', async (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            await handleRename();
+        }
+    });
+    
+    async function handleRename() {
         const renameContainer = document.getElementById('renameContainer');
         const renameInput = document.getElementById('renameInput');
         const newName = renameInput.value.trim();
         let currentFile = files[currentIndex];
-
+    
         if (!newName) {
             showNotification('Please enter a new file name.', 'error');
             resetRenameInput(renameContainer);
             return;
         }
-
+    
         // Check for illegal characters and warn the user
         if (containsIllegalCharacters(newName)) {
-            showNotification('⚠️ File name contains illegal characters. Avoid using \\ / : * ? " < > | on Windows, and / or : on macOS/Linux.', 'error');
+            showNotification('⚠️ File name contains illegal characters.', 'error');
             resetRenameInput(renameContainer);
             return;
         }
-
+    
         // Ensure the new name has the correct file extension
         const originalExtension = currentFile.substring(currentFile.lastIndexOf('.'));
         const finalName = newName.includes('.') ? newName : `${newName}${originalExtension}`;
-
+    
         const directoryPath = window.file.pathDirname(currentFile);
         const newFilePath = window.file.pathJoin(directoryPath, finalName);
-
+    
         try {
             // Step 1: Get all file paths in the directory
             const allFilePaths = await window.file.getFilesInDirectory();
-
+    
             // Step 2: Extract file names using path.basename
             const allFileNames = allFilePaths.map(filePath => window.file.pathBasename(filePath));
-
-            // Step 3: Check if the new name already exists
-            if (allFileNames.includes(finalName)) {
-                showNotification(`A file named "${finalName}" already exists. Please choose a different name.`, 'error');
+    
+            // Step 3: Check if the new name already exists (excluding the current file)
+            if (allFileNames.includes(finalName) && currentFile !== newFilePath) {
+                showNotification(`A file named "${finalName}" already exists.`, 'error');
                 resetRenameInput(renameContainer);
-                return;  // **This return ensures we don't continue to the renaming operation**
+                return;
             }
-
+    
             console.log('Renaming:', currentFile, 'to', newFilePath);
-
+    
             // Step 4: Perform the rename
             const response = await window.file.renameFile(currentFile, newFilePath);
             if (response.success) {
@@ -204,7 +215,7 @@ window.onload = async function () {
             showNotification(`An error occurred: ${error.message}`, 'error');
             resetRenameInput(renameContainer);
         }
-    });
+    }
 
     function resetRenameInput(container) {
         container.innerHTML = '';  // Clear the old input field
@@ -244,15 +255,37 @@ window.onload = async function () {
         return false;
     }
 
-   function displayCurrentFile() {
-      if (currentIndex < 0 || currentIndex >= files.length) {
-         document.getElementById("currentItem").innerText = "No files in queue.";
-      } else {
-         filename = files[currentIndex];
-         document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
-         refreshPreview();
-      }
-   }
+    // Attach event listeners when renaming input is created
+    function attachRenameListeners() {
+        const renameInput = document.getElementById('renameInput');
+        // Remove existing event listeners (prevents duplicates)
+        renameInput.removeEventListener("keypress", renameOnEnter);   
+        // Attach Enter key event
+        renameInput.addEventListener("keypress", renameOnEnter);
+    }
+
+    async function renameOnEnter(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            await handleRename();
+        }
+    }
+
+    
+    function displayCurrentFile() {
+        if (currentIndex < 0 || currentIndex >= files.length) {
+            document.getElementById("currentItem").innerText = "No files in queue.";
+        } else {
+            filename = files[currentIndex];
+            document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
+            refreshPreview();
+        }
+    
+        // Reset rename input field
+        resetRenameInput(document.getElementById('renameContainer'));
+        // Attach Enter event listener for renaming
+        attachRenameListeners();
+    }
 
     function refreshPreview() {
         if (files.length == 0) {
