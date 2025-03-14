@@ -410,10 +410,14 @@ window.onload = async function () {
     });
     function LLM(){
         popup.style.display = 'inline-block';
-        popupContent.textContent = 'Thinking...';
         const filename = files[currentIndex];
         const fileContents = window.file.getFileContents(filename);
-
+        if (!fileContents || fileContents.length === 0) {
+            popupContent.textContent = 'No file contents found.';
+            return;
+        }
+        else{
+            popupContent.textContent = 'Thinking...';
         // Here id implenment a if statement to check file type and change the API Call
         // Chat can take images so .png or .jpg will have a different call.
         window.openai.openaiRequest([
@@ -442,6 +446,8 @@ window.onload = async function () {
         .catch(error => {
             console.error('Error sending OpenAI request:', error);
         });
+        
+    }
     }
 
  };
