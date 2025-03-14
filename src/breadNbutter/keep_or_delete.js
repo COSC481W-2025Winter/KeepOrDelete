@@ -7,6 +7,7 @@ window.onload = async function () {
     let keptFiles = [];
     let deletedFiles = [];
     const fileCard = document.getElementById("file-card");
+    const previewContainer = document.getElementById("previewContainer");
     let inspectMode = false;
 
     try {
@@ -231,8 +232,6 @@ window.onload = async function () {
    }
 
     async function refreshPreview() {
-        const previewContainer = document.getElementById("previewContainer");
-
         if (files.length == 0) {
             previewContainer.innerHTML = "";
             return;

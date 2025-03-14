@@ -1,8 +1,8 @@
 :root {
    --accent: #4d92f2;
 
-   --card-height: 425px;
-   --card-preview-height: 350px;
+   --card-height: 400px;
+   --card-preview-height: 325px;
 }
 
 body {
@@ -178,4 +178,20 @@ object { /* Keep or Delete button SVGs. */
 
 .unsupportedPreview p {
    margin: 0;
+}
+
+/* Swipe icon */
+
+.swipeIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10rem;
+  opacity: 0;
+  transition: opacity 0.25s ease-out;
+}
+
+.swipeIcon.show {
+  opacity: 1;
 }
