@@ -3,6 +3,7 @@ const htmlToPdfmake = require('html-to-pdfmake');
 const jsdom = require('jsdom');
 const mammoth = require('mammoth');
 const mime = require("mime");
+const os = require('os');
 const path = require("node:path")
 const pdfFonts = require('pdfmake/build/vfs_fonts');
 const pdfMake = require('pdfmake/build/pdfmake');
