@@ -1,12 +1,12 @@
 const fs = require("fs")
+const htmlToPdfmake = require('html-to-pdfmake');
+const jsdom = require('jsdom');
+const mammoth = require('mammoth');
 const mime = require("mime");
 const path = require("node:path")
-const jsdom = require('jsdom');
-const { JSDOM } = jsdom;
-const mammoth = require('mammoth');
-const pdfMake = require('pdfmake/build/pdfmake');
 const pdfFonts = require('pdfmake/build/vfs_fonts');
-const htmlToPdfmake = require('html-to-pdfmake');
+const pdfMake = require('pdfmake/build/pdfmake');
+const { JSDOM } = jsdom;
 
 /**
    * Generates HTML containing a preview of the contents of the input file.
@@ -47,36 +47,36 @@ async function generatePreviewHTML(filepath) {
 }
 
 async function convertDocxToPdf(filepath) {
-      /// Converts from DOCX to PDF for previewing purposes.
-      var html;
+   /// Converts from DOCX to PDF for previewing purposes.
+   var html;
 
-      await mammoth.convertToHtml({ path: filepath })
-         .then(function(result) {
-            html = result.value;
-            // Any messages, such as warnings during conversion
-            var _messages = result.messages;
-         })
-         .catch(function(error) {
-            console.error(error);
-            return;
-         });
+   await mammoth.convertToHtml({ path: filepath })
+   .then(function(result) {
+      html = result.value;
+      // Any messages, such as warnings during conversion
+      var _messages = result.messages;
+   })
+   .catch(function(error) {
+      console.error(error);
+      return;
+   });
 
-      // Preliminary pdfMake configuration.
-      pdfMake.vfs = pdfFonts;
+   // Preliminary pdfMake configuration.
+   pdfMake.vfs = pdfFonts;
 
-      // Create new DOM window object.
-      const { window } = new JSDOM('');
+   // Create new DOM window object.
+   const { window } = new JSDOM('');
 
-      const converted = htmlToPdfmake(html, { window });
-      const docDefinition = { content: converted };
+   const converted = htmlToPdfmake(html, { window });
+   const docDefinition = { content: converted };
 
-      pdfPath = path.join(os.tmpdir(), "docxToPdf.pdf");
+   pdfPath = path.join(os.tmpdir(), "docxToPdf.pdf");
 
-      pdfMake.createPdf(docDefinition).getBuffer((buffer) => {
-         require('fs').writeFileSync(pdfPath, buffer);
-      });
+   pdfMake.createPdf(docDefinition).getBuffer((buffer) => {
+      fs.writeFileSync(pdfPath, buffer);
+   });
 
-      return pdfPath;
-   },
+   return pdfPath;
+}
 
 module.exports = { generatePreviewHTML };
