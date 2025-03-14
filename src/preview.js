@@ -28,7 +28,7 @@ async function generatePreviewHTML(filepath) {
    } else if (mimeType == "application/pdf") {
       return `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${filepath}#toolbar=0"></iframe></div>`;
    } else if (filepath.includes("docx")) {
-      const pdfPath = await window.file.convertDocxToPdf(filepath);
+      const pdfPath = await convertDocxToPdf(filepath);
 
       return `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${pdfPath}#toolbar=0"></iframe></div>`;
    } else if (mimeType.startsWith("image/")) {
@@ -39,5 +39,38 @@ async function generatePreviewHTML(filepath) {
 
    return unsupported;
 }
+
+async function convertDocxToPdf(filepath) {
+      /// Converts from DOCX to PDF for previewing purposes.
+      var html;
+
+      await mammoth.convertToHtml({ path: filepath })
+         .then(function(result) {
+            html = result.value;
+            // Any messages, such as warnings during conversion
+            var _messages = result.messages;
+         })
+         .catch(function(error) {
+            console.error(error);
+            return;
+         });
+
+      // Preliminary pdfMake configuration.
+      pdfMake.vfs = pdfFonts;
+
+      // Create new DOM window object.
+      const { window } = new JSDOM('');
+
+      const converted = htmlToPdfmake(html, { window });
+      const docDefinition = { content: converted };
+
+      pdfPath = path.join(os.tmpdir(), "docxToPdf.pdf");
+
+      pdfMake.createPdf(docDefinition).getBuffer((buffer) => {
+         require('fs').writeFileSync(pdfPath, buffer);
+      });
+
+      return pdfPath;
+   },
 
 module.exports = { generatePreviewHTML };
