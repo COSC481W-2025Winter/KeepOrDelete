@@ -1,177 +1,188 @@
-/* General page styling */
-html, body {
-  overflow: hidden;
-}
-
-body {
-  position: relative;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
-  text-align: center;
-}
-
-/* Headings */
-h1 {
-  margin-bottom: 1em;
-}
-
-/* Container elements (if needed) */
-#dirDisplay {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 1em;
-}
-
-/* Modern button styling */
-button {
-  padding: 0.75em 1.5em;
-  margin: 0.5em;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
-  background-color: #007bff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s ease;
-}
-
-/* Button hover and active states */
-button:hover {
-  background-color: #0056b3;
-}
-
-button:active {
-  transform: scale(0.98);
-}
-
-#backButton {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 0.5em 1em;
-  font-size: 0.9rem;
-}
-
 .button-container {
   display: flex;
-  justify-content: center;
   gap: 1em;
-  margin-top: auto;
+  align-items: center;
+  justify-content: center;
+  margin-top: 100px;
 }
 
-/* Optional: Styling for the disclaimer and other texts */
-.disclaimer {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 1em;
-}
 
-/* Code block styling */
-code {
-  background-color: #eaeaea;
-  padding: 0.2em 0.4em;
-  border-radius: 3px;
-}
-
-#previewContainer {
-   user-select: none;
-   font-size: 1rem;
-   width: 500px;
-   height: 300px;
-}
-
-#previewContainer * {
-   width: inherit;
-   height: inherit;
-}
-
-.txtPreview {
-   border: 2px solid #bbbbbb;
-   background-color: #e5e5e5;
-   overflow: hidden;
-   font-family: monospace;
-   border-radius: 10px;
-   text-align: left;
-   user-select: none;
-}
-
-.pdfPreview iframe {
-  pointer-events: none;
-}
-
-.txtPreview * {
-   margin: 8px;
-}
-
-.imgPreview img {
-   width: auto !important; /* Maintain aspect ratio. */
-   pointer-events: none /* Dragging images conflicts with swiping. */
-}
-
-.unsupportedPreview {
-   text-align: center;
-   color: #777777;
-   line-height: 300px;
-   margin: auto;
-}
-
-.docxPreview {
-   overflow: scroll;
-   background-color: white;
-   text-align: left;
-}
-
-.final-page .rename-input {
-  border: none;
-  background: transparent;
-  font-size: 1rem;
-  text-align: left;
-  width: 100%;
+.circle-button {
+  width: 10%;
+  height: 10%;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  border: 10px solid #e0e0e0;
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
   outline: none;
 }
 
-.final-page .rename-input:hover {
-  background: #f0f0f0;
-  cursor: text;
+/* Delete and Keep Buttons */
+#deleteButton {
+  background-color: #ffffff;
+}
+#deleteButton:hover {
+  background-color: #f0f0f0;
+}
+#nextButton {
+  background-color: #ffffff;
+}
+#nextButton:hover {
+  background-color: #f0f0f0;
 }
 
-/* Two-column layout for kept and deleted files */
-.file-container {
+/* General Styling */
+html, body {
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #ffffff;
+  color: #333;
+  text-align: center;
+}
+/* Headings */
+h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1em;
+}
+/* Directory Display */
+#dirDisplay {
+  background: #fff;
+  padding: 1em;
+  border-radius: 12px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  font-size: 1.1rem;
+  font-weight: bold;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 80%;
+  flex-direction: column;
+  align-items: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+/* Button Styling */
+button {
+  padding: 0.75em 1.5em;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+ /* Round buttons */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+}
+/* Change Directory Button */
+#topContent {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100px;
+  padding: 0 20px; /* Optional padding */
+}
+
+#backButton {
+  padding: 0.5em 1em;
+  font-size: 0.9rem;
+  margin-right: 20px; /* Adds space between button and text */
+}
+
+#dirPath {
+  color:#777777;
+  font-size: 1.25rem;
+  font-weight: 500;
+  padding: 0.5em 1em;
+}
+
+#finalPageButton {
+  position: relative;
+  left: 45%;
+}
+
+
+button {
+  background-color: #007fd3;
+  font-weight: bold;
+}
+
+button:hover{ 
+  background-color: #0973b9;
+}
+
+
+/* File Preview Box */
+#previewContainer {
+  user-select: none;
+  font-size: 1rem;
+  width: 500px;
+  height: 300px;
+}
+
+#previewContainer * {
+  width: inherit;
+  height: inherit;
+}
+
+.txtPreview {
+  border: 2px solid #bbbbbb;
+  background-color: #e5e5e5;
+  overflow: hidden;
+  font-family: monospace;
+  border-radius: 10px;
+  text-align: left;
+  user-select: none;
+}
+
+.pdfPreview iframe {
+ pointer-events: none;
+}
+
+.txtPreview * {
+  margin: 8px;
+}
+
+.imgPreview img {
+  width: auto !important; /* Maintain aspect ratio. */
+  pointer-events: none /* Dragging images conflicts with swiping. */
+}
+
+.unsupportedPreview {
+  text-align: center;
+  color: #777777;
+  line-height: 300px;
   margin: auto;
 }
 
-/* Kept files (left side) */
-.kept-files {
-  flex: 1;
+.docxPreview {
+  overflow: scroll;
+  background-color: white;
   text-align: left;
-  max-width: 45%;
+}
+/* Review Page Styling */
+.file-container {
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+  margin: auto;
+}
+.kept-files, .deleted-files {
+  background: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Deleted files (right side) */
-.deleted-files {
-  flex: 1;
-  text-align: left;
-  max-width: 45%;
-}
-
-/* Remove bullet points */
-#keptFilesList, #deletedFilesList {
-  list-style-type: none;
-  padding: 0;
-}
-
-/* Rename input styling */
+/* Rename Input Field */
 .rename-input {
-  border: 1px solid transparent; /* Initially transparent */
+  border: 1px solid transparent;
   background: #fafafa;
   font-size: 1rem;
   text-align: left;
@@ -182,38 +193,44 @@ code {
   transition: all 0.2s ease-in-out;
   cursor: pointer;
 }
-
 .rename-input:hover {
   background: #f0f0f0;
   border: 1px solid #ccc;
   cursor: text;
 }
-
-/* When focused (clicked), emphasize it */
 .rename-input:focus {
   background: white;
   border: 1px solid #007bff;
   box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
 }
 
-/* Button Styling */
-#finalizeButton {
-  display: block;
-  margin: 20px auto;
-  padding: 10px 20px;
-  font-size: 1rem;
-  font-weight: bold;
-  background-color: #007bff;
+/* Tooltip Styling */
+#tooltip {
+  pointer-events: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(2px);
   color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  padding: 20px 35px;
+  border-radius: 15px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out, transform 0.3s ease-in-out;
 }
-
-#finalizeButton:hover {
-  background-color: #0056b3;
+#tooltip.show {
+  opacity: 1;
 }
-
+#tooltip.hide {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.9);
+}
+/* Swipe Icon */
 .swipeIcon {
   position: absolute;
   top: 50%;
@@ -223,21 +240,53 @@ code {
   opacity: 0;
   transition: opacity 0.25s ease-out;
 }
-
 .swipeIcon.show {
   opacity: 1;
 }
 
+/* Hide the scrollbar by default */
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
 
-/* settings styling */
-.settings {
-  display: flex;
-  justify-content: space-between;
+/* Show the scrollbar when the container is hovered or focused */
+div:hover::-webkit-scrollbar,
+div:focus-within::-webkit-scrollbar {
+  width: 26px;
+  height: 26px;
 }
-.settings-row {
-  flex: 1;
-  padding: 10px;
+
+/* Customize scrollbar thumb appearance */
+*::-webkit-scrollbar-thumb {
+  color: #777777;
+  border-radius: 13px;
+  border: 10px solid transparent;
+  box-shadow: inset 0 0 0 10px;
 }
-.settings-row h3 {
+
+#inspectButton, #renameButton {
+  background-color: #f7f7f7;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 50px; /* Ensure consistent width */
   text-align: center;
+}
+
+#renameButton {
+  background-color: #f7f7f7;
+  position: relative;
+  top: 0%;      /* Distance from the top */
+  left: 40%;    /* Distance from the right */
+}
+
+
+
+.videoPreview, .videoPreview video {
+  width: auto !important; /* Match width of controls with width of video. */
+  max-width: 100%; /* Remain within bounds of the preview container. */
 }

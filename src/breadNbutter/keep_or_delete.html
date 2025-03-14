@@ -7,35 +7,45 @@
    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
    <link rel="stylesheet" href="../stylesheet.css">
+   
    <title>KeepOrDelete</title>
 </head>
 <!-- Here u can add other tabs and compnents for display-->
 
 <body>
-   <h1>KeepOrDelete</h1>
-   <div id="dirDisplay">
+   <div id="topContent">
+      <button id="backButton">Change Directory</button> 
       <p id="dirPath"></p>
-      <button id="inspectButton">Inspect Document</button>
+      <button id="finalPageButton">Review & Finalize</button>
+   </div>
 
+   <hr>
+
+   <div id="dirDisplay">
+      <div id="displayButtons">
+         <button id="inspectButton">🔍</button>  
+         <button id="renameButton">✏️</button>   
+      </div>
+      
+      <div id="renameContainer">
+         <input type="text" id="renameInput" placeholder="Enter new file name">
+     </div>
+        
       <div id="previewContainer"></div>
    </div>
 
    <div id="notification">
    </div>   
 
-   <div id="renameContainer">
-      <input type="text" id="renameInput" placeholder="Enter new file name">
-  </div>
-  <button id="renameButton">Rename File</button>  
+   
 
-   <button id="backButton">Change Directory</button> 
+   
 
    <p id="currentItem"></p>
 
    <div class="button-container">
-      <button id="deleteButton">Delete</button>
-      <button id="nextButton">Keep</button>
-      <button id="finalPageButton">Review & Finalize</button>
+      <button id="deleteButton" class="circle-button">❌</button>
+      <button id="nextButton" class="circle-button">✅</button>
    </div>
    
 </body>

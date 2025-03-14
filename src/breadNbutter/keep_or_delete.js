@@ -14,7 +14,7 @@ window.onload = async function () {
         const dirPath = await window.file.getFilePath();
 
         document.getElementById("dirPath").innerText =
-            dirPath ? `Selected Directory: \n${dirPath}` : "No directory selected";
+            dirPath ? `Current Directory: ${dirPath}` : "No directory selected";
 
         if (dirPath) {
             // Fetch files in the directory
@@ -402,7 +402,8 @@ window.onload = async function () {
         }
     
         // Update button text
-        document.getElementById("inspectButton").innerText = inspectMode ? "Exit Inspect" : "Inspect Document";
+        document.getElementById("inspectButton").innerText = inspectMode ? "🔍❌" : "🔍";
     });
     
  };
+ //
