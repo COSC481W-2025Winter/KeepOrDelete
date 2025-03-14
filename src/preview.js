@@ -41,7 +41,7 @@ async function generatePreviewHTML(filepath) {
    } else if (mimeType.startsWith("image/")) {
       return `<div class="imgPreview"><img data-testid="img-element" src="${filepath}" alt="Image failed to load." /></div>`;
    } else if (mimeType.startsWith("video/")) {
-      return `<div class="videoPreview"><video controls autoplay muted disablepictureinpicture><source data-testid="video-src" src="${filename}" alt="Video failed to load." /></video></div>`;
+      return `<div class="videoPreview"><video controls autoplay muted disablepictureinpicture><source data-testid="video-src" src="${filepath}" alt="Video failed to load." /></video></div>`;
    }
 
    return unsupported;
