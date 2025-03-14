@@ -12,7 +12,7 @@ window.onload = async function () {
             const listItem = document.createElement("li");
             listItem.innerText = file;
             const deleteButton = document.createElement("button");
-            deleteButton.innerText = "Undo";
+            deleteButton.innerText = "Keep";
             deleteButton.classList.add("deleteUndo");
             deleteButton.dataset.file = file;
             listItem.appendChild(deleteButton);
@@ -41,9 +41,8 @@ window.onload = async function () {
             });
         });
     }
+    document.getElementById("navMainMenu").onclick = function () {
+        console.log(localStorage.getItem("deletedFiles"));
+        window.location.href = "./breadNbutter/keep_or_delete.html"
+    }
 };
-document.getElementById("navMainMenu").onclick = function () {
-    //localStorage.clear(); //clears stored session data
-
-    window.location.href = "./breadNbutter/keep_or_delete.html"
-}
