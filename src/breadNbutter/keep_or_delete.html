@@ -6,38 +6,38 @@
    <!-- Content Security Policy settings as before -->
    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
-   <link rel="stylesheet" href="../stylesheet.css">
+   <link href="../style.css" rel="stylesheet">
    <title>KeepOrDelete</title>
 </head>
-<!-- Here u can add other tabs and compnents for display-->
 
 <body>
-   <h1>KeepOrDelete</h1>
-   <div id="dirDisplay">
-      <p id="dirPath"></p>
-      <button id="inspectButton">Inspect Document</button>
 
+   <div id="bar">
+      <button id="backButton">Change directory</button>
+      <p id="current-dir">Current directory: <span id="dirPath"></span></p>
+   </div>
+
+   <div id="file-card">
       <div id="previewContainer"></div>
+      <div id="card-bar">
+         <p><span id="basename"></span></p>
+      </div>
    </div>
 
-   <div id="notification">
-   </div>   
+   <div id="renameButton" hidden></div>
+   <div id="inspectButton" hidden></div>
 
-   <div id="renameContainer">
-      <input type="text" id="renameInput" placeholder="Enter new file name">
-  </div>
-  <button id="renameButton">Rename File</button>  
-
-   <button id="backButton">Change Directory</button> 
-
-   <p id="currentItem"></p>
-
-   <div class="button-container">
-      <button id="deleteButton">Delete</button>
-      <button id="nextButton">Keep</button>
-      <button id="finalPageButton">Review & Finalize</button>
+   <div id="kod-btns-container">
+      <div id="deleteButton">
+         <object data="../res/x.svg"></object>
+      </div>
+      <div id="keepButton">
+         <object data="../res/check.svg"></object>
+      </div>
    </div>
-   
+
+   <button id="finalPageButton">Review & Finalize</button>
+
 </body>
 <script src="./keep_or_delete.js"></script>
 

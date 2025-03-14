@@ -6,7 +6,7 @@ window.onload = async function () {
     let currentIndex = 0;
     let keptFiles = [];
     let deletedFiles = [];
-    const previewContainer = document.getElementById("previewContainer");
+    const fileCard = document.getElementById("file-card");
     let inspectMode = false;
 
     try {
@@ -14,7 +14,7 @@ window.onload = async function () {
         const dirPath = await window.file.getFilePath();
 
         document.getElementById("dirPath").innerText =
-            dirPath ? `Selected Directory: \n${dirPath}` : "No directory selected";
+            dirPath ? `${dirPath}` : "No directory selected";
 
         if (dirPath) {
             // Fetch files in the directory
@@ -122,7 +122,7 @@ window.onload = async function () {
     };
 
     // Go through files in directory +1
-    document.getElementById("nextButton").addEventListener("click", async () => {
+    document.getElementById("keepButton").addEventListener("click", async () => {
         nextFile();
     });
 
@@ -225,12 +225,14 @@ window.onload = async function () {
          document.getElementById("currentItem").innerText = "No files in queue.";
       } else {
          filename = files[currentIndex];
-         document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
+         document.getElementById("basename").innerText = window.file.pathBasename(filename)
          refreshPreview();
       }
    }
 
     async function refreshPreview() {
+        const previewContainer = document.getElementById("previewContainer");
+
         if (files.length == 0) {
             previewContainer.innerHTML = "";
             return;
@@ -242,7 +244,7 @@ window.onload = async function () {
         // Declaring this function here so I can short circuit on null
         // mime type AND use it as a fallback on unsupported mime type.
         const displayUnsupported = function () {
-           previewContainer.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
+           previewContainer.innerHTML = `<div class="unsupportedPreview flex-center"><p>No preview available for this filetype.</p></div>`;
         };
 
         console.log(`${filename} has MIME type ${mimeType}.`);
@@ -268,9 +270,9 @@ window.onload = async function () {
             const pdfPath = await window.file.convertDocxToPdf(filename);
             previewContainer.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${pdfPath}#toolbar=0"></iframe></div>`;
         } else if (mimeType.startsWith("image/")) {
-            previewContainer.innerHTML = `<div class="imgPreview"><img data-testid="img-element" src="${filename}" alt="Image failed to load." /></div>`;
+            previewContainer.innerHTML = `<div class="imgPreview flex-center"><img data-testid="img-element" src="${filename}" alt="Image failed to load." /></div>`;
         } else {
-            previewContainer.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
+            displayUnsupported()
         }
         resetPreviewPosition();
     }
@@ -278,9 +280,9 @@ window.onload = async function () {
 
     // Resets preview container position post swipe
     function resetPreviewPosition() {
-        previewContainer.style.transition = "transform 0.2s ease-out";
-        previewContainer.style.transform = "translateX(0px) rotate(0deg)";
-        previewContainer.style.opacity = "1";
+        fileCard.style.transition = "transform 0.2s ease-out";
+        fileCard.style.transform = "translateX(0px) rotate(0deg)";
+        fileCard.style.opacity = "1";
     }
 
     // Swipe animation handler
@@ -300,19 +302,19 @@ window.onload = async function () {
             translateX = "-120%";
             rotateDeg = "-20deg";
         }
-        previewContainer.appendChild(icon); 
+        fileCard.appendChild(icon); 
         icon.classList.add("show");
         
         // Swipe animation
-        previewContainer.style.transition = "transform 0.25s ease-out, opacity 0.25s ease-out";
-        previewContainer.style.transform = `translateX(${translateX}) rotate(${rotateDeg})`;
-        previewContainer.style.opacity = "0";
+        fileCard.style.transition = "transform 0.25s ease-out, opacity 0.25s ease-out";
+        fileCard.style.transform = `translateX(${translateX}) rotate(${rotateDeg})`;
+        fileCard.style.opacity = "0";
 
         // File handling will occurr after CSS animation
-        previewContainer.addEventListener("transitionend", function handleTransitionEnd() {
+        fileCard.addEventListener("transitionend", function handleTransitionEnd() {
             if (direction === "left") nextFile();
             else deleteFile();
-            previewContainer.removeEventListener("transitionend", handleTransitionEnd);
+            fileCard.removeEventListener("transitionend", handleTransitionEnd);
         });
     }
 
@@ -336,7 +338,7 @@ window.onload = async function () {
         // Calculate distance moved
         let diffX = currentX - startX;
         // Use distance moved to move the previewContainer
-        previewContainer.style.transform = `translateX(${diffX}px) rotate(${diffX / 15}deg)`;
+        fileCard.style.transform = `translateX(${diffX}px) rotate(${diffX / 15}deg)`;
     }
 
     function endSwipe(e) {
@@ -373,13 +375,13 @@ window.onload = async function () {
         window.location.href = "../final_page.html";
     });
     // Mouse event listeners for swipe
-    previewContainer.addEventListener("mousedown", (e) => {
+    fileCard.addEventListener("mousedown", (e) => {
         startSwipe(e);
         document.addEventListener("mousemove", moveSwipe);
         document.addEventListener("mouseup", endSwipe);
     });
     // Touch event listeners for swipe
-    previewContainer.addEventListener("touchstart", (e) => {
+    fileCard.addEventListener("touchstart", (e) => {
         startSwipe(e);
         document.addEventListener("touchmove", moveSwipe);
         document.addEventListener("touchend", endSwipe);

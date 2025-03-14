@@ -85,47 +85,6 @@ code {
    height: 300px;
 }
 
-#previewContainer * {
-   width: inherit;
-   height: inherit;
-}
-
-.txtPreview {
-   border: 2px solid #bbbbbb;
-   background-color: #e5e5e5;
-   overflow: hidden;
-   font-family: monospace;
-   border-radius: 10px;
-   text-align: left;
-   user-select: none;
-}
-
-.pdfPreview iframe {
-  pointer-events: none;
-}
-
-.txtPreview * {
-   margin: 8px;
-}
-
-.imgPreview img {
-   width: auto !important; /* Maintain aspect ratio. */
-   pointer-events: none /* Dragging images conflicts with swiping. */
-}
-
-.unsupportedPreview {
-   text-align: center;
-   color: #777777;
-   line-height: 300px;
-   margin: auto;
-}
-
-.docxPreview {
-   overflow: scroll;
-   background-color: white;
-   text-align: left;
-}
-
 .final-page .rename-input {
   border: none;
   background: transparent;

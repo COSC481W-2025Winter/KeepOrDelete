@@ -1,0 +1,181 @@
+:root {
+   --accent: #4d92f2;
+
+   --card-height: 425px;
+   --card-preview-height: 350px;
+}
+
+body {
+   background: #FFFFFF;
+   overflow: hidden;
+   font-size: 16px;
+   font-family: "Tahoma"
+}
+
+.flex-center {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+#bar {
+   position: absolute;
+   height: 80px;
+   left: 0px;
+   right: 0px;
+   top: 0px;
+
+   display: flex;
+   justify-content: left;
+   align-items: center;
+
+   background: #FFFFFF;
+   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.14);
+}
+
+button {
+   background-color: var(--accent);
+   border-radius: 12px;
+   border: none;
+   box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.25);
+   color: white;
+   height: 44px;
+   font-size: inherit;
+   font-weight: bold;
+   width: auto;
+   padding: 0 25px;
+}
+
+#backButton {
+   position: relative;
+   left: 21px;
+}
+
+#current-dir {
+   width: auto;
+   height: 19px;
+   position: relative;
+   left: 40px;
+
+   font-style: normal;
+   font-weight: 700;
+   font-size: 16px;
+   line-height: 19px;
+
+   color: #595959;
+}
+
+#file-card {
+   box-sizing: border-box;
+
+   width: 440px;
+   height: var(--card-height);
+   margin: 130px auto 0 auto;
+
+   border: 2px solid #E2E2E2;
+   border-radius: 12px;
+   overflow: hidden;
+}
+
+#card-bar {
+   position: relative;
+   display: flex;
+   justify-content: left;
+   align-items: center;
+   top: 0;
+   height: calc(var(--card-height) - var(--card-preview-height));
+}
+
+#card-bar p {
+   margin-top: 0;
+   margin-bottom: 0;
+   margin-left: 20px;
+   display: inline;
+   font-weight: bold;
+   color: #595959;
+}
+
+#kod-btns-container {
+   position: absolute;
+   width: 298px;
+   height: 152px;
+   left: calc(50% - 298px/2);
+   bottom: 58px;
+}
+
+#keepButton {
+   position: absolute;
+   width: 152px;
+   right: 0px;
+   top: 0px;
+   bottom: 0px;
+}
+
+object { /* Keep or Delete button SVGs. */
+   pointer-events: none;
+   user-select: none;
+}
+
+#finalPageButton {
+   position: absolute;
+   width: 205px;
+   height: 44px;
+   right: 21px;
+   bottom: 24px;
+}
+
+/* Previews */
+
+#previewContainer {
+   user-select: none;
+
+   height: var(--card-preview-height);
+
+   background-color: #f5f5f5;
+   font-size: 1rem;
+}
+
+#previewContainer > div {
+   width: inherit;
+   height: inherit;
+}
+
+.txtPreview {
+   overflow: auto;
+   height: inherit;
+   font-family: monospace;
+   border-radius: 10px;
+   text-align: left;
+   user-select: none;
+}
+
+.txtPreview * {
+   margin: 8px;
+}
+
+.pdfPreview iframe {
+   pointer-events: none;
+   width: 100%;
+   height: 100%;
+}
+
+.imgPreview img {
+   /* Display image at max allowable size inside container. */
+   width: 100%;
+   max-width: 100%;
+   max-height: 100%;
+
+   object-fit: contain; /* Maintain aspect ratio. */
+   pointer-events: none /* Dragging images conflicts with swiping. */
+}
+
+.unsupportedPreview {
+   text-align: center;
+   color: #777777;
+   height: 100%;
+   margin: auto;
+}
+
+.unsupportedPreview p {
+   margin: 0;
+}
