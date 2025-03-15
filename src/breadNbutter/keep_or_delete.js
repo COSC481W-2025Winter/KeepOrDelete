@@ -72,7 +72,7 @@ window.onload = async function () {
 
     // Delete button press
     document.getElementById("deleteButton").addEventListener("click", async () => {
-        deleteFile();
+        animateSwipe("left");;
     });
 
     // Delete function
@@ -125,7 +125,7 @@ window.onload = async function () {
 
     // Go through files in directory +1
     document.getElementById("nextButton").addEventListener("click", async () => {
-        nextFile();
+        animateSwipe("right");
     });
 
     // Next file function (aka Keep)
@@ -337,7 +337,7 @@ window.onload = async function () {
         //attachRenameListeners();
     }
 
-    function refreshPreview() {
+    async function refreshPreview() {
         if (files.length == 0) {
             previewContainer.innerHTML = "";
             return;
@@ -346,9 +346,22 @@ window.onload = async function () {
         const filename = files[currentIndex];
         const mimeType = window.file.getMimeType(filename);
 
+        // Declaring this function here so I can short circuit on null
+        // mime type AND use it as a fallback on unsupported mime type.
+        const displayUnsupported = function () {
+           previewContainer.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
+        };
+
         console.log(`${filename} has MIME type ${mimeType}.`);
 
-        if (mimeType != null && mimeType.startsWith("text/")) {
+        // Handle null MIME so we don't have to check for it later.
+        if (mimeType == null) {
+           displayUnsupported();
+           resetPreviewPosition();
+           return;
+        }
+
+        if (mimeType.startsWith("text/")) {
             var fileContents = window.file.getFileContents(filename).replaceAll("<", "&lt;");
 
             // Escape HTML tags so they aren't interpreted as actual HTML.
@@ -357,7 +370,12 @@ window.onload = async function () {
             // <pre> tag displays preformatted text. Displays all whitespace chars.
             previewContainer.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
         } else if (mimeType != null && mimeType == "application/pdf") {
-            previewContainer.innerHTML = `<div class="pdfPreview"><iframe src="${filename}#toolbar=0"></iframe></div>`;
+            previewContainer.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${filename}#toolbar=0"></iframe></div>`;
+        } else if (filename.includes("docx")) {
+            const pdfPath = await window.file.convertDocxToPdf(filename);
+            previewContainer.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${pdfPath}#toolbar=0"></iframe></div>`;
+        } else if (mimeType.startsWith("image/")) {
+            previewContainer.innerHTML = `<div class="imgPreview"><img data-testid="img-element" src="${filename}" alt="Image failed to load." /></div>`;
         } else {
             previewContainer.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
         }
@@ -378,16 +396,17 @@ window.onload = async function () {
         icon.classList.add("swipeIcon");
         // Keep Icon
         if (direction === "left") {
-            icon.innerHTML = "✅";
-            icon.style.color = "green";
-            translateX = "120%";
-            rotateDeg = "20deg";
-            // Delete Icon
-        } else {
-            icon.innerHTML = "🗑️";
+            icon.innerHTML = "🗑️"; 
             icon.style.color = "red";
             translateX = "-120%";
             rotateDeg = "-20deg";
+        // Delete Icon
+        } else {
+            icon.innerHTML = "✅"; 
+            icon.style.color = "green";
+            translateX = "120%";
+            rotateDeg = "20deg";
+
         }
         previewContainer.appendChild(icon);
         icon.classList.add("show");
@@ -399,7 +418,7 @@ window.onload = async function () {
 
         // File handling will occurr after CSS animation
         previewContainer.addEventListener("transitionend", function handleTransitionEnd() {
-            if (direction === "left") nextFile();
+            if (direction === "right") nextFile();
             else deleteFile();
             previewContainer.removeEventListener("transitionend", handleTransitionEnd);
         });
@@ -439,7 +458,7 @@ window.onload = async function () {
         let velocity = Math.abs(diffX) / timeTaken;
         // Starts animation based on speed of swipe or distance swiped
         if (Math.abs(diffX) > 50 || velocity > 0.6) {
-            animateSwipe(diffX < 0 ? "right" : "left");
+            animateSwipe(diffX > 0 ? "right" : "left");
         } else {
             resetPreviewPosition();
         }
@@ -517,3 +536,97 @@ window.onload = async function () {
         localStorage.setItem("deletedFiles", JSON.stringify(filesToBeDeleted));
     });
 };
+
+    // Arrow key file swiping
+    document.addEventListener("keydown", async (e) => {
+        if (e.key === "ArrowRight") {
+            animateSwipe("right");
+        } else if (e.key === "ArrowLeft") {
+            animateSwipe("left");
+        }
+    });
+    
+
+    document.getElementById("aiButton").addEventListener("click", () => {
+        LLM();
+    });
+    function LLM(){
+        popup.style.display = 'inline-block';
+        const filename = files[currentIndex];
+        const fileContents = window.file.getFileContents(filename);
+        if (!fileContents || fileContents.length === 0) {
+            popupContent.textContent = 'No file contents found.';
+            return;
+        }
+        else{
+            popupContent.textContent = 'Thinking...';
+        // Here id implenment a if statement to check file type and change the API Call
+        // Chat can take images so .png or .jpg will have a different call.
+        window.openai.openaiRequest([
+        { role: "system", content: "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension." },
+        { role: "user", content: fileContents }
+        ])
+        .then(response => {
+            const suggestion = response.choices[0].message;
+            console.log("Renaming Suggestion:", suggestion.content);
+
+            // Display the popup and suggested name. 
+            const popup = document.getElementById('popup');
+            const popupContent = document.getElementById('popupContent');
+            popupContent.textContent = suggestion.content;
+
+            // Add a click event listener to the popup. Populates the input field wih the suggestion.
+            popup.onclick = () => {
+            const renameInput = document.getElementById('renameInput');
+            if (renameInput && !renameInput.value.trim()) {
+                renameInput.value = suggestion.content;
+            }
+            popup.style.display = 'none';
+        }
+           
+        })
+        .catch(error => {
+            console.error('Error sending OpenAI request:', error);
+        });
+        
+    }
+    }
+
+
+    // Checks to see if user is a test agent
+    const isTesting = navigator.userAgent.includes("Playwright");
+    let tooltip;
+
+    // Only runs if user is real
+    if (!isTesting) {
+        tooltip = document.getElementById("tooltip");
+        tooltip.classList.add("show");
+
+        // Dismiss tooltip on user input
+        document.addEventListener("mousedown", dismissTooltip);
+        document.addEventListener("keydown", dismissTooltip);
+        document.addEventListener("touchstart", dismissTooltip);
+
+        // WIGGLE IS THE MOST IMPORTANT PART OF THE PROJECT
+        triggerWiggle();
+        setInterval(triggerWiggle, 3000);
+    }
+
+    // Dismiss tooltip
+    function dismissTooltip() {
+        tooltip.classList.remove("show");
+        tooltip.classList.add("hide");
+
+        clearInterval(wiggleInterval);
+        setTimeout(() => tooltip.remove(), 400);
+    }
+
+    // WIGGLE WIGGLE WIGGLE
+    function triggerWiggle() {
+        if (!tooltip.classList.contains("wiggle")) {
+            tooltip.classList.add("wiggle");
+            setTimeout(() => tooltip.classList.remove("wiggle"), 500);
+        }
+    }
+
+ };

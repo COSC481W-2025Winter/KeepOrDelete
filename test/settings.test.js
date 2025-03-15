@@ -1,69 +1,82 @@
+
 const { test, expect, _electron: electron } = require('@playwright/test');
-
 let electronApp;
+const fileTypes = ['py', 'java', 'js', 'jar', 'txt', 'csv', 'pdf', 'md', 'doc', 'docx', 'pptx', 'png', 'jpg', 'mp4', 'wav', 'mp3'];
 
-// Launch the Electron app
-test.beforeAll(async () => {
-  electronApp = await electron.launch({ args: ["./"] });
-});
 
-// Closing the app
+  // Launch the Electron app
+ test.beforeAll(async () => {
+   electronApp = await electron.launch({ args: ["./"] });
+ });
+
+
 test.afterAll(async () => {
   await electronApp.close();
 });
- 
 
+// Navigation test
 test('Navigation to and from settings page', async () => {
-  
-  // Get the first BrowserWindow (which loads src/main_menu.html).
   const window = await electronApp.firstWindow();
-
   await window.click('#settings');
-  await expect(window.url()).toContain('settings.html');
-
+  await expect(window).toHaveURL(/settings\.html/);
   await window.click('#backButton');
-  await expect(window.url()).toContain('main_menu.html');
+  await expect(window).toHaveURL(/main_menu\.html/);
 });
 
-test('Settings page selectables are checked', async () => {
-    const window = await electronApp.firstWindow();
-    
-    await window.click('#settings');
+// Checkbox test
+test('Settings page selectables are checked and unchecked', async () => {
+  const window = await electronApp.firstWindow();
+  await window.click('#settings');
 
-    //get status of check boxes bofore clicking 
-    const txtCheckedBefore = await window.evaluate(() => document.getElementById('txt').checked);
-    const pdfCheckedBefore = await window.evaluate(() => document.getElementById('pdf').checked);
-    const mp4CheckedBefore = await window.evaluate(() => document.getElementById('mp4').checked);
-    const javaCheckedBefore = await window.evaluate(() => document.getElementById('java').checked);
+  // Get current states
+  const initialStates = {};
+  for (const type of fileTypes) {
+    initialStates[type] = await window.evaluate((id) => document.getElementById(id).checked, type);
+  }
 
-    //Clicking all checkboxes
-    await window.click('#txt');
-    await window.click('#pdf');
-    await window.click('#mp4');
-    await window.click('#java');
+  // Click each checkbox
+  for (const type of fileTypes) {
+    await window.click(`#${type}`);
+    const currentState = await window.evaluate((id) => document.getElementById(id).checked, type);
+    expect(currentState).toBe(!initialStates[type]);
+  }
 
-    //Checking if checkboxes are checked
-    const txtChecked = await window.evaluate(() => document.getElementById('txt').checked);
-    await expect(txtChecked).toEqual(txtCheckedBefore).toBe(false);
-    const pdfChecked = await window.evaluate(() => document.getElementById('pdf').checked);
-    await expect(pdfChecked).toBe(true);
-    const mp4Checked = await window.evaluate(() => document.getElementById('mp4').checked);
-    await expect(mp4Checked).toBe(true);
-    const javaChecked = await window.evaluate(() => document.getElementById('java').checked);
-    await expect(javaChecked).toBe(true);
-    
-    // Vice versa
-    await window.click('#text_file');
-    await window.click('#docx_file');
-    await window.click('#image_file');
-    await window.click('#html_file');
+  // Turn back to original state
+  for (const type of fileTypes) {
+    await window.click(`#${type}`);
+    const currentState = await window.evaluate((id) => document.getElementById(id).checked, type);
+    expect(currentState).toBe(initialStates[type]);
+  }
+  await window.waitForTimeout(500);
+});
 
-    const htmlChecked2 = await window.evaluate(() => document.getElementById('html_file').checked);
-    expect(htmlChecked2).toBe(false);
-    const imgChecked2 = await window.evaluate(() => document.getElementById('image_file').checked);
-    expect(imgChecked2).toBe(false);
-    const docxChecked2 = await window.evaluate(() => document.getElementById('docx_file').checked);
-    expect(docxChecked2).toBe(false);
-    const txtChecked2 = await window.evaluate(() => document.getElementById('text_file').checked);
-    expect(txtChecked2).toBe(false);
- });
+// Config file test
+test('Config file exists', async () => {
+  const window = await electronApp.firstWindow();
+  const os = require('os');
+  const path = require('path');
+  const fs = require('fs');
+
+  let userDataPath;
+  await window.waitForTimeout(500);
+  if (process.platform === 'win32') {
+    userDataPath = path.join(process.env.APPDATA, 'KeepOrDelete');
+  } else if (process.platform === 'darwin') {
+    userDataPath = path.join(os.homedir(), 'Library', 'Application Support', 'KeepOrDelete');
+  } else {
+    userDataPath = path.join(os.homedir(), '.config', 'KeepOrDelete');
+  }
+  const configPath = path.join(userDataPath, 'config.json');
+
+  
+  const existsBefore = fs.existsSync(configPath);
+  if (existsBefore) {
+    fs.rmSync(configPath);
+  }
+  const existsAfter = fs.existsSync(configPath);
+  expect(existsBefore).toBe(true);
+  expect(existsAfter).toBe(false);
+
+  
+});
+
