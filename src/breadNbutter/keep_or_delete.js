@@ -535,7 +535,6 @@ window.onload = async function () {
         localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
         localStorage.setItem("deletedFiles", JSON.stringify(filesToBeDeleted));
     });
-};
 
     // Arrow key file swiping
     document.addEventListener("keydown", async (e) => {
@@ -629,4 +628,4 @@ window.onload = async function () {
         }
     }
 
- };
+};
