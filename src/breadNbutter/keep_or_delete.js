@@ -42,6 +42,9 @@ window.onload = async function () {
 
         if (files.length > 0) {
             displayCurrentFile();
+            setTimeout(() => {
+                resetRenameInput(document.getElementById('renameContainer'));
+            }, 10);
         } else {
             document.getElementById("currentItem").innerText = "No files found.";
         }
@@ -173,12 +176,13 @@ window.onload = async function () {
     document.getElementById('renameInput').addEventListener('keypress', async (event) => {
         if (event.key === "Enter") {
             event.preventDefault();
+            event.stopPropagation();
             await handleRename();
         }
     });
     
     async function handleRename() {
-        const renameContainer = document.getElementById('renameContainer');
+        //const renameContainer = document.getElementById('renameContainer');
         const renameInput = document.getElementById('renameInput');
         const newName = renameInput.value.trim();
         let currentFile = files[currentIndex];
@@ -193,7 +197,7 @@ window.onload = async function () {
         if (containsIllegalCharacters(newName)) {
             showNotification('⚠️ File name contains illegal characters.', 'error');
             resetRenameInput(renameContainer);
-            return;
+            return;  // Prevent further action if invalid
         }
     
         // Ensure the new name has the correct file extension
@@ -214,7 +218,7 @@ window.onload = async function () {
             if (allFileNames.includes(finalName) && currentFile !== newFilePath) {
                 showNotification(`A file named "${finalName}" already exists.`, 'error');
                 resetRenameInput(renameContainer);
-                return;
+                return;  // **This return ensures we don't continue to the renaming operation**
             }
     
             console.log('Renaming:', currentFile, 'to', newFilePath);
@@ -236,6 +240,7 @@ window.onload = async function () {
             resetRenameInput(renameContainer);
         }
     }
+    
 
     function resetRenameInput(container) {
         container.innerHTML = '';  // Clear the old input field
@@ -247,15 +252,27 @@ window.onload = async function () {
 
         container.appendChild(newRenameInput);
 
+        // Remove old event listeners before adding new ones
+        newRenameInput.removeEventListener("keypress", renameOnEnter);
+        newRenameInput.addEventListener("keypress", renameOnEnter);
+
+        // Reattach Enter event listener
+        newRenameInput.addEventListener("keypress", async (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                await handleRename();
+            }
+        });
+
         // Temporary blur to prevent highlighting the input immediately
         setTimeout(() => {
             newRenameInput.blur();  // Remove highlight after creation
         }, 100);
 
         // Optionally, refocus the input when the user interacts with it
-        newRenameInput.addEventListener('focus', () => {
-            console.log('Input refocused when user interacts.');
-        });
+        //newRenameInput.addEventListener('focus', () => {
+          //  console.log('Input refocused when user interacts.');
+        //});
     }
 
     function containsIllegalCharacters(name) {
@@ -287,6 +304,19 @@ window.onload = async function () {
     async function renameOnEnter(event) {
         if (event.key === "Enter") {
             event.preventDefault();
+            const renameInput = document.getElementById('renameInput');
+            const newName = renameInput.value.trim();
+    
+            if (!newName) {
+                showNotification('Please enter a new file name.', 'error');
+                return;
+            }
+    
+            if (containsIllegalCharacters(newName)) {
+                showNotification('⚠️ File name contains illegal characters.', 'error');
+                return;
+            }
+    
             await handleRename();
         }
     }
@@ -304,7 +334,7 @@ window.onload = async function () {
         // Reset rename input field
         resetRenameInput(document.getElementById('renameContainer'));
         // Attach Enter event listener for renaming
-        attachRenameListeners();
+        //attachRenameListeners();
     }
 
     function refreshPreview() {

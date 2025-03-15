@@ -158,8 +158,9 @@ window.onload = async function () {
             }
             //only display files that dont exist in both arrays
             if (!filecheck) {
+                const fileName = window.file.pathBasename(file);
                 const listItem = document.createElement("li");
-                listItem.innerText = file;
+                listItem.innerText = fileName;
                 const deleteButton = document.createElement("button");
                 deleteButton.innerText = "Undo";
                 deleteButton.id = "deleteUndo";
@@ -168,6 +169,7 @@ window.onload = async function () {
                 deletedFilesList.appendChild(listItem);
                 deleteButton.addEventListener("click", async () => {
                     const filePath = deleteButton.dataset.file; //get file in dataset
+                    if (!filePath) return;
                     keptFiles.push(filePath); //push to array and localstorage
                     localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
                     const index = deletedFiles.indexOf(filePath);
@@ -176,14 +178,34 @@ window.onload = async function () {
                         localStorage.setItem("deletedFiles", JSON.stringify(deletedFiles));
                     }
                     listItem.remove();//remove from li's
-                    const newListItem = document.createElement("li"); //create new li in kept files part
-                    newListItem.innerHTML = `
-                    ${filePath} 
-                    <input type="text" placeholder="Rename file" data-oldname="${filePath}">
-                    <button class="renameBtn">Rename</button>
-                `;
-                    keptFilesList.appendChild(newListItem);
-                    //console.log(keptFiles[keptFiles.length - 1]); debugging, checks that it got added to array
+
+                    const noKeptFilesMsg = document.querySelector("#keptFilesList p");
+                    if (noKeptFilesMsg && noKeptFilesMsg.innerText === "No kept files.") {
+                        noKeptFilesMsg.remove();
+                    }
+
+                    // Add file back to kept files list
+                    const fileName = window.file.pathBasename(filePath);
+                    const renameInput = document.createElement("input");
+                    renameInput.type = "text";
+                    renameInput.value = fileName; // Display full name, including extension
+                    renameInput.classList.add("rename-input");
+                    renameInput.dataset.oldname = filePath;
+
+                    const newListItem = document.createElement("li");
+                    newListItem.appendChild(renameInput);
+                    keptFilesList.appendChild(newListItem); // Append to kept list
+
+                    // Attach renaming event listeners
+                    renameInput.addEventListener("keypress", async function (event) {
+                        if (event.key === "Enter") {
+                            await handleRename(renameInput);
+                        }
+                    });
+
+                    renameInput.addEventListener("blur", async function () {
+                        await handleRename(renameInput);
+                    });
                 });
             }
 
@@ -215,6 +237,7 @@ window.onload = async function () {
 
     document.getElementById("exitButton").addEventListener("click", async () => {
         window.file.quitApp(); // Calls the function to quit the app
+        localStorage.clear(); // Clears stored session data
     });
 
 };

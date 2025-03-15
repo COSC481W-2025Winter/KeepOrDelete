@@ -8,9 +8,9 @@ window.onload = async function () {
     } else {
         deletedFiles.forEach(file => {
             //creating li's to show file path, and undo button
-
+            const fileName = window.file.pathBasename(file);
             const listItem = document.createElement("li");
-            listItem.innerText = file;
+            listItem.innerText = fileName;
             const deleteButton = document.createElement("button");
             deleteButton.innerText = "Keep";
             deleteButton.classList.add("deleteUndo");
@@ -27,13 +27,24 @@ window.onload = async function () {
                     localStorage.setItem("deletedFiles", JSON.stringify(deletedFiles));
                 }
                 listItem.remove();//remove from li's
-                const newListItem = document.createElement("li"); //create new li in kept files part
-                newListItem.innerHTML = `
-                    ${filePath} 
-                    <input type="text" placeholder="Rename file" data-oldname="${filePath}">
-                    <button class="renameBtn">Rename</button>
-                `;
-                //keptFilesList.appendChild(newListItem);
+
+                const noKeptFilesMsg = document.querySelector("#keptFilesList p");
+                if (noKeptFilesMsg && noKeptFilesMsg.innerText === "No kept files.") {
+                    noKeptFilesMsg.remove();
+                }
+
+                // Add file back to kept files list
+                const fileName = window.file.pathBasename(filePath);
+                const renameInput = document.createElement("input");
+                renameInput.type = "text";
+                renameInput.value = fileName; // Display full name, including extension
+                renameInput.classList.add("rename-input");
+                renameInput.dataset.oldname = filePath;
+
+                const newListItem = document.createElement("li");
+                newListItem.appendChild(renameInput);
+                keptFilesList.appendChild(newListItem); // Append to kept list
+
                 if (deletedFiles.length === 0) {
                     deletedFilesList.innerHTML = "<p>No deleted files.</p>";
                 }
