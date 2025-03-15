@@ -415,6 +415,53 @@ window.onload = async function () {
         }
     });
     
+
+    document.getElementById("aiButton").addEventListener("click", () => {
+        LLM();
+    });
+    function LLM(){
+        popup.style.display = 'inline-block';
+        const filename = files[currentIndex];
+        const fileContents = window.file.getFileContents(filename);
+        if (!fileContents || fileContents.length === 0) {
+            popupContent.textContent = 'No file contents found.';
+            return;
+        }
+        else{
+            popupContent.textContent = 'Thinking...';
+        // Here id implenment a if statement to check file type and change the API Call
+        // Chat can take images so .png or .jpg will have a different call.
+        window.openai.openaiRequest([
+        { role: "system", content: "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension." },
+        { role: "user", content: fileContents }
+        ])
+        .then(response => {
+            const suggestion = response.choices[0].message;
+            console.log("Renaming Suggestion:", suggestion.content);
+
+            // Display the popup and suggested name. 
+            const popup = document.getElementById('popup');
+            const popupContent = document.getElementById('popupContent');
+            popupContent.textContent = suggestion.content;
+
+            // Add a click event listener to the popup. Populates the input field wih the suggestion.
+            popup.onclick = () => {
+            const renameInput = document.getElementById('renameInput');
+            if (renameInput && !renameInput.value.trim()) {
+                renameInput.value = suggestion.content;
+            }
+            popup.style.display = 'none';
+        }
+           
+        })
+        .catch(error => {
+            console.error('Error sending OpenAI request:', error);
+        });
+        
+    }
+    }
+
+
     // Checks to see if user is a test agent
     const isTesting = navigator.userAgent.includes("Playwright");
     let tooltip;
@@ -450,4 +497,5 @@ window.onload = async function () {
             setTimeout(() => tooltip.classList.remove("wiggle"), 500);
         }
     }
+
  };

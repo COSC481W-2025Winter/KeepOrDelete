@@ -3,9 +3,6 @@
 
 <head>
    <meta charset="UTF-8" />
-   <!-- Content Security Policy settings as before -->
-   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
-   <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
    <link rel="stylesheet" href="../stylesheet.css">
    <title>KeepOrDelete</title>
 </head>
@@ -24,6 +21,11 @@
 
    <div id="renameContainer">
       <input type="text" id="renameInput" placeholder="Enter new file name">
+      <div class="popup" id="popup" placeholder="AI Suggested Name">
+         AI: 
+         <span id="popupContent"></span>
+      </div>
+      <button id="aiButton">AI Suggestion</button>
   </div>
   <button id="renameButton">Rename File</button>  
 

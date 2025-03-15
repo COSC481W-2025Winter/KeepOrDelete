@@ -1,3 +1,4 @@
+const { session } = require("electron");
 const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const path = require("node:path");
 const fs = require("fs");
@@ -20,6 +21,22 @@ const createWindow = () => {
          contextIsolation: true,
          enableRemoteModule: false,
       }
+   });
+
+   // Modify CORS headers for all responses
+     // Set CSP using session.defaultSession
+
+   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+         responseHeaders: {
+            ...details.responseHeaders,
+            "Content-Security-Policy": [
+               "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; " +
+               //Allows us to make API calls to Lambda via https trigger
+               "connect-src 'self' https://610op4g6ei.execute-api.us-east-1.amazonaws.com; object-src 'none'; frame-src 'none';"
+            ],
+         },
+      });
    });
 
    mainWindow.loadFile("src/main_menu.html");

@@ -67,3 +67,20 @@ contextBridge.exposeInMainWorld('fileFinal', {
    getDeletedFiles: () => JSON.parse(localStorage.getItem("deletedFiles")) || [],
    renameFile: (oldPath, newPath) => ipcRenderer.invoke('renameFile', { oldPath, newPath }),
 });
+// Create bridge for OpenAI API call through Lambda via HTTPS
+contextBridge.exposeInMainWorld('openai', {
+   openaiRequest: async (messages = {}) => {
+      // API Gateway URL
+     const response = await fetch('https://610op4g6ei.execute-api.us-east-1.amazonaws.com/default/GPT_Renaming', {
+       method: 'POST',
+       headers: {
+          'Content-Type': 'application/json'
+       },
+       body: JSON.stringify({ messages })
+     });
+     if (!response.ok) {
+       throw new Error(`HTTP error! status: ${response.status}`);
+     }
+     return await response.json();
+   }
+ });
