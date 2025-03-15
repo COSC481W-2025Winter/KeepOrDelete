@@ -1,11 +1,14 @@
+
 const { test, expect, _electron: electron } = require('@playwright/test');
 let electronApp;
 const fileTypes = ['py', 'java', 'js', 'jar', 'txt', 'csv', 'pdf', 'md', 'doc', 'docx', 'pptx', 'png', 'jpg', 'mp4', 'wav', 'mp3'];
 
-// Launch the Electron app
-test.beforeAll(async () => {
-  electronApp = await electron.launch({ args: ["./"] });
-});
+
+  // Launch the Electron app
+ test.beforeAll(async () => {
+   electronApp = await electron.launch({ args: ["./"] });
+ });
+
 
 test.afterAll(async () => {
   await electronApp.close();
@@ -76,3 +79,4 @@ test('Config file exists', async () => {
 
   
 });
+
