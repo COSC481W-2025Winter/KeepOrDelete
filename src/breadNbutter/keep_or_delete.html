@@ -4,6 +4,12 @@
 <head>
    <meta charset="UTF-8" />
    <link rel="stylesheet" href="../stylesheet.css">
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self';
+         script-src 'self';
+         connect-src 'self' https://610op4g6ei.execute-api.us-east-1.amazonaws.com;
+         object-src 'none'
+         " />
+   <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
    <title>KeepOrDelete</title>
 </head>
 <!-- Here u can add other tabs and compnents for display-->
