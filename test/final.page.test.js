@@ -48,25 +48,19 @@ test("Kept files should appear in the final kept files list and allow renaming",
     await window.locator("#goButton").click();
     await window.waitForURL("**/keep_or_delete.html");
 
-    // Keep all files by navigating through them
-    for (let i = 0; i < keptFiles.length + 1; i++) {
-        await window.evaluate(() => {
-            let keptFilesList = JSON.parse(localStorage.getItem("keptFiles")) || [];
-            let currentFile = document.getElementById("currentItem").innerText.replace("Current File: \n", "").trim();
+    // Keep all files 
+    for (let i = 0; i < keptFiles.length; i++) {
+        console.log(`Keeping file: ${keptFiles[i]}`);
+        await window.locator("#nextButton").click(); // Uses app's logic to mark as kept
+        await window.waitForTimeout(500); // Wait for UI updates
+    }
 
-            // Only add if it's not already in the list
-            if (!keptFilesList.includes(currentFile) && currentFile.startsWith("C:\\")) {
-                keptFilesList.push(currentFile);
-            }
+    // Ensure `keptFiles` is saved correctly before moving to final page
+    const storedKeptFilesBeforeFinalPage = await window.evaluate(() => JSON.parse(localStorage.getItem("keptFiles")));
+    console.log(" Stored Kept Files Before Final Page:", storedKeptFilesBeforeFinalPage);
 
-            // Save updated list
-            localStorage.setItem("keptFiles", JSON.stringify(keptFilesList));
-        });
-
-        // Navigate to next file if it's not the last one
-        if (i < keptFiles.length) {
-            await window.locator("#nextButton").click();
-        }
+    if (!storedKeptFilesBeforeFinalPage || storedKeptFilesBeforeFinalPage.length === 0) {
+        throw new Error(" No kept files found in localStorage before final page navigation. Fix test setup.");
     }
 
     // Click finalize button to navigate to final page
@@ -127,6 +121,7 @@ test("Kept files should appear in the final kept files list and allow renaming",
         const updatedKeptFiles = await window.evaluate(() => JSON.parse(localStorage.getItem("keptFiles")));
         const foundRenamedFile = updatedKeptFiles.some(file => file.includes(newFileName));
         await expect(foundRenamedFile).toBeTruthy();
+        console.log(`Renamed files: ${updatedKeptFiles[i]}`);
     }
 
     // **Test Finalization Process**
