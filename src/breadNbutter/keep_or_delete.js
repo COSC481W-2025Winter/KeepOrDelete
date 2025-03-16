@@ -454,7 +454,6 @@ window.onload = async function () {
         tooltip.classList.remove("show");
         tooltip.classList.add("hide");
 
-        clearInterval(wiggleInterval);
         setTimeout(() => tooltip.remove(), 400);
     }
 
