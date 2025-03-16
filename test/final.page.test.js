@@ -19,6 +19,10 @@ test.beforeAll(async () => {
     await Promise.all(
         keptFiles.map(file => fs.writeFile(file, "Kept file content", "utf8"))
     );
+
+    // Ensure LocalStorage is cleared before each test
+    const window = await electronApp.firstWindow();
+    await window.evaluate(() => localStorage.clear());
 });
 
 test.afterAll(async () => {
@@ -55,9 +59,9 @@ test("Kept files should appear in the final kept files list and allow renaming",
         await window.waitForTimeout(500); // Wait for UI updates
     }
 
-    // Ensure `keptFiles` is saved correctly before moving to final page
+    // Ensure keptFiles is saved correctly before moving to final page
     const storedKeptFilesBeforeFinalPage = await window.evaluate(() => JSON.parse(localStorage.getItem("keptFiles")));
-    console.log(" Stored Kept Files Before Final Page:", storedKeptFilesBeforeFinalPage);
+    //console.log(" Stored Kept Files Before Final Page:", storedKeptFilesBeforeFinalPage);
 
     if (!storedKeptFilesBeforeFinalPage || storedKeptFilesBeforeFinalPage.length === 0) {
         throw new Error(" No kept files found in localStorage before final page navigation. Fix test setup.");
@@ -81,14 +85,14 @@ test("Kept files should appear in the final kept files list and allow renaming",
 
     // Ensure UI displays "No Deleted Files"
     const deletedFilesText = await window.locator("#deletedFilesList").innerText();
-    console.log("Deleted Files UI Text:", deletedFilesText);
+    //console.log("Deleted Files UI Text:", deletedFilesText);
     await expect(deletedFilesText.toLowerCase()).toContain("no deleted files");
 
     // Wait for input fields to appear in kept files list
     await window.waitForSelector("#keptFilesList input", { timeout: 5000 });
 
     const inputCount = await window.locator("#keptFilesList input").count();
-    console.log("Total Inputs Found in UI:", inputCount);
+    //console.log("Total Inputs Found in UI:", inputCount);
 
     // Validate file input values match expected filenames
     for (let i = 0; i < keptFiles.length; i++) {
@@ -98,7 +102,7 @@ test("Kept files should appear in the final kept files list and allow renaming",
         const inputField = window.locator("#keptFilesList input").nth(i);
         await expect(inputField).toHaveValue(fileName);
 
-        // **Test renaming functionality**
+        // Test renaming functionality
         const newFileName = `Renamed_${fileName}`;
         await inputField.fill(newFileName);
         await inputField.press("Enter");
@@ -121,10 +125,10 @@ test("Kept files should appear in the final kept files list and allow renaming",
         const updatedKeptFiles = await window.evaluate(() => JSON.parse(localStorage.getItem("keptFiles")));
         const foundRenamedFile = updatedKeptFiles.some(file => file.includes(newFileName));
         await expect(foundRenamedFile).toBeTruthy();
-        console.log(`Renamed files: ${updatedKeptFiles[i]}`);
+        //console.log(`Renamed files: ${updatedKeptFiles[i]}`);
     }
 
-    // **Test Finalization Process**
+    // Test Finalization Process
     const finalFinalizeButton = window.locator("#finalizeButton");
     await expect(finalFinalizeButton).toBeVisible({ timeout: 5000 });
     await finalFinalizeButton.click();
@@ -132,7 +136,7 @@ test("Kept files should appear in the final kept files list and allow renaming",
     // Ensure localStorage is cleared
     await window.evaluate(() => localStorage.clear());
     const localStorageAfterFinalization = await window.evaluate(() => localStorage.length);
-    console.log("LocalStorage size after finalization:", localStorageAfterFinalization);
+    //console.log("LocalStorage size after finalization:", localStorageAfterFinalization);
     await expect(localStorageAfterFinalization).toBe(0);
 
 });
