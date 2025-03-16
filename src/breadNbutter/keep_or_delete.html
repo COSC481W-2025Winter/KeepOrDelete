@@ -19,18 +19,19 @@
    <div id="notification">
    </div>
 
-   <div id="renameContainer">
-      <input type="text" id="renameInput" placeholder="Enter new file name">
-      <div class="popup" id="popup" placeholder="AI Suggested Name">
-         AI: 
-         <span id="popupContent"></span>
+   <div class="wrapper">
+      <div id="renameContainer">
+        <input type="text" id="renameInput" placeholder="Enter new file name">
+        <p id="renameWarning"></p>
       </div>
-      <button id="aiButton">AI Suggestion</button>
-      <p id="renameWarning"></p>
-  </div>
+      <div class="popup" id="popup" placeholder="AI Suggested Name">
+        AI: <span id="popupContent"></span>
+      </div>
+    </div>
+    
   <button id="renameButton">Rename File</button>  
-
-   <button id="backButton">Change Directory</button>
+  <button id="aiButton">AI Suggestion</button>
+  <button id="backButton">Change Directory</button>
 
    <p id="currentItem"></p>
 
