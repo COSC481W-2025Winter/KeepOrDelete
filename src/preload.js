@@ -1,14 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
+const { generatePreviewHTML } = require("./preview.js");
 const fs = require("node:fs");
 const mime = require("mime");
 const path = require('path');
 const os = require('node:os');
-const jsdom = require('jsdom');
-const { JSDOM } = jsdom;
-const mammoth = require('mammoth');
-const pdfMake = require('pdfmake/build/pdfmake');
-const pdfFonts = require('pdfmake/build/vfs_fonts');
-const htmlToPdfmake = require('html-to-pdfmake');
 
 contextBridge.exposeInMainWorld('file', {
    getFilePath: () => ipcRenderer.invoke('getFilePath'),
@@ -24,38 +19,7 @@ contextBridge.exposeInMainWorld('file', {
    pathBasename: (filePath) => path.basename(filePath),
    deleteFile: (filePath) => ipcRenderer.invoke('delete-file', filePath), //delete file
    showMessageBox: (options) => ipcRenderer.invoke('show-message-box', options), //message box to replace alerts
-   convertDocxToPdf: async (filepath) => {
-      /// Converts from DOCX to PDF for previewing purposes.
-      var html;
-
-      await mammoth.convertToHtml({ path: filepath })
-         .then(function(result) {
-            html = result.value;
-            // Any messages, such as warnings during conversion
-            var _messages = result.messages;
-         })
-         .catch(function(error) {
-            console.error(error);
-            return;
-         });
-
-      // Preliminary pdfMake configuration.
-      pdfMake.vfs = pdfFonts;
-
-      // Create new DOM window object.
-      const { window } = new JSDOM('');
-
-      const converted = htmlToPdfmake(html, { window });
-      const docDefinition = { content: converted };
-
-      pdfPath = path.join(os.tmpdir(), "docxToPdf.pdf");
-
-      pdfMake.createPdf(docDefinition).getBuffer((buffer) => {
-         require('fs').writeFileSync(pdfPath, buffer);
-      });
-
-      return pdfPath;
-   },
+   generatePreviewHTML: async (filepath) => await generatePreviewHTML(filepath),
    removeFileType: (fileType) => ipcRenderer.invoke('removeFileType', fileType),
    addFileType: (fileType) => ipcRenderer.invoke('addFileType', fileType),
    getRemovedFileTypes: () => ipcRenderer.invoke("getRemovedFileTypes"),

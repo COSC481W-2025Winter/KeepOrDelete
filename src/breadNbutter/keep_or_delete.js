@@ -237,41 +237,9 @@ window.onload = async function () {
         }
 
         const filename = files[currentIndex];
-        const mimeType = window.file.getMimeType(filename);
 
-        // Declaring this function here so I can short circuit on null
-        // mime type AND use it as a fallback on unsupported mime type.
-        const displayUnsupported = function () {
-           previewContainer.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
-        };
+        previewContainer.innerHTML = await window.file.generatePreviewHTML(filename)
 
-        console.log(`${filename} has MIME type ${mimeType}.`);
-
-        // Handle null MIME so we don't have to check for it later.
-        if (mimeType == null) {
-           displayUnsupported();
-           resetPreviewPosition();
-           return;
-        }
-
-        if (mimeType.startsWith("text/")) {
-            var fileContents = window.file.getFileContents(filename).replaceAll("<", "&lt;");
-
-            // Escape HTML tags so they aren't interpreted as actual HTML.
-            fileContents.replaceAll("<", "&lt;");
-
-            // <pre> tag displays preformatted text. Displays all whitespace chars.
-            previewContainer.innerHTML = `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
-        } else if (mimeType != null && mimeType == "application/pdf") {
-            previewContainer.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${filename}#toolbar=0"></iframe></div>`;
-        } else if (filename.includes("docx")) {
-            const pdfPath = await window.file.convertDocxToPdf(filename);
-            previewContainer.innerHTML = `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${pdfPath}#toolbar=0"></iframe></div>`;
-        } else if (mimeType.startsWith("image/")) {
-            previewContainer.innerHTML = `<div class="imgPreview"><img data-testid="img-element" src="${filename}" alt="Image failed to load." /></div>`;
-        } else {
-            previewContainer.innerHTML = `<div class="unsupportedPreview"><p>No preview available for this filetype.</p></div>`;
-        }
         resetPreviewPosition();
     }
 
