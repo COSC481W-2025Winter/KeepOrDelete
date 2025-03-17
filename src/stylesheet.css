@@ -13,6 +13,13 @@ body {
   text-align: center;
 }
 
+/* button to view recently deleted */
+#trash_button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
 /* Headings */
 h1 {
   margin-bottom: 1em;
@@ -105,7 +112,7 @@ code {
 }
 
 .txtPreview * {
-   margin: 8px;
+  margin: 8px;
 }
 
 .imgPreview img {
@@ -114,10 +121,10 @@ code {
 }
 
 .unsupportedPreview {
-   text-align: center;
-   color: #777777;
-   line-height: 300px;
-   margin: auto;
+  text-align: center;
+  color: #777777;
+  line-height: 300px;
+  margin: auto;
 }
 
 .docxPreview {

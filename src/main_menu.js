@@ -13,6 +13,7 @@
  document.getElementById("SelectButton").addEventListener("click", async () => {
     try {
         const dirPath = await window.file.selectDirectory();
+        localStorage.clear();
         if (dirPath) {
             window.file.setFilePath(dirPath);
             document.getElementById("filepath").innerText = dirPath;
