@@ -116,6 +116,7 @@ test("Preview `.txt`", async () => {
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toEqual(f.contents);
+   await window.evaluate(() => localStorage.clear());
 })
 
 test("Preview `.csv`", async () => {
@@ -125,6 +126,7 @@ test("Preview `.csv`", async () => {
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toEqual(f.contents);
+   await window.evaluate(() => localStorage.clear());
 })
 
 test("Preview `.pdf`", async () => {
@@ -150,6 +152,7 @@ test("Preview `.pdf`", async () => {
    const previewHash = crypto.createHash("md5").update(previewPdfContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.evaluate(() => localStorage.clear());
 })
 
 test("Preview `.png`", async () => {
@@ -173,6 +176,7 @@ test("Preview `.png`", async () => {
    const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.evaluate(() => localStorage.clear());
 })
 
 test("Preview `.jpg`", async () => {
@@ -196,6 +200,7 @@ test("Preview `.jpg`", async () => {
    const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.evaluate(() => localStorage.clear());
 })
 
 test("Preview `.docx`", async () => {
@@ -219,6 +224,7 @@ test("Preview `.docx`", async () => {
    const previewFileExists = fs.existsSync(previewPdfPath);
 
    expect(previewFileExists).toBe(true);
+   await window.evaluate(() => localStorage.clear());
 })
 
 test("Preview `.frog` (unsupported)", async () => {
@@ -228,4 +234,5 @@ test("Preview `.frog` (unsupported)", async () => {
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toMatch(noPreviewMsg);
+   await window.evaluate(() => localStorage.clear());
 })

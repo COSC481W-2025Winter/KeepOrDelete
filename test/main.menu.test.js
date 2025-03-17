@@ -43,6 +43,7 @@ test("navigate to settings window", async () => {
 
   //assert element is present
   expect(element).not.toBeNull();
+  await window.evaluate(() => localStorage.clear());
 });
 
 //test go button when user doesn't select file
@@ -64,6 +65,7 @@ test("go button with no file path", async () => {
   //wait and click go button
   await window.waitForSelector("#goButton");
   await window.click("#goButton");
+  await window.evaluate(() => localStorage.clear());
 });
 
 //test go button with selected file
@@ -95,4 +97,5 @@ test("go button with valid file path", async () => {
 
   // compare the text of the selector to confirm window
   expect(windowTitle).toBe("KeepOrDelete");
+  await window.evaluate(() => localStorage.clear());
 });

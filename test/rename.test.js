@@ -68,6 +68,7 @@ test("shows error notification for empty rename input (single file)", async ({ p
     const notification = window.locator("#notification");
     await expect(notification).toBeVisible()
     await expect(notification).toHaveText("Please enter a new file name.");
+    await window.evaluate(() => localStorage.clear());
 });
 
 
@@ -102,6 +103,7 @@ test("will rename common file types", async () => {
 
         await window.locator("#nextButton").click();
     }
+    await window.evaluate(() => localStorage.clear());
 });
 
 

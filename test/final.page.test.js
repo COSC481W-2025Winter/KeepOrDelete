@@ -36,7 +36,7 @@ test.afterAll(async () => {
 
 test("Kept files should appear in the final kept files list and allow renaming", async () => {
     const window = await electronApp.firstWindow();
-
+    await window.evaluate(() => localStorage.clear());
     await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
 
     // Mock file selection dialog
@@ -138,5 +138,5 @@ test("Kept files should appear in the final kept files list and allow renaming",
     const localStorageAfterFinalization = await window.evaluate(() => localStorage.length);
     //console.log("LocalStorage size after finalization:", localStorageAfterFinalization);
     await expect(localStorageAfterFinalization).toBe(0);
-
+    await window.evaluate(() => localStorage.clear());
 });

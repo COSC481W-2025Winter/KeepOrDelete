@@ -22,6 +22,7 @@ test('Navigation to and from settings page', async () => {
   await expect(window).toHaveURL(/settings\.html/);
   await window.click('#backButton');
   await expect(window).toHaveURL(/main_menu\.html/);
+  await window.evaluate(() => localStorage.clear());
 });
 
 // Checkbox test
@@ -50,6 +51,7 @@ test('Settings page selectables are checked and unchecked', async () => {
     expect(currentState).toBe(initialStates[type]);
   }
   await window.waitForTimeout(500);
+  await window.evaluate(() => localStorage.clear());
 });
 
 // Config file test
@@ -79,5 +81,6 @@ test('Config file exists', async () => {
   const existsAfter = fs.existsSync(configPath);
   expect(existsBefore).toBe(true);
   expect(existsAfter).toBe(false);
+  await window.evaluate(() => localStorage.clear());
 });
 
