@@ -38,7 +38,7 @@ test.afterAll(async () => {
 
 test("Clicking on AI button returns expected message", async ({ page }) => {
   const window = await electronApp.firstWindow();
-
+  await window.evaluate(() => localStorage.clear());
   // Mock GPT response
   const context = electronApp.context();
   await context.route("**/GPT_Renaming", async (route) => {
@@ -66,11 +66,13 @@ test("Clicking on AI button returns expected message", async ({ page }) => {
   // Make sure selected file has contents. This would be passed on to AWS Lambda
   await window.locator("#aiButton").click();
   const popupContentLocator = window.locator("#popupContent");
-  await expect(popupContentLocator).toContainText("Thinking...");
+  //david did this btw
+  await expect(popupContentLocator).toContainText("dummy suggestion");
 
   // Make sure selected file is empty. This would not be passed on to AWS Lambda.
   await window.locator("#nextButton").click();
   await page.waitForTimeout(1000);
   await window.locator("#aiButton").click();
   await expect(popupContentLocator).toContainText("No file contents found.");
+  await window.evaluate(() => localStorage.clear());
 });

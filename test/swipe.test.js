@@ -48,6 +48,7 @@ test.afterEach(async () => {
 
 test("Button press to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
+   await window.evaluate(() => localStorage.clear());
    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
 
    // Intercept file selection dialog
@@ -91,10 +92,12 @@ test("Button press to keep on KeepOrDelete page", async () => {
          await window.waitForTimeout(500);
       }
    }
+   await window.evaluate(() => localStorage.clear());
 });
 
 test("Touch swipe to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
+   await window.evaluate(() => localStorage.clear());
 
    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
 
@@ -150,10 +153,11 @@ test("Touch swipe to keep on KeepOrDelete page", async () => {
          await window.waitForTimeout(500);
       }
    }
+   await window.evaluate(() => localStorage.clear());
 });
 test("Arrow key Swipe to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
-
+   await window.evaluate(() => localStorage.clear());
    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
 
    // Intercept file selection dialog
@@ -201,4 +205,5 @@ test("Arrow key Swipe to keep on KeepOrDelete page", async () => {
          await window.waitForTimeout(500);
       }
    }
+   await window.evaluate(() => localStorage.clear());
 });

@@ -23,7 +23,8 @@ contextBridge.exposeInMainWorld('file', {
    removeFileType: (fileType) => ipcRenderer.invoke('removeFileType', fileType),
    addFileType: (fileType) => ipcRenderer.invoke('addFileType', fileType),
    getRemovedFileTypes: () => ipcRenderer.invoke("getRemovedFileTypes"),
-   quitApp: () => ipcRenderer.send('quit-app') //allow quitting the app
+   quitApp: () => ipcRenderer.send('quit-app'), //allow quitting the app
+   platform: process.platform, 
 });
 
 contextBridge.exposeInMainWorld('fileFinal', {
