@@ -19,9 +19,9 @@ window.onload = async function () {
             files = await window.file.getFilesInDirectory();
             localStorage.setItem("files", JSON.stringify(files));
             console.log("Filtered file list:", files);
-            //removedFileTypes = new Set(await window.file.getRemovedFileTypes());
+            removedFileTypes = new Set(await window.file.getRemovedFileTypes());
             console.log("Initial file list:", files);
-            //console.log("Removed file types:", Array.from(removedFileTypes));
+            console.log("Removed file types:", Array.from(removedFileTypes));
             // Keep only files not in removedFileTypes 
             files = files.filter(file => {
                 const fileName = file.split("/").pop();
@@ -31,6 +31,10 @@ window.onload = async function () {
                 }
 
                 return shouldKeep;
+            });
+            files = files.filter(file => {
+                const fileType = file.split(".").pop();
+                return !removedFileTypes.has(fileType);
             });
             //if there is anything kept or deleted already, filter files on page load
             if (keptFiles.length > 0 || filesToBeDeleted.length > 0) {
@@ -171,7 +175,7 @@ window.onload = async function () {
         event.stopPropagation();
         await handleRename();
     });
-    
+
     // Add event listener for Enter key
     document.getElementById('renameInput').addEventListener('keypress', async (event) => {
         if (event.key === "Enter") {
@@ -180,49 +184,49 @@ window.onload = async function () {
             await handleRename();
         }
     });
-    
+
     async function handleRename() {
         //const renameContainer = document.getElementById('renameContainer');
         const renameInput = document.getElementById('renameInput');
         const newName = renameInput.value.trim();
         let currentFile = files[currentIndex];
-    
+
         if (!newName) {
             showNotification('Please enter a new file name.', 'error');
             resetRenameInput(renameContainer);
             return;
         }
-    
+
         // Check for illegal characters and warn the user
         if (containsIllegalCharacters(newName)) {
             showNotification('⚠️ File name contains illegal characters.', 'error');
             resetRenameInput(renameContainer);
             return;  // Prevent further action if invalid
         }
-    
+
         // Ensure the new name has the correct file extension
         const originalExtension = currentFile.substring(currentFile.lastIndexOf('.'));
         const finalName = newName.includes('.') ? newName : `${newName}${originalExtension}`;
-    
+
         const directoryPath = window.file.pathDirname(currentFile);
         const newFilePath = window.file.pathJoin(directoryPath, finalName);
-    
+
         try {
             // Step 1: Get all file paths in the directory
             const allFilePaths = await window.file.getFilesInDirectory();
-    
+
             // Step 2: Extract file names using path.basename
             const allFileNames = allFilePaths.map(filePath => window.file.pathBasename(filePath));
-    
+
             // Step 3: Check if the new name already exists (excluding the current file)
             if (allFileNames.includes(finalName) && currentFile !== newFilePath) {
                 showNotification(`A file named "${finalName}" already exists.`, 'error');
                 resetRenameInput(renameContainer);
                 return;  // **This return ensures we don't continue to the renaming operation**
             }
-    
+
             console.log('Renaming:', currentFile, 'to', newFilePath);
-    
+
             // Step 4: Perform the rename
             const response = await window.file.renameFile(currentFile, newFilePath);
             if (response.success) {
@@ -240,7 +244,7 @@ window.onload = async function () {
             resetRenameInput(renameContainer);
         }
     }
-    
+
 
     function resetRenameInput(container) {
         container.innerHTML = '';  // Clear the old input field
@@ -271,7 +275,7 @@ window.onload = async function () {
 
         // Optionally, refocus the input when the user interacts with it
         //newRenameInput.addEventListener('focus', () => {
-          //  console.log('Input refocused when user interacts.');
+        //  console.log('Input refocused when user interacts.');
         //});
     }
 
@@ -279,16 +283,16 @@ window.onload = async function () {
         const illegalWindows = /[\/\\:*?"<>|]/;
         const illegalMacLinux = /\//;
         const illegalMac = /:/;
-    
+
         const platform = window.file.platform; // Get platform from preload.js
-    
+
         const isWindows = platform === 'win32';
         const isMac = platform === 'darwin';
-    
+
         if (isWindows && illegalWindows.test(name)) return true;
         if (isMac && (illegalMacLinux.test(name) || illegalMac.test(name))) return true;
         if (!isWindows && !isMac && illegalMacLinux.test(name)) return true;
-    
+
         return false;
     }
 
@@ -296,7 +300,7 @@ window.onload = async function () {
     function attachRenameListeners() {
         const renameInput = document.getElementById('renameInput');
         // Remove existing event listeners (prevents duplicates)
-        renameInput.removeEventListener("keypress", renameOnEnter);   
+        renameInput.removeEventListener("keypress", renameOnEnter);
         // Attach Enter key event
         renameInput.addEventListener("keypress", renameOnEnter);
     }
@@ -306,22 +310,22 @@ window.onload = async function () {
             event.preventDefault();
             const renameInput = document.getElementById('renameInput');
             const newName = renameInput.value.trim();
-    
+
             if (!newName) {
                 showNotification('Please enter a new file name.', 'error');
                 return;
             }
-    
+
             if (containsIllegalCharacters(newName)) {
                 showNotification('⚠️ File name contains illegal characters.', 'error');
                 return;
             }
-    
+
             await handleRename();
         }
     }
 
-    
+
     function displayCurrentFile() {
         if (currentIndex < 0 || currentIndex >= files.length) {
             document.getElementById("currentItem").innerText = "No files in queue.";
@@ -330,7 +334,7 @@ window.onload = async function () {
             document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
             refreshPreview();
         }
-    
+
         // Reset rename input field
         resetRenameInput(document.getElementById('renameContainer'));
         // Attach Enter event listener for renaming
@@ -364,13 +368,13 @@ window.onload = async function () {
         icon.classList.add("swipeIcon");
         // Keep Icon
         if (direction === "left") {
-            icon.innerHTML = "🗑️"; 
+            icon.innerHTML = "🗑️";
             icon.style.color = "red";
             translateX = "-120%";
             rotateDeg = "-20deg";
-        // Delete Icon
+            // Delete Icon
         } else {
-            icon.innerHTML = "✅"; 
+            icon.innerHTML = "✅";
             icon.style.color = "green";
             translateX = "120%";
             rotateDeg = "20deg";
@@ -512,12 +516,12 @@ window.onload = async function () {
             animateSwipe("left");
         }
     });
-    
+
 
     document.getElementById("aiButton").addEventListener("click", () => {
         LLM();
     });
-    function LLM(){
+    function LLM() {
         popup.style.display = 'inline-block';
         const filename = files[currentIndex];
         const fileContents = window.file.getFileContents(filename);
@@ -525,38 +529,38 @@ window.onload = async function () {
             popupContent.textContent = 'No file contents found.';
             return;
         }
-        else{
+        else {
             popupContent.textContent = 'Thinking...';
-        // Here id implenment a if statement to check file type and change the API Call
-        // Chat can take images so .png or .jpg will have a different call.
-        window.openai.openaiRequest([
-        { role: "system", content: "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension." },
-        { role: "user", content: fileContents }
-        ])
-        .then(response => {
-            const suggestion = response.choices[0].message;
-            console.log("Renaming Suggestion:", suggestion.content);
+            // Here id implenment a if statement to check file type and change the API Call
+            // Chat can take images so .png or .jpg will have a different call.
+            window.openai.openaiRequest([
+                { role: "system", content: "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension." },
+                { role: "user", content: fileContents }
+            ])
+                .then(response => {
+                    const suggestion = response.choices[0].message;
+                    console.log("Renaming Suggestion:", suggestion.content);
 
-            // Display the popup and suggested name. 
-            const popup = document.getElementById('popup');
-            const popupContent = document.getElementById('popupContent');
-            popupContent.textContent = suggestion.content;
+                    // Display the popup and suggested name. 
+                    const popup = document.getElementById('popup');
+                    const popupContent = document.getElementById('popupContent');
+                    popupContent.textContent = suggestion.content;
 
-            // Add a click event listener to the popup. Populates the input field wih the suggestion.
-            popup.onclick = () => {
-            const renameInput = document.getElementById('renameInput');
-            if (renameInput && !renameInput.value.trim()) {
-                renameInput.value = suggestion.content;
-            }
-            popup.style.display = 'none';
+                    // Add a click event listener to the popup. Populates the input field wih the suggestion.
+                    popup.onclick = () => {
+                        const renameInput = document.getElementById('renameInput');
+                        if (renameInput && !renameInput.value.trim()) {
+                            renameInput.value = suggestion.content;
+                        }
+                        popup.style.display = 'none';
+                    }
+
+                })
+                .catch(error => {
+                    console.error('Error sending OpenAI request:', error);
+                });
+
         }
-           
-        })
-        .catch(error => {
-            console.error('Error sending OpenAI request:', error);
-        });
-        
-    }
     }
 
 
