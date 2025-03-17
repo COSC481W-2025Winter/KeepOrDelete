@@ -569,14 +569,14 @@ window.onload = async function () {
             {
               role: "system",
               content:
-                "You will review the following image encoded in Base64 and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
+                "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output."
             },
             {
               role: "user",
               content: [
                 {
                   type: "text",
-                  text: "You will review the following image encoded in Base64 and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
+                  text: "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output.",
                 },
                 {
                   type: "image_url",
