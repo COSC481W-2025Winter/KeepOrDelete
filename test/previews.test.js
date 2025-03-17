@@ -81,7 +81,7 @@ const noPreviewMsg = /no.*available/i
  */
 async function setupWithTestFile(testFile) {
    window = await electronApp.firstWindow();
-
+   await window.evaluate(() => localStorage.clear());
    // Write the input file to the temporary directory. Has two modes, dependent on the input:
    // (1) TestFile instance. Write it to the test directory.
    // (2) Path to an existing file. Copy it to the test directory.
@@ -116,6 +116,7 @@ test("Preview `.txt`", async () => {
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toEqual(f.contents);
+   await window.evaluate(() => localStorage.clear());
 })
 
 test("Preview `.csv`", async () => {
@@ -125,6 +126,7 @@ test("Preview `.csv`", async () => {
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toEqual(f.contents);
+   await window.evaluate(() => localStorage.clear());
 })
 
 test("Preview `.pdf`", async () => {
@@ -150,6 +152,7 @@ test("Preview `.pdf`", async () => {
    const previewHash = crypto.createHash("md5").update(previewPdfContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.evaluate(() => localStorage.clear());
 })
 
 test("Preview `.png`", async () => {
@@ -173,6 +176,7 @@ test("Preview `.png`", async () => {
    const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.evaluate(() => localStorage.clear());
 })
 
 test("Preview `.jpg`", async () => {
@@ -196,6 +200,7 @@ test("Preview `.jpg`", async () => {
    const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.evaluate(() => localStorage.clear());
 })
 
 test("Preview `.docx`", async () => {
@@ -219,8 +224,54 @@ test("Preview `.docx`", async () => {
    const previewFileExists = fs.existsSync(previewPdfPath);
 
    expect(previewFileExists).toBe(true);
+   await window.evaluate(() => localStorage.clear());
 })
 
+test("Preview `.mp4`", async () => {
+   const srcPath = path.join("test", "res", "small.mp4");
+   await setupWithTestFile(srcPath);
+
+   const srcContents = fs.readFileSync(srcPath, (err) => {
+      if (err) throw err;
+   })
+
+   const srcHash = crypto.createHash("md5").update(srcContents).digest("hex");
+
+   const preview = await window.locator("#previewContainer").innerText();
+
+   const previewFilePath = await window.getByTestId("video-src").getAttribute("src");
+
+   const previewFileContents = fs.readFileSync(previewFilePath, (err) => {
+      if (err) throw err;
+   })
+
+   const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
+
+   expect(srcHash).toEqual(previewHash);
+})
+
+test("Preview `.mov`", async () => {
+   const srcPath = path.join("test", "res", "small.mov");
+   await setupWithTestFile(srcPath);
+
+   const srcContents = fs.readFileSync(srcPath, (err) => {
+      if (err) throw err;
+   })
+
+   const srcHash = crypto.createHash("md5").update(srcContents).digest("hex");
+
+   const preview = await window.locator("#previewContainer").innerText();
+
+   const previewFilePath = await window.getByTestId("video-src").getAttribute("src");
+
+   const previewFileContents = fs.readFileSync(previewFilePath, (err) => {
+      if (err) throw err;
+   })
+
+   const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
+
+   expect(srcHash).toEqual(previewHash);
+})
 test("Preview `.frog` (unsupported)", async () => {
    const f = new TestFile("tree.frog", "Frog file contents ribbit", "utf8");
    await setupWithTestFile(f);
@@ -228,4 +279,5 @@ test("Preview `.frog` (unsupported)", async () => {
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toMatch(noPreviewMsg);
+   await window.evaluate(() => localStorage.clear());
 })

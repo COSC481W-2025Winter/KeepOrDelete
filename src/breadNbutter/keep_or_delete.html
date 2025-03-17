@@ -3,10 +3,13 @@
 
 <head>
    <meta charset="UTF-8" />
-   <!-- Content Security Policy settings as before -->
-   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
-   <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
    <link rel="stylesheet" href="../stylesheet.css">
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self';
+         script-src 'self';
+         connect-src 'self' https://610op4g6ei.execute-api.us-east-1.amazonaws.com;
+         object-src 'none'
+         " />
+   <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
    
    <title>KeepOrDelete</title>
 </head>
@@ -39,8 +42,23 @@
    </div>
 
    <div id="notification">
-   </div>   
+   </div>
 
+   <div class="wrapper">
+      <div id="renameContainer">
+        <input type="text" id="renameInput" placeholder="Enter new file name">
+        <p id="renameWarning"></p>
+      </div>
+      <div class="popup" id="popup" placeholder="AI Suggested Name">
+        AI: <span id="popupContent"></span>
+      </div>
+    </div>
+    
+  <button id="renameButton">Rename File</button>  
+  <button id="aiButton">AI Suggestion</button>
+  <button id="backButton">Change Directory</button>
+
+   <p id="currentItem"></p>
    
 
    

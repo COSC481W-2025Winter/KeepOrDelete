@@ -1,28 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-   <meta charset="UTF-8">
-   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <meta charset="UTF-8">
    <link rel="stylesheet" href="./stylesheet.css">
    <button id="backButton">Back</button>
    <title>Final Page</title>
 </head>
 
 <body class="final-page">
-   <h1>Final Step: Review Your Files</h1>
-   <div class="file-container">
-       <div class="kept-files">
-           <h2>Kept Files</h2>
-           <div id="keptFilesList"></div>
-       </div>
+    <h1>Final Step: Review Your Files</h1>
+    <div class="file-container">
+        <div class="kept-files">
+            <h2>Kept Files</h2>
+            <div id="notification">
+                <p id="renameWarning"></p>
+            </div>  
+            <div id="keptFilesList"></div>
+        </div>
 
-       <div class="deleted-files">
-           <h2>Deleted Files</h2>
-           <div id="deletedFilesList"></div>
-       </div>
-   </div>
+        <div class="deleted-files">
+            <h2>Deleted Files</h2>
+            <div id="deletedFilesList"></div>
+        </div>
+    </div>
 
-   <button id="finalizeButton">Finalize & Exit</button>
+   <button id="finalizeButton">Finalize</button>
+   <button id="exitButton">Exit</button>
 
    <script src="./final_page.js"></script>
 </body>

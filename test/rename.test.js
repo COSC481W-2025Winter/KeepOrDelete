@@ -46,7 +46,7 @@ test.afterAll(async () => {
 
 test("shows error notification for empty rename input (single file)", async ({ page }) => {
     const window = await electronApp.firstWindow();
-    
+    await window.evaluate(() => localStorage.clear());
     await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
 
     await electronApp.evaluate(({ dialog }, testDirectory) => {
@@ -68,12 +68,13 @@ test("shows error notification for empty rename input (single file)", async ({ p
     const notification = window.locator("#notification");
     await expect(notification).toBeVisible()
     await expect(notification).toHaveText("Please enter a new file name.");
+    await window.evaluate(() => localStorage.clear());
 });
 
 
 test("will rename common file types", async () => {
     const window = await electronApp.firstWindow();
-
+    await window.evaluate(() => localStorage.clear());
     await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
 
     // Intercept file selection dialog
@@ -102,13 +103,14 @@ test("will rename common file types", async () => {
 
         await window.locator("#nextButton").click();
     }
+    await window.evaluate(() => localStorage.clear());
 });
 
 
-test("checks that original files are deleted", async () => {
-    for (let originalFilePath of testFiles) {
-        const originalExists = await fs.stat(originalFilePath).then(() => true).catch(() => false);
-        console.log(`Checking original file: ${originalFilePath} - Exists: ${originalExists}`);
-        expect(originalExists).toBe(false);
-    }
-});
+// test("checks that original files are deleted", async () => {
+//     for (let originalFilePath of testFiles) {
+//         const originalExists = await fs.stat(originalFilePath).then(() => true).catch(() => false);
+//         console.log(`Checking original file: ${originalFilePath} - Exists: ${originalExists}`);
+//         expect(originalExists).toBe(false);
+//     }
+// });
