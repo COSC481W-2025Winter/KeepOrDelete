@@ -65,6 +65,7 @@ test("Clicking on AI button returns expected message", async ({ page }) => {
 
   // Make sure selected file has contents. This would be passed on to AWS Lambda
   await window.locator("#aiButton").click();
+  await window.locator("#aiButton").click();
   const popupContentLocator = window.locator("#popupContent");
   await expect(popupContentLocator).toContainText("Thinking...");
 
