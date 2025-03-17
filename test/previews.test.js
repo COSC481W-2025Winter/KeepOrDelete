@@ -81,7 +81,7 @@ const noPreviewMsg = /no.*available/i
  */
 async function setupWithTestFile(testFile) {
    window = await electronApp.firstWindow();
-
+   await window.evaluate(() => localStorage.clear());
    // Write the input file to the temporary directory. Has two modes, dependent on the input:
    // (1) TestFile instance. Write it to the test directory.
    // (2) Path to an existing file. Copy it to the test directory.

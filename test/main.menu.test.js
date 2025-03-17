@@ -30,6 +30,7 @@ test.afterAll(async () => {
 //settings window button test
 test("navigate to settings window", async () => {
   const window = await app.firstWindow();
+  await window.evaluate(() => localStorage.clear());
   //navigate to main menu
   await window.goto(fileUrl);
 
@@ -47,6 +48,7 @@ test("navigate to settings window", async () => {
 //test go button when user doesn't select file
 test("go button with no file path", async () => {
   const window = await app.firstWindow();
+  await window.evaluate(() => localStorage.clear());
   //navigate to main menu
   await window.goto(fileUrl); // Navigate to the main menu window
 
@@ -67,6 +69,7 @@ test("go button with no file path", async () => {
 //test go button with selected file
 test("go button with valid file path", async () => {
   const window = await app.firstWindow();
+  await window.evaluate(() => localStorage.clear());
   //navigate to main menu
   await window.goto(fileUrl);
 

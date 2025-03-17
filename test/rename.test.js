@@ -46,7 +46,7 @@ test.afterAll(async () => {
 
 test("shows error notification for empty rename input (single file)", async ({ page }) => {
     const window = await electronApp.firstWindow();
-    
+    await window.evaluate(() => localStorage.clear());
     await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
 
     await electronApp.evaluate(({ dialog }, testDirectory) => {
@@ -73,7 +73,7 @@ test("shows error notification for empty rename input (single file)", async ({ p
 
 test("will rename common file types", async () => {
     const window = await electronApp.firstWindow();
-
+    await window.evaluate(() => localStorage.clear());
     await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
 
     // Intercept file selection dialog

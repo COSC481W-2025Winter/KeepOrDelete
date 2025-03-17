@@ -17,6 +17,7 @@ test.afterAll(async () => {
 // Navigation test
 test('Navigation to and from settings page', async () => {
   const window = await electronApp.firstWindow();
+  await window.evaluate(() => localStorage.clear());
   await window.click('#settings');
   await expect(window).toHaveURL(/settings\.html/);
   await window.click('#backButton');
@@ -26,6 +27,7 @@ test('Navigation to and from settings page', async () => {
 // Checkbox test
 test('Settings page selectables are checked and unchecked', async () => {
   const window = await electronApp.firstWindow();
+  await window.evaluate(() => localStorage.clear());
   await window.click('#settings');
 
   // Get current states
@@ -53,6 +55,7 @@ test('Settings page selectables are checked and unchecked', async () => {
 // Config file test
 test('Config file exists', async () => {
   const window = await electronApp.firstWindow();
+  await window.evaluate(() => localStorage.clear());
   const os = require('os');
   const path = require('path');
   const fs = require('fs');
@@ -76,7 +79,5 @@ test('Config file exists', async () => {
   const existsAfter = fs.existsSync(configPath);
   expect(existsBefore).toBe(true);
   expect(existsAfter).toBe(false);
-
-  
 });
 
