@@ -33,6 +33,7 @@ test("will delete common file types with next button", async ({ page }) => {
     //this to line 56 is getting us to keep_or_delete.html
     const window = await app.firstWindow();
     await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+    await window.evaluate(() => localStorage.clear());
     await app.evaluate(({ dialog }, testDirectory) => {
         dialog.showOpenDialog = async () => ({
             canceled: false,
@@ -91,11 +92,13 @@ test("will delete common file types with next button", async ({ page }) => {
         attempts++;
     }
     expect(fileDeleted).toBe(true); //now checks file is gone
+    await window.evaluate(() => localStorage.clear());
 });
 
 test("will delete common file types with swiping", async ({ page }) => {
     //this to line 56 is getting us to keep_or_delete.html
     const window = await app.firstWindow();
+    await window.evaluate(() => localStorage.clear());
     await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
     // Intercept file selection dialog
     await app.evaluate(({ dialog }, testDirectory) => {
@@ -141,4 +144,5 @@ test("will delete common file types with swiping", async ({ page }) => {
         attempts++;
     }
     expect(fileDeleted).toBe(true); //now checks file is gone
+    await window.evaluate(() => localStorage.clear());
 });
