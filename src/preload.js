@@ -23,7 +23,8 @@ contextBridge.exposeInMainWorld('file', {
    removeFileType: (fileType) => ipcRenderer.invoke('removeFileType', fileType),
    addFileType: (fileType) => ipcRenderer.invoke('addFileType', fileType),
    getRemovedFileTypes: () => ipcRenderer.invoke("getRemovedFileTypes"),
-   quitApp: () => ipcRenderer.send('quit-app') //allow quitting the app
+   quitApp: () => ipcRenderer.send('quit-app'), //allow quitting the app
+   getBase64: (filePath) => fs.readFileSync(filePath, "base64") // convert to base64
 });
 
 contextBridge.exposeInMainWorld('fileFinal', {

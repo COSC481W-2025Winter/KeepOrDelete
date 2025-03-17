@@ -1,4 +1,3 @@
-//const path = require("node:path");
 //const fs = require("fs");
 
 window.onload = async function () {
@@ -385,48 +384,101 @@ window.onload = async function () {
     
 
     document.getElementById("aiButton").addEventListener("click", () => {
-        LLM();
+      LLM();
     });
-    function LLM(){
-        popup.style.display = 'inline-block';
-        const filename = files[currentIndex];
-        const fileContents = window.file.getFileContents(filename);
+    function LLM() {
+      popup.style.display = "inline-block";
+      const filename = files[currentIndex];
+      const fileContents = window.file.getFileContents(filename);
+
+      // Check for images using mime and fs to convert to base64
+      const mimeType = window.file.getMimeType(filename);
+      if (mimeType && mimeType.startsWith("image/")) {
+        try {
+          // Read the file and directly obtain a Base64-encoded string.
+          const base64Image = window.file.getBase64(filename);
+          popupContent.textContent = "Thinking...";
+
+          // Make the API call following the OpenAI template:
+          window.openai
+            .openaiRequest([
+              {
+                role: "system",
+                content:
+                  "You will review the following image encoded in Base64 and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
+              },
+              {
+                role: "user",
+                content: [
+                  { type: "text", text: "You will review the following image encoded in Base64 and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension." },
+                  {
+                    type: "image_url",
+                    image_url: {
+                      url: `data:${mimeType};base64,${base64Image}`,
+                    },
+                  },
+                ],
+              },
+            ])
+            .then((response) => {
+              const suggestion = response.choices[0].message;
+              console.log("Renaming Suggestion:", suggestion.content);
+              popupContent.textContent = suggestion.content;
+
+              popup.onclick = () => {
+                const renameInput = document.getElementById("renameInput");
+                if (renameInput && !renameInput.value.trim()) {
+                  renameInput.value = suggestion.content;
+                }
+                popup.style.display = "none";
+              };
+            })
+            .catch((error) => {
+              console.error("Error sending OpenAI request:", error);
+            });
+        } catch (error) {
+          console.error("Error reading image file:", error);
+        }
+      } else {
         if (!fileContents || fileContents.length === 0) {
-            popupContent.textContent = 'No file contents found.';
-            return;
-        }
-        else{
-            popupContent.textContent = 'Thinking...';
-        // Here id implenment a if statement to check file type and change the API Call
-        // Chat can take images so .png or .jpg will have a different call.
-        window.openai.openaiRequest([
-        { role: "system", content: "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension." },
-        { role: "user", content: fileContents }
-        ])
-        .then(response => {
-            const suggestion = response.choices[0].message;
-            console.log("Renaming Suggestion:", suggestion.content);
+          popupContent.textContent = "No file contents found.";
+          return;
+        } else {
+          popupContent.textContent = "Thinking...";
+          // Here id implenment a if statement to check file type and change the API Call
+          // Chat can take images so .png or .jpg will have a different call.
+          window.openai
+            .openaiRequest([
+              {
+                role: "system",
+                content:
+                  "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
+              },
+              { role: "user", content: fileContents },
+            ])
+            .then((response) => {
+              const suggestion = response.choices[0].message;
+              console.log("Renaming Suggestion:", suggestion.content);
 
-            // Display the popup and suggested name. 
-            const popup = document.getElementById('popup');
-            const popupContent = document.getElementById('popupContent');
-            popupContent.textContent = suggestion.content;
+              // Display the popup and suggested name.
+              const popup = document.getElementById("popup");
+              const popupContent = document.getElementById("popupContent");
+              popupContent.textContent = suggestion.content;
 
-            // Add a click event listener to the popup. Populates the input field wih the suggestion.
-            popup.onclick = () => {
-            const renameInput = document.getElementById('renameInput');
-            if (renameInput && !renameInput.value.trim()) {
-                renameInput.value = suggestion.content;
-            }
-            popup.style.display = 'none';
+              // Add a click event listener to the popup. Populates the input field wih the suggestion.
+              popup.onclick = () => {
+                const renameInput = document.getElementById("renameInput");
+                if (renameInput && !renameInput.value.trim()) {
+                  renameInput.value = suggestion.content;
+                }
+                popup.style.display = "none";
+              };
+            })
+            .catch((error) => {
+              console.error("Error sending OpenAI request:", error);
+            });
         }
-           
-        })
-        .catch(error => {
-            console.error('Error sending OpenAI request:', error);
-        });
-        
-    }
+      }
     }
 
 
