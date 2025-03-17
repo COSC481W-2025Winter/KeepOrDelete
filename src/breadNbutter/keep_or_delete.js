@@ -400,8 +400,7 @@ window.onload = async function () {
           popupContent.textContent = "Thinking...";
 
           // Make the API call following the OpenAI template:
-          window.openai
-            .openaiRequest([
+          window.openai.openaiRequest([
               {
                 role: "system",
                 content:
@@ -415,6 +414,7 @@ window.onload = async function () {
                     type: "image_url",
                     image_url: {
                       url: `data:${mimeType};base64,${base64Image}`,
+                      detail: "low",
                     },
                   },
                 ],
@@ -435,6 +435,7 @@ window.onload = async function () {
             })
             .catch((error) => {
               console.error("Error sending OpenAI request:", error);
+              popupContent.textContent = "This image goes against our requirements.";
             });
         } catch (error) {
           console.error("Error reading image file:", error);
@@ -447,8 +448,7 @@ window.onload = async function () {
           popupContent.textContent = "Thinking...";
           // Here id implenment a if statement to check file type and change the API Call
           // Chat can take images so .png or .jpg will have a different call.
-          window.openai
-            .openaiRequest([
+          window.openai.openaiRequest([
               {
                 role: "system",
                 content:
