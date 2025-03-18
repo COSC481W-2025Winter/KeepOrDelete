@@ -54,6 +54,6 @@ window.onload = async function () {
     }
     document.getElementById("navMainMenu").onclick = function () {
         console.log(localStorage.getItem("deletedFiles"));
-        window.location.href = "./breadNbutter/keep_or_delete.html"
+        window.location.href = "./main_page/keep_or_delete.html"
     }
 };

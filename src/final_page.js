@@ -214,7 +214,7 @@ window.onload = async function () {
 
     //Back button functionality
     document.getElementById("backButton").addEventListener("click", () => {
-        window.location.href = "./breadNbutter/keep_or_delete.html";
+        window.location.href = "./main_page/keep_or_delete.html";
     });
 
     document.getElementById("finalizeButton").addEventListener("click", async () => {
