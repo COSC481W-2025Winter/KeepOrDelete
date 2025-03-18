@@ -336,9 +336,10 @@ window.onload = async function () {
     function displayCurrentFile() {
         if (currentIndex < 0 || currentIndex >= files.length) {
             document.getElementById("currentItem").innerText = "No files in queue.";
+            document.getElementById("currentItemSize").innerText = "";
         } else {
             filePath = files[currentIndex];
-            let fileName = filePath.split(/[\\/]/).pop();
+            let fileName = window.file.pathBasename(filePath);
             document.getElementById("currentItem").innerText = "Current File: " + fileName;
 
             let stats = window.file.getFileSize(filePath);
