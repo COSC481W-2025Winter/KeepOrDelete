@@ -73,11 +73,17 @@ async function convertDocxToPdf(filepath) {
 
    pdfPath = path.join(os.tmpdir(), "docxToPdf.pdf");
 
-   pdfMake.createPdf(docDefinition).getBuffer((buffer) => {
-      fs.writeFileSync(pdfPath, buffer);
+   return new Promise((resolve, reject) => {
+      pdfMake.createPdf(docDefinition).getBuffer((buffer) => {
+         fs.writeFile(pdfPath, buffer, (err) => {
+            if (err) {
+               reject(err);
+            } else {
+               resolve(pdfPath);
+            }
+         });
+      });
    });
-
-   return pdfPath;
 }
 
 module.exports = { generatePreviewHTML };
