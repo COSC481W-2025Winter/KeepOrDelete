@@ -12,7 +12,7 @@ window.onload = async function () {
             const listItem = document.createElement("li");
             listItem.innerText = fileName;
             const deleteButton = document.createElement("button");
-            deleteButton.innerText = "Keep";
+            deleteButton.innerText = "Move to keep";
             deleteButton.classList.add("deleteUndo");
             deleteButton.dataset.file = file;
             listItem.appendChild(deleteButton);
