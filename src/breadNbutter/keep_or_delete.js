@@ -338,6 +338,9 @@ window.onload = async function () {
 
         // Reset rename input field
         resetRenameInput(document.getElementById('renameContainer'));
+        //reset inspect mode upon file change
+        inspectMode = false;
+        document.getElementById("inspectButton").innerText = "Inspect Document";
         // Attach Enter event listener for renaming
         //attachRenameListeners();
     }
