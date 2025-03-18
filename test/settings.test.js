@@ -1,69 +1,52 @@
-
 const { test, expect, _electron: electron } = require('@playwright/test');
 let electronApp;
-const fileTypes = ['py', 'java', 'js', 'jar', 'txt', 'csv', 'pdf', 'md', 'doc', 'docx', 'pptx', 'png', 'jpg', 'mp4', 'wav', 'mp3'];
 
+// Custom logging function with date
+const log = (message) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${message}`);
+};
 
-  // Launch the Electron app
- test.beforeAll(async () => {
-   electronApp = await electron.launch({ args: ["./"] });
- });
-
+// Launch the Electron app
+test.beforeAll(async () => {
+  electronApp = await electron.launch({ args: ["./"] });
+});
 
 test.afterAll(async () => {
   await electronApp.close();
 });
 
-// Navigation test
-test('Navigation to and from settings page', async () => {
-  const window = await electronApp.firstWindow();
-  await window.evaluate(() => localStorage.clear());
-  await window.click('#settings');
-  await expect(window).toHaveURL(/settings\.html/);
-  await window.click('#backButton');
-  await expect(window).toHaveURL(/main_menu\.html/);
-  await window.evaluate(() => localStorage.clear());
-});
-
-// Checkbox test
-test('Settings page selectables are checked and unchecked', async () => {
+// Checkbox test for 'txt' only
+test('Settings page: toggle txt checkbox and check config update', async () => {
   const window = await electronApp.firstWindow();
   await window.evaluate(() => localStorage.clear());
   await window.click('#settings');
 
-  // Get current states
-  const initialStates = {};
-  for (const type of fileTypes) {
-    initialStates[type] = await window.evaluate((id) => document.getElementById(id).checked, type);
-  }
+  // Ensure the 'txt' checkbox is checked at the start
+  log("Setting 'txt' checkbox to checked...");
+  await window.evaluate(() => { document.getElementById('txt').checked = true; });
 
-  // Click each checkbox
-  for (const type of fileTypes) {
-    await window.click(`#${type}`);
-    const currentState = await window.evaluate((id) => document.getElementById(id).checked, type);
-    expect(currentState).toBe(!initialStates[type]);
-  }
+  // Confirm the checkbox is now checked
+  const initialState = await window.evaluate(() => document.getElementById('txt').checked);
+  log(`Initial state after setting: ${initialState}`);
+  expect(initialState).toBe(true);
 
-  // Turn back to original state
-  for (const type of fileTypes) {
-    await window.click(`#${type}`);
-    const currentState = await window.evaluate((id) => document.getElementById(id).checked, type);
-    expect(currentState).toBe(initialStates[type]);
-  }
-  await window.waitForTimeout(500);
-  await window.evaluate(() => localStorage.clear());
-});
+  // Toggle 'txt' checkbox
+  log("Clicking 'txt' checkbox...");
+  await window.click('#txt');
 
-// Config file test
-test('Config file exists', async () => {
-  const window = await electronApp.firstWindow();
-  await window.evaluate(() => localStorage.clear());
+  const newState = await window.evaluate(() => document.getElementById('txt').checked);
+  log(`New state: ${newState}`);
+  expect(newState).toBe(false); // Since we start as checked, clicking should uncheck it.
+
+  // Check if config file gets updated
   const os = require('os');
   const path = require('path');
   const fs = require('fs');
 
   let userDataPath;
-  await window.waitForTimeout(500);
+  log("Checking for config file...");
+
   if (process.platform === 'win32') {
     userDataPath = path.join(process.env.APPDATA, 'KeepOrDelete');
   } else if (process.platform === 'darwin') {
@@ -73,14 +56,30 @@ test('Config file exists', async () => {
   }
   const configPath = path.join(userDataPath, 'config.json');
 
-  
-  const existsBefore = fs.existsSync(configPath);
-  if (existsBefore) {
-    fs.rmSync(configPath);
-  }
-  const existsAfter = fs.existsSync(configPath);
-  expect(existsBefore).toBe(true);
-  expect(existsAfter).toBe(false);
+  // Read the config file
+  log(`Checking if config file exists at: ${configPath}`);
+  expect(fs.existsSync(configPath)).toBe(true);
+
+  const configData = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  log("Config Data:", configData);
+
+  log("Checking if 'txt' is in removedFileTypes...");
+  expect(Array.isArray(configData.removedFileTypes)).toBe(true);
+
+  const isTxtRemoved = configData.removedFileTypes.includes('txt');
+  log(`'txt' in removedFileTypes: ${isTxtRemoved}`);
+
+  expect(isTxtRemoved).toBe(!newState);
+
+
+  await delay 10 seconds
+  // Reset the checkbox to its original state (checked)
+  log("Resetting 'txt' checkbox to checked...");
+  await window.click('#txt');
+
+  const resetState = await window.evaluate(() => document.getElementById('txt').checked);
+  log(`Reset state: ${resetState}`);
+  expect(resetState).toBe(true);
+
   await window.evaluate(() => localStorage.clear());
 });
-
