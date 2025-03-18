@@ -72,7 +72,6 @@ test('Settings page: toggle txt checkbox and check config update', async () => {
   expect(isTxtRemoved).toBe(!newState);
 
 
-  await delay 10 seconds
   // Reset the checkbox to its original state (checked)
   log("Resetting 'txt' checkbox to checked...");
   await window.click('#txt');
