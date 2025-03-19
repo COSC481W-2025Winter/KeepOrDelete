@@ -552,9 +552,14 @@ window.onload = async function () {
         popup.style.display = 'inline-block';
         const filename = files[currentIndex];
         const fileContents = window.file.getFileContents(filename);
+        // Check for images using mime and fs to convert to base64
+        const mimeType = window.file.getMimeType(filename);
         if (!fileContents || fileContents.length === 0) {
             popupContent.textContent = 'No file contents found.';
             return;
+        }
+        else if( mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType.startsWith("application/")) {
+            popupContent.textContent = 'File type is currently not supported.';
         }
         else {
             popupContent.textContent = 'Thinking...';
