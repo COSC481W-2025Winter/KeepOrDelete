@@ -6,7 +6,7 @@ window.onload = async function () {
     let inspectMode = false;
     let keptFiles = JSON.parse(localStorage.getItem("keptFiles")) || [];
     let filesToBeDeleted = JSON.parse(localStorage.getItem("deletedFiles")) || [];
-
+    const hasShownTooltip = sessionStorage.getItem("tooltipShown");
     try {
         // Fetch the selected directory path
         const dirPath = await window.file.getFilePath();
@@ -76,6 +76,7 @@ window.onload = async function () {
 
     // Delete button press
     document.getElementById("deleteButton").addEventListener("click", async () => {
+        if (!hasFiles()) return;
         animateSwipe("left");;
     });
 
@@ -129,15 +130,13 @@ window.onload = async function () {
 
     // Go through files in directory +1
     document.getElementById("nextButton").addEventListener("click", async () => {
+        if (!hasFiles()) return;
         animateSwipe("right");
     });
 
     // Next file function (aka Keep)
     async function nextFile() {
-        if (files.length === 0) {
-            console.warn("No files left.");
-            return;
-        }
+        if (!hasFiles()) return;
         try {
             const filePath = files[currentIndex];
 
@@ -171,6 +170,7 @@ window.onload = async function () {
     }
 
     document.getElementById('renameButton').addEventListener('click', async (event) => {
+        if (!hasFiles()) return;
         event.preventDefault();
         event.stopPropagation();
         await handleRename();
@@ -178,6 +178,7 @@ window.onload = async function () {
 
     // Add event listener for Enter key
     document.getElementById('renameInput').addEventListener('keypress', async (event) => {
+        if (!hasFiles()) return;
         if (event.key === "Enter") {
             event.preventDefault();
             event.stopPropagation();
@@ -325,18 +326,35 @@ window.onload = async function () {
         }
     }
 
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return `${bytes} B`;
+        else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+        else if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        else return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+    }
 
     function displayCurrentFile() {
         if (currentIndex < 0 || currentIndex >= files.length) {
             document.getElementById("currentItem").innerText = "No files in queue.";
+            document.getElementById("currentItemSize").innerText = "";
         } else {
-            filename = files[currentIndex];
-            document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
+            filePath = files[currentIndex];
+            let fileName = window.file.pathBasename(filePath);
+            document.getElementById("currentItem").innerText = "Current File: " + fileName;
+
+            let stats = window.file.getFileSize(filePath);
+            let fileSize = stats.size;
+            let formattedSize = formatFileSize(fileSize);
+            document.getElementById("currentItemSize").innerText = "| File Size: " + formattedSize;
+
             refreshPreview();
         }
 
         // Reset rename input field
         resetRenameInput(document.getElementById('renameContainer'));
+        //reset inspect mode upon file change
+        inspectMode = false;
+        document.getElementById("inspectButton").innerText = "Inspect Document";
         // Attach Enter event listener for renaming
         //attachRenameListeners();
     }
@@ -364,6 +382,7 @@ window.onload = async function () {
 
     // Swipe animation handler
     function animateSwipe(direction) {
+        if (!hasFiles()) return;
         const icon = document.createElement("div");
         icon.classList.add("swipeIcon");
         // Keep Icon
@@ -392,6 +411,10 @@ window.onload = async function () {
         previewContainer.addEventListener("transitionend", function handleTransitionEnd() {
             if (direction === "right") nextFile();
             else deleteFile();
+            if (!hasFiles()){
+                previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up."; 
+                icon.remove();
+            };
             previewContainer.removeEventListener("transitionend", handleTransitionEnd);
         });
     }
@@ -454,12 +477,14 @@ window.onload = async function () {
     });
     // Mouse event listeners for swipe
     previewContainer.addEventListener("mousedown", (e) => {
+        if (!hasFiles()) return;
         startSwipe(e);
         document.addEventListener("mousemove", moveSwipe);
         document.addEventListener("mouseup", endSwipe);
     });
     // Touch event listeners for swipe
     previewContainer.addEventListener("touchstart", (e) => {
+        if (!hasFiles()) return;
         startSwipe(e);
         document.addEventListener("touchmove", moveSwipe);
         document.addEventListener("touchend", endSwipe);
@@ -510,6 +535,7 @@ window.onload = async function () {
 
     // Arrow key file swiping
     document.addEventListener("keydown", async (e) => {
+        if (!hasFiles()) return;
         if (e.key === "ArrowRight") {
             animateSwipe("right");
         } else if (e.key === "ArrowLeft") {
@@ -519,15 +545,21 @@ window.onload = async function () {
 
 
     document.getElementById("aiButton").addEventListener("click", () => {
+        if (!hasFiles()) return;
         LLM();
     });
     function LLM() {
         popup.style.display = 'inline-block';
         const filename = files[currentIndex];
         const fileContents = window.file.getFileContents(filename);
+        // Check for images using mime and fs to convert to base64
+        const mimeType = window.file.getMimeType(filename);
         if (!fileContents || fileContents.length === 0) {
             popupContent.textContent = 'No file contents found.';
             return;
+        }
+        else if( mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType.startsWith("application/")) {
+            popupContent.textContent = 'File type is currently not supported.';
         }
         else {
             popupContent.textContent = 'Thinking...';
@@ -569,7 +601,7 @@ window.onload = async function () {
     let tooltip;
 
     // Only runs if user is real
-    if (!isTesting) {
+    if (!isTesting && !hasShownTooltip) {
         tooltip = document.getElementById("tooltip");
         tooltip.classList.add("show");
 
@@ -581,6 +613,7 @@ window.onload = async function () {
         // WIGGLE IS THE MOST IMPORTANT PART OF THE PROJECT
         triggerWiggle();
         setInterval(triggerWiggle, 3000);
+        sessionStorage.setItem("tooltipShown", "true");
     }
 
     // Dismiss tooltip
@@ -597,6 +630,15 @@ window.onload = async function () {
             tooltip.classList.add("wiggle");
             setTimeout(() => tooltip.classList.remove("wiggle"), 500);
         }
+    }
+
+    // Checks if there are files left
+    function hasFiles() {
+        if (files.length === 0) {
+            console.warn("No files left.");
+            return false;
+        }
+        return true;
     }
 
 };

@@ -96,9 +96,8 @@ test("will rename common file types", async () => {
         await window.locator("#renameInput").fill(path.basename(renamedFilePath));
 
         await window.locator("#renameButton").click();
-        //await window.waitForTimeout(2000);
 
-        const renamedExists = await fs.stat(renamedFilePath).then(() => true).catch(() => false);
+        const renamedExists = await fs.stat(renamedFilePath).then(() => true).catch(() => false, { timeout: 10000 });
         expect(renamedExists).toBe(true);
 
         await window.locator("#nextButton").click();
