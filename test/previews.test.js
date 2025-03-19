@@ -41,7 +41,7 @@ const noPreviewMsg = /no.*available/i
  * Intended to be called from each test case.
  */
 async function setupWithTestFile(testFile) {
-   // Generate random test directory path.
+   // Create a new tmp directory with a random name.
    const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name;
 
    window = await electronApp.firstWindow();
@@ -66,7 +66,7 @@ async function setupWithTestFile(testFile) {
    await electronApp.evaluate(({ dialog }, tmpDir) => {
       dialog.showOpenDialog = async () => ({
          canceled: false,
-         filePaths: [tmpDir], // Inject test dir path
+         filePaths: [tmpDir], // Inject path
       });
    }, tmpDir);
 
