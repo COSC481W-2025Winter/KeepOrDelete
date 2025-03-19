@@ -98,8 +98,9 @@ window.onload = async function () {
             // Perform rename
             const response = await window.file.renameFile(oldFilePath, newFilePath);
             if (response.success) {
-                renameInput.dataset.oldname = newFilePath; // Update dataset to new path
-                renameInput.value = newName;
+                keptFiles = keptFiles.map(file => (file === oldFilePath ? newFilePath : file));
+                localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
+                renameInput.dataset.oldname = newFilePath;
                 renameInput.blur(); // Remove focus after renaming
             } else {
                 await window.file.showMessageBox({
