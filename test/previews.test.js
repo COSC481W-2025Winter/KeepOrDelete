@@ -7,7 +7,7 @@ const tmp = require('tmp');
 // Run tests in parallel when possible.
 test.describe.configure({ mode: 'parallel' });
 
-// Remove all generated tmp dirs
+// Remove all generated tmp dirs when the process exits.
 tmp.setGracefulCleanup();
 
 let electronApp;
