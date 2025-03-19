@@ -47,6 +47,7 @@ test.afterAll(async () => {
 const testFileProcessing = async (window, swipeAction) => {
    let previousPath = null;
    for (let i = 0; i < 3; i++) {
+      await expect(window.locator("#currentItem")).toBeVisible({ timeout: 5000 });
       const path = await window.locator("#currentItem").innerText();
       expect(previousPath !== path).toBe(true);
       previousPath = path;
@@ -57,7 +58,7 @@ const testFileProcessing = async (window, swipeAction) => {
       } else {
          await swipeAction("right");
       }
-      await window.waitForTimeout(300);
+      await expect(window.locator("#currentItem")).not.toHaveText(path, { timeout: 5000 })
    }
 };
 
@@ -102,7 +103,8 @@ test("Touch swipe to keep on KeepOrDelete page", async () => {
    await window.waitForURL("**/keep_or_delete.html");
 
    await testFileProcessing(window, async (direction) => {
-      const previewContainer = await window.locator("#previewContainer");
+      const previewContainer = window.locator("#previewContainer");
+      await expect(previewContainer).toBeVisible({ timeout: 5000 });
       let box = await previewContainer.boundingBox();
       await previewContainer.hover();
       await window.mouse.down();
