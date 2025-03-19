@@ -345,7 +345,7 @@ window.onload = async function () {
             let stats = window.file.getFileSize(filePath);
             let fileSize = stats.size;
             let formattedSize = formatFileSize(fileSize);
-            document.getElementById("currentItemSize").innerText = "File Size: " + formattedSize;
+            document.getElementById("currentItemSize").innerText = "| File Size: " + formattedSize;
 
             refreshPreview();
         }
