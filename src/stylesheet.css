@@ -346,3 +346,9 @@ code {
   padding: 20px;
   overflow:auto;
 }
+.file-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}

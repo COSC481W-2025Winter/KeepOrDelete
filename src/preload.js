@@ -7,6 +7,7 @@ const os = require('node:os');
 
 contextBridge.exposeInMainWorld('file', {
    getFilePath: () => ipcRenderer.invoke('getFilePath'),
+   getFileSize: (path) => fs.statSync(path),
    getFileContents: (path) => fs.readFileSync(path).toString(),
    getMimeType: (path) => mime.getType(path),
    setFilePath: (filePath) => ipcRenderer.send('setFilePath', filePath),
