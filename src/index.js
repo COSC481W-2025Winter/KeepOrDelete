@@ -1,19 +1,27 @@
+const { session } = require("electron");
 const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const path = require("node:path");
 const fs = require("fs");
 const { promises: fsPromises } = require('fs');
+const configPath = path.join(app.getPath('userData'), 'config.json');
+
 
 let selectedFilePath = ""; // Ensure this updates dynamically
 let mainWindow;
 
+
 const createWindow = () => {
    mainWindow = new BrowserWindow({
-      width: 800,
-      height: 600,
+      width: 1600,
+      height: 900,
+      // Lock window rezing until we do our UI overhaul to prevent hidden items
+      resizable: false,
+      // Hide the top menu bar for release
+      autoHideMenuBar: true,
       webPreferences: {
          preload: path.join(__dirname, "preload.js"),
          sandbox: false,
-         nodeIntegration: false, 
+         nodeIntegration: false,
          contextIsolation: true,
          enableRemoteModule: false,
       }
@@ -57,30 +65,101 @@ ipcMain.handle('renameFile', async (event, { oldPath, newPath }) => {
    console.log(`Renaming: ${oldPath} -> ${newPath}`);  // Debugging
 
    if (!oldPath || !newPath) {
-       console.error('Invalid paths:', { oldPath, newPath });
-       return { success: false, message: 'Invalid file paths provided.' };
+      console.error('Invalid paths:', { oldPath, newPath });
+      return { success: false, message: 'Invalid file paths provided.' };
    }
 
    try {
-       await fsPromises.rename(oldPath, newPath);  // Correctly use fs.promises.rename
-       return { success: true };
+      await fsPromises.rename(oldPath, newPath);  // Correctly use fs.promises.rename
+      return { success: true };
    } catch (error) {
-       console.error('Error renaming file:', error);
-       return { success: false, message: error.message };
+      console.error('Error renaming file:', error);
+      return { success: false, message: error.message };
    }
 });
 
 ipcMain.handle("delete-file", async (event, filePath) => { //filePath gets sent over from preload
    try {
-      await fs.promises.rm(filePath, { force: true }); //fs.promises.rm(), this currently will remove 
-      // directories as well as files, do we want this? if not we can change it to fs.unlink(), which
-      //only does files
+      const trash = (await import("trash")).default; //dynamically import trash, some weird error, it has to be added inside this function
+      await trash(filePath); //updated to use recycling bin instead of hard removing the files!
       return { success: true, message: "File deleted successfully" }; //success is built in boolean feedback
    } catch (error) {
       console.error("Error deleting file:", error);
       return { success: false, message: error.message };
    }
 });
+
+//helper method to get config data 
+const getConfig = () => {
+   let config = {};
+   if (fs.existsSync(configPath)) {
+      const fileContent = fs.readFileSync(configPath, 'utf-8');
+      config = JSON.parse(fileContent);
+   }
+   return config;
+};
+
+
+
+//method to add a file type to the removeFileType
+ipcMain.handle("removeFileType", async (event, fileType) => {
+   try {
+      // Read the existing config file
+      let config = getConfig();
+
+      // Add the fileType to the removedFileTypes array (avoid duplicates)
+      config.removedFileTypes = Array.from(new Set([...config.removedFileTypes || [], fileType]));
+
+      // Write the updated config back to the JSON file
+      fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+      console.log(`Removed file type: ${fileType}`);
+      return { success: true, message: `File type ${fileType} removed.` };
+   } catch (error) {
+      console.error("Error removing file type:", error);
+      return { success: false, message: "Error removing file type." };
+   }
+});
+
+ipcMain.handle("addFileType", async (event, fileType) => {
+   try {
+      // Read the existing config file
+      let config = getConfig();
+
+      // Remove the fileType from the removedFileTypes array
+      if (config.removedFileTypes) {
+         config.removedFileTypes = config.removedFileTypes.filter(type => type !== fileType);
+      } else {
+         config.removedFileTypes = [];
+      }
+
+      // Write the updated config back to the JSON file
+      fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+      console.log(`Added file type: ${fileType}`);
+      return { success: true, message: `File type ${fileType} added.` };
+   } catch (error) {
+      console.error("Error adding file type:", error);
+      return { success: false, message: "Error adding file type." };
+   }
+});
+
+ipcMain.handle("getRemovedFileTypes", async (event) => {
+   try {
+      // Read the existing config file
+      let config = getConfig();
+
+      // Return the removedFileTypes array, default to an empty array if not found
+      return config.removedFileTypes || [];
+   } catch (error) {
+      console.error("Error getting removed file types:", error);
+      return [];
+   }
+});
+
+
+
+
 
 app.whenReady().then(createWindow);
 
@@ -91,4 +170,8 @@ app.on("window-all-closed", () => {
 //handles message box to replace alerts
 ipcMain.handle('show-message-box', async (event, options) => {
    return dialog.showMessageBox(mainWindow, options);
+});
+
+ipcMain.on('quit-app', () => {
+   app.quit(); //this will close the entire Electron app
 });
