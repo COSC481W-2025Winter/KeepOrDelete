@@ -22,7 +22,7 @@ body {
 
 /* Headings */
 h1 {
-  margin-bottom: 1em;
+  margin-bottom: 0.2em;
 }
 
 /* Container elements (if needed) */
@@ -282,6 +282,9 @@ code {
   text-align: center;
 }
 
+#renameContainer {
+   display: inline-block;
+}
 
 .popup {
   position: relative;
