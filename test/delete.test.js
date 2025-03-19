@@ -79,19 +79,7 @@ test("will delete common file types with next button", async ({ page }) => {
     await window.locator("#finalizeButton").click();
     //this is tricky because of playwright -- have to loop and wait twice for os time to remove from dir
     const testFilePath = path.resolve(testDirectory, "test1.txt");
-    let fileDeleted = false;
-    const maxRetries = 2;
-    let attempts = 0;
-    while (attempts < maxRetries) {
-        const fileExists = await fs.stat(testFilePath).then(() => true).catch(() => false);
-        if (!fileExists) {
-            fileDeleted = true;
-            break;
-        }
-        await new Promise(resolve => setTimeout(resolve, 500)); //adds a timeout to ensure has time for deletion
-        attempts++;
-    }
-    expect(fileDeleted).toBe(true); //now checks file is gone
+    expect(require("fs").existsSync(testFilePath), { timeout: 2_000 });
     await window.evaluate(() => localStorage.clear());
 });
 
@@ -114,8 +102,8 @@ test("will delete common file types with swiping", async ({ page }) => {
     await window.waitForURL("**/keep_or_delete.html");
 
     for (let index in testFiles) {
-        const fileExists = await fs.stat(testFiles[index]).then(() => true).catch(() => false);
-        expect(fileExists).toBe(true); //iterate through array, stat sees if they exist
+        //iterate through array, stat sees if they exist
+        expect(require("fs").existsSync(testFiles[index]), { timeout: 2_000 });
     }
     //loop for going through files and deleting each
     for (let index of testFiles) {
