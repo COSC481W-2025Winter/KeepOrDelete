@@ -326,13 +326,27 @@ window.onload = async function () {
         }
     }
 
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return `${bytes} B`;
+        else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+        else if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        else return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+    }
 
     function displayCurrentFile() {
         if (currentIndex < 0 || currentIndex >= files.length) {
             document.getElementById("currentItem").innerText = "No files in queue.";
+            document.getElementById("currentItemSize").innerText = "";
         } else {
-            filename = files[currentIndex];
-            document.getElementById("currentItem").innerText = `Current File: \n${filename}`;
+            filePath = files[currentIndex];
+            let fileName = window.file.pathBasename(filePath);
+            document.getElementById("currentItem").innerText = "Current File: " + fileName;
+
+            let stats = window.file.getFileSize(filePath);
+            let fileSize = stats.size;
+            let formattedSize = formatFileSize(fileSize);
+            document.getElementById("currentItemSize").innerText = "| File Size: " + formattedSize;
+
             refreshPreview();
         }
 

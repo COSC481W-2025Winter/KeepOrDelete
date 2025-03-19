@@ -33,7 +33,7 @@
         return;
     }
     // Navigate to the keep or delete page
-    window.location.href = "./breadNbutter/keep_or_delete.html";
+    window.location.href = "./main_page/keep_or_delete.html";
  });
  
  // Event listener for the "Settings" button
