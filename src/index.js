@@ -112,7 +112,7 @@ if (process.argv.includes("--test-config")) {
    configPath = path.join(configDir, "config.json")
 
    // Create the config file.
-   fs.writeFileSync(configPath, `{ "removedFileTypes": [] } `);
+   fs.writeFileSync(configPath, JSON.stringify([], null, 2));
 };
 
 //method to add a file type to the removeFileType
