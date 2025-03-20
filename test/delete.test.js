@@ -25,7 +25,7 @@ test.beforeEach(async () => {
         fs.writeFile(testFiles[1], "Text content", "utf8"),
     ]);
     app = await electron.launch({
-        args: ["./"],
+        args: ["./", "--test-config"],
     });
 });
 

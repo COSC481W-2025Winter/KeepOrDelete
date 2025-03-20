@@ -9,7 +9,7 @@ const log = (message) => {
 
 // Launch the Electron app
 test.beforeAll(async () => {
-  electronApp = await electron.launch({ args: ["./"] });
+  electronApp = await electron.launch({ args: ["./", "--test-config"] });
 });
 
 test.afterAll(async () => {
