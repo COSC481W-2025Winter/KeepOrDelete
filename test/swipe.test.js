@@ -2,10 +2,9 @@ const { _electron: electron, test, expect } = require("@playwright/test");
 const path = require("path");
 const fs = require("node:fs");
 const os = require("node:os");
-const mime = require("mime");
 
 let electronApp;
-
+let swapper;
 /** Generate temporary directory path. */
 const testDirPath = path.join(os.tmpdir(), "keepordelete-preview-tests");
 
@@ -13,84 +12,81 @@ const testDirPath = path.join(os.tmpdir(), "keepordelete-preview-tests");
 const cleanTestDir = function() {
    // Clean temporary directory if it exists.
    if (fs.existsSync(testDirPath)) {
-      fs.rmSync(testDirPath, { recursive: true, force: true }, (err) => {
-         if (err) throw err;
-      })
+      fs.rmSync(testDirPath, { recursive: true, force: true });
    }
 }
 
-test.beforeEach(async () => {
+test.beforeAll(async () => {
    electronApp = await electron.launch({ args: ["./"] });
+});
 
+test.beforeEach(async () => {
+   swapper = 0;
    cleanTestDir();
 
    // Create temporary directory.
-   fs.mkdirSync(testDirPath, { recursive: true }, (err) => {
-      if (err) throw err;
-   });
-
-   // Verify that temporary directory exists.
-   expect(fs.existsSync(testDirPath));
+   fs.mkdirSync(testDirPath, { recursive: true });
 
    // Create various files inside the temporary directory.
    for (let i = 0; i < 3; i++) {
       fs.writeFileSync(path.join(testDirPath, `file${i}`), "contents")
    }
-
-   console.log(fs.readdir)
 });
 
 //closing app
 test.afterEach(async () => {
-   await electronApp.close();
-
+   await new Promise(resolve => setTimeout(resolve, 500));
    cleanTestDir();
 });
 
-test("Navigate to KeepOrDelete page", async () => {
-   const window = await electronApp.firstWindow();
-
-   await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
-
-   // Intercept file selection dialog
-   await electronApp.evaluate(({ dialog }, testDirPath) => {
-      dialog.showOpenDialog = async () => ({
-         canceled: false,
-         filePaths: [testDirPath], // Inject test dir path
-      });
-   }, testDirPath);
-
-   // Navigate to next page using the override
-   await window.locator("#SelectButton").click();
-   await window.locator("#goButton").click();
-   await window.waitForURL("**/keep_or_delete.html");
-
-   let previousPath = null;
-
-   for (let i = 0; i < 3; i++) {
-      const path = await window.locator("#currentItem").innerText();
-
-      console.log(`path=${path}`);
-
-      const preview = await window.locator("#previewContainer").innerText();
-
-      console.log(`preview=${preview}`);
-
-      // Freak out if the file path didn't change.
-      if (previousPath != null && path == previousPath) {
-         expect(false).toBe(true);
-      }
-
-      previousPath = path;
-
-      // Cycle to next file.
-      await window.click("#nextButton");
-   }
+test.afterAll(async () => {
+   await electronApp.close();
 });
 
-test("Swipe to keep on KeepOrDelete page", async () => {
-   const window = await electronApp.firstWindow();
+// handle file traversale for each input type
+const testFileProcessing = async (window, swipeAction) => {
+   let previousPath = null;
+   for (let i = 0; i < 3; i++) {
+      await expect(window.locator("#currentItem")).toBeVisible({ timeout: 5000 });
+      const path = await window.locator("#currentItem").innerText();
+      expect(previousPath !== path).toBe(true);
+      previousPath = path;
 
+      if (swapper === 0) {
+         await swipeAction("left");
+         swapper++;
+      } else {
+         await swipeAction("right");
+      }
+      await expect(window.locator("#currentItem")).not.toHaveText(path, { timeout: 5000 })
+   }
+};
+
+test("Button press to keep on KeepOrDelete page", async () => {
+   const window = await electronApp.firstWindow();
+   await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+
+   // Intercept file selection dialog
+   await electronApp.evaluate(({ dialog }, testDirPath) => {
+      dialog.showOpenDialog = async () => ({
+         canceled: false,
+         filePaths: [testDirPath], // Inject test dir path
+      });
+   }, testDirPath);
+
+   // Navigate to next page using the override
+   await window.locator("#SelectButton").click();
+   await window.locator("#goButton").click();
+   await window.waitForURL("**/keep_or_delete.html");
+  
+   await testFileProcessing(window, async (direction) => {
+      await window.locator(direction === "left" ? "#deleteButton" : "#nextButton").click();
+   });
+   await window.evaluate(() => localStorage.clear());
+});
+
+test("Touch swipe to keep on KeepOrDelete page", async () => {
+   const window = await electronApp.firstWindow();
    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
 
    // Intercept file selection dialog
@@ -106,29 +102,38 @@ test("Swipe to keep on KeepOrDelete page", async () => {
    await window.locator("#goButton").click();
    await window.waitForURL("**/keep_or_delete.html");
 
-   let previousPath = null;
-
-   for (let i = 0; i < 3; i++) {
-      const path = await window.locator("#currentItem").innerText();
-
-      console.log(`path=${path}`);
-
-      let preview = await window.locator("#previewContainer").innerText();
-      // Remove emojis using regex
-      preview = preview.replace(/✅|🗑️/g, "").trim(); 
-
-      // Freak out if the file path didn't change.
-      if (previousPath != null && path == previousPath) {
-         expect(false).toBe(true);
-      }
-
-      previousPath = path;
-
-      // Cycle to next file.
-      const previewContainer = await window.locator("#previewContainer");
+   await testFileProcessing(window, async (direction) => {
+      const previewContainer = window.locator("#previewContainer");
+      await expect(previewContainer).toBeVisible({ timeout: 5000 });
+      let box = await previewContainer.boundingBox();
       await previewContainer.hover();
-      await previewContainer.dragTo(await window.locator("#nextButton"));
-      // Need timeout to account for animation!!
-      await window.waitForTimeout(500);
-   }
+      await window.mouse.down();
+      await window.mouse.move(box.x + (swapper === 0 ? box.width * 0.75 : -box.width * 0.75), box.y);
+      await window.mouse.up();
+   });
+   await window.evaluate(() => localStorage.clear());
+});
+test("Arrow key Swipe to keep on KeepOrDelete page", async () => {
+   const window = await electronApp.firstWindow();
+   await window.evaluate(() => localStorage.clear());
+   await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+
+   // Intercept file selection dialog
+   await electronApp.evaluate(({ dialog }, testDirPath) => {
+      dialog.showOpenDialog = async () => ({
+         canceled: false,
+         filePaths: [testDirPath], // Inject test dir path
+      });
+   }, testDirPath);
+
+   // Navigate to next page using the override
+   await window.locator("#SelectButton").click();
+   await window.locator("#goButton").click();
+   await window.waitForURL("**/keep_or_delete.html");
+
+   await testFileProcessing(window, async (direction) => {
+      await window.keyboard.press(direction === "left" ? "ArrowLeft" : "ArrowRight");
+   });
+
+   await window.evaluate(() => localStorage.clear());
 });

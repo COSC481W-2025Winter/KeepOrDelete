@@ -13,9 +13,16 @@ body {
   text-align: center;
 }
 
+/* button to view recently deleted */
+#trash_button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
 /* Headings */
 h1 {
-  margin-bottom: 1em;
+  margin-bottom: 0.2em;
 }
 
 /* Container elements (if needed) */
@@ -85,6 +92,80 @@ code {
    height: 300px;
 }
 
+#previewContainer * {
+   width: inherit;
+   height: inherit;
+}
+
+.txtPreview {
+   border: 2px solid #bbbbbb;
+   background-color: #e5e5e5;
+   overflow: hidden;
+   font-family: monospace;
+   border-radius: 10px;
+   text-align: left;
+   user-select: none;
+}
+
+.pdfPreview iframe {
+  pointer-events: none;
+}
+
+.txtPreview * {
+  margin: 8px;
+}
+
+.imgPreview img {
+   width: auto !important; /* Maintain aspect ratio. */
+   pointer-events: none /* Dragging images conflicts with swiping. */
+}
+
+.unsupportedPreview {
+  text-align: center;
+  color: #777777;
+  line-height: 300px;
+  margin: auto;
+}
+
+.docxPreview {
+   overflow: scroll;
+   background-color: white;
+   text-align: left;
+}
+
+.videoPreview, .videoPreview video {
+   width: auto !important; /* Match width of controls with width of video. */
+   max-width: 100%; /* Remain within bounds of the preview container. */
+}
+
+.final-page{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.final-container {
+  width: 100%;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.file-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 20px;
+}
+.kept-files, .deleted-files {
+  flex: 1;
+  padding: 10px;
+  max-height: 70vh;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
 .final-page .rename-input {
   border: none;
   background: transparent;
@@ -144,7 +225,7 @@ code {
 
 .rename-input:hover {
   background: #f0f0f0;
-  border: 1px solid #ccc;
+  border-color: #ccc;
   cursor: text;
 }
 
@@ -199,4 +280,78 @@ code {
 }
 .settings-row h3 {
   text-align: center;
+}
+
+#renameContainer {
+   display: inline-block;
+}
+
+.popup {
+  position: relative;
+  display: inline-block;
+  font-family: monospace;
+  background: #08c27b56; 
+  border: 1px solid #ccc; 
+  border-radius: 10px;
+  padding: 10px; 
+  box-shadow: 0 0 10px rgba(0,0,0,0.2); 
+  cursor: pointer; 
+  opacity: .5;                
+}
+
+.popup:hover {
+  opacity: 1;
+}
+
+#tooltip {
+  pointer-events: none;
+  position: fixed;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(2px);
+  color: white;
+  padding: 20px 35px;
+  border-radius: 15px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out, transform 0.3s ease-in-out;
+}
+
+#tooltip.show {
+  opacity: 1;
+}
+
+#tooltip.hide {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.9);
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+  25% { transform: translate(-50%, -50%) rotate(-5deg); }
+  50% { transform: translate(-50%, -50%) rotate(5deg); }
+  75% { transform: translate(-50%, -50%) rotate(-3deg); }
+}
+
+.wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+.trash-container {
+  height: 70vh;
+  width: 80%;
+  margin: 20px auto;
+  padding: 20px;
+  overflow:auto;
+}
+.file-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }

@@ -1,4 +1,3 @@
-//FOR THIS TEST, ONLY ONE WORKER AT A TIME WORKS, OTHERWISE PROCESSES GET JUMBLED
 const { _electron: electron } = require("playwright");
 const path = require("path");
 const { test, expect } = require("@playwright/test");
@@ -16,13 +15,7 @@ const testFiles = [ //array of common file types
 ];
 
 test.afterAll(async () => {
-    await app.close();
-    try { //deleting test file dir and files REMOVED TO SHOW THAT THEY ARE NO LONGER
-        //await fs.rm(testDirectory, { recursive: true, force: true });
-        //console.log(`Deleted test directory: ${testDirectory}`);
-    } catch (error) {
-        //console.error(`Error deleting test directory: ${error}`);
-    }
+    await fs.rm(testDirectory, { recursive: true }); //remove test directory and remaining test file
 });
 
 test.beforeEach(async () => {
@@ -40,7 +33,7 @@ test("will delete common file types with next button", async ({ page }) => {
     //this to line 56 is getting us to keep_or_delete.html
     const window = await app.firstWindow();
     await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
-    // Intercept file selection dialog
+    await window.evaluate(() => localStorage.clear());
     await app.evaluate(({ dialog }, testDirectory) => {
         dialog.showOpenDialog = async () => ({
             canceled: false,
@@ -57,21 +50,43 @@ test("will delete common file types with next button", async ({ page }) => {
         const fileExists = await fs.stat(testFiles[index]).then(() => true).catch(() => false);
         expect(fileExists).toBe(true); //iterate through array, stat sees if they exist
     }
-    //loop for going through files and deleting each
-    for (let index of testFiles) {
-        await window.waitForTimeout(100);
-        await window.locator("#deleteButton").click(); //click delete
-        await window.waitForTimeout(100); //wait to ensure it completes
-        const fileExists = await fs.stat(testFiles[testFiles.indexOf(index)]).then(() => true).catch(() => false);
-        expect(fileExists).toBe(false); //same thing as last test, but ensure it is FALSE now
-        await window.locator("#nextButton").click(); //next file
-        //await window.waitForTimeout(100);
-    }
+    await window.waitForTimeout(100);
+    await window.locator("#deleteButton").click();
+    await window.waitForTimeout(300); //wait to ensure it completes after actions
+    await window.locator("#deleteButton").click();
+    await window.waitForTimeout(300);
+    await window.locator("#trash_button").click(); //nav to file page
+    let ul = await window.locator("ul");
+    let ulText = await ul.innerHTML();
+    expect(ulText).not.toContain("No deleted files."); //check there is a file in deleted
+    const undoButtonLocator = window.locator(".deleteUndo");
+    await undoButtonLocator.first().waitFor();
+    await undoButtonLocator.first().click();
+    await window.waitForTimeout(300);
+    const deletedFilesList = await window.locator("#deletedFilesList");
+    await deletedFilesList.waitFor();
+    ulText = await deletedFilesList.innerHTML();
+    expect(ulText).not.toContain("No deleted files.");
+    await window.locator("#navMainMenu").click();
+    await window.waitForTimeout(300);
+    await window.locator("#finalPageButton").click();
+    ul = await window.locator("#keptFilesList");
+    ulText = await ul.innerHTML();
+    expect(ulText).not.toContain("No kept files."); //check there is a file being kept
+    ul = await window.locator("#deletedFilesList");
+    ulText = await ul.innerHTML();
+    expect(ulText).not.toContain("No deleted files."); //check there is a file being deleted
+    await window.locator("#finalizeButton").click();
+    //this is tricky because of playwright -- have to loop and wait twice for os time to remove from dir
+    const testFilePath = path.resolve(testDirectory, "test1.txt");
+    expect(require("fs").existsSync(testFilePath), { timeout: 2_000 });
+    await window.evaluate(() => localStorage.clear());
 });
 
 test("will delete common file types with swiping", async ({ page }) => {
     //this to line 56 is getting us to keep_or_delete.html
     const window = await app.firstWindow();
+    await window.evaluate(() => localStorage.clear());
     await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
     // Intercept file selection dialog
     await app.evaluate(({ dialog }, testDirectory) => {
@@ -87,8 +102,8 @@ test("will delete common file types with swiping", async ({ page }) => {
     await window.waitForURL("**/keep_or_delete.html");
 
     for (let index in testFiles) {
-        const fileExists = await fs.stat(testFiles[index]).then(() => true).catch(() => false);
-        expect(fileExists).toBe(true); //iterate through array, stat sees if they exist
+        //iterate through array, stat sees if they exist
+        expect(require("fs").existsSync(testFiles[index]), { timeout: 2_000 });
     }
     //loop for going through files and deleting each
     for (let index of testFiles) {
@@ -98,13 +113,24 @@ test("will delete common file types with swiping", async ({ page }) => {
         await previewContainer.dragTo(await window.locator("#deleteButton"));
         // Need timeout to account for animation!!
         await window.waitForTimeout(500);
-        const fileExists = await fs.stat(testFiles[testFiles.indexOf(index)]).then(() => true).catch(() => false);
-        expect(fileExists).toBe(false); //same thing as last test, but ensure it is FALSE now
-        await window.locator("#nextButton").click(); //next file
         //await window.waitForTimeout(100);
     }
+    await window.locator("#finalPageButton").click();
+    await window.locator("#finalizeButton").click();
+    //this is tricky because of playwright -- have to loop and wait twice for os time to remove from dir
+    const testFilePath = path.resolve(testDirectory, "test1.txt");
+    let fileDeleted = false;
+    const maxRetries = 2;
+    let attempts = 0;
+    while (attempts < maxRetries) {
+        const fileExists = await fs.stat(testFilePath).then(() => true).catch(() => false);
+        if (!fileExists) {
+            fileDeleted = true;
+            break;
+        }
+        await new Promise(resolve => setTimeout(resolve, 500)); //adds a timeout to ensure has time for deletion
+        attempts++;
+    }
+    expect(fileDeleted).toBe(true); //now checks file is gone
+    await window.evaluate(() => localStorage.clear());
 });
-
-
-
-

@@ -53,7 +53,6 @@ button {
 
 #current-dir {
    width: auto;
-   height: 19px;
    position: relative;
    left: 40px;
 
@@ -63,36 +62,57 @@ button {
    line-height: 19px;
 
    color: #595959;
+
+   display: inline-block;
+   text-overflow: ellipsis;
+   overflow: hidden;
+}
+
+#file-card, #empty-queue {
+   width: 440px;
+   height: var(--card-height);
+   margin: 130px auto 0 auto;
 }
 
 #file-card {
    box-sizing: border-box;
-
-   width: 440px;
-   height: var(--card-height);
-   margin: 130px auto 0 auto;
 
    border: 2px solid #E2E2E2;
    border-radius: 12px;
    overflow: hidden;
 }
 
+#file-card * {
+   pointer-events: none;
+}
+
 #card-bar {
    position: relative;
-   display: flex;
-   justify-content: left;
    align-items: center;
    top: 0;
    height: calc(var(--card-height) - var(--card-preview-height));
 }
 
 #card-bar p {
-   margin-top: 0;
+   margin-top: 23px;
    margin-bottom: 0;
    margin-left: 20px;
-   display: inline;
    font-weight: bold;
    color: #595959;
+   float: left;
+   overflow: hidden;
+}
+
+p:has(#basename), #basename {
+   text-wrap: nowrap;
+   max-width: 250px;
+   text-overflow: ellipsis;
+}
+
+#card-bar p:last-child {
+   float: right;
+   margin-right: 20px;
+   font-weight: normal;
 }
 
 #kod-btns-container {
@@ -133,6 +153,8 @@ object { /* Keep or Delete button SVGs. */
 
    background-color: #f5f5f5;
    font-size: 1rem;
+
+   overflow: hidden;
 }
 
 #previewContainer > div {
@@ -169,15 +191,24 @@ object { /* Keep or Delete button SVGs. */
    pointer-events: none /* Dragging images conflicts with swiping. */
 }
 
+.videoPreview video {
+   width: auto !important; /* Match width of controls with width of video. */
+   height: 100%;
+   max-width: 100%; /* Remain within bounds of the preview container. */
+   background-color: black;
+}
+
 .unsupportedPreview {
    text-align: center;
    color: #777777;
    height: 100%;
    margin: auto;
+   display: flex;
+   align-items: center;
 }
 
 .unsupportedPreview p {
-   margin: 0;
+   margin: 0 auto;
 }
 
 /* Swipe icon */
@@ -195,3 +226,4 @@ object { /* Keep or Delete button SVGs. */
 .swipeIcon.show {
   opacity: 1;
 }
+

@@ -13,6 +13,7 @@
  document.getElementById("SelectButton").addEventListener("click", async () => {
     try {
         const dirPath = await window.file.selectDirectory();
+        localStorage.clear();
         if (dirPath) {
             window.file.setFilePath(dirPath);
             document.getElementById("filepath").innerText = dirPath;
@@ -32,7 +33,7 @@
         return;
     }
     // Navigate to the keep or delete page
-    window.location.href = "./breadNbutter/keep_or_delete.html";
+    window.location.href = "./main_page/keep_or_delete.html";
  });
  
  // Event listener for the "Settings" button
