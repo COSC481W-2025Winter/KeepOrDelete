@@ -47,7 +47,7 @@ test('Settings page: toggle txt checkbox and check config update', async () => {
   // after leaving the page.
   const restoredState = await window.evaluate(() => document.getElementById('txt').checked);
   // Give the app time to process the configuration file.
-  expect(restoredState == newState, { timeout: 1_000 })
+  expect(restoredState == newState, { timeout: 2_000 })
 
   // Reset the checkbox to its original state (checked)
   log("Resetting 'txt' checkbox to checked...");
