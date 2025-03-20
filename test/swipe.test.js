@@ -17,7 +17,7 @@ const cleanTestDir = function() {
 }
 
 test.beforeAll(async () => {
-   electronApp = await electron.launch({ args: ["./"] });
+   electronApp = await electron.launch({ args: ["./", "--test-config"] });
 });
 
 test.beforeEach(async () => {
