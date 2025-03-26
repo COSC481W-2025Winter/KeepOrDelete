@@ -4,7 +4,7 @@ const path = require("node:path");
 const fs = require("fs");
 const { promises: fsPromises } = require('fs');
 const configPath = path.join(app.getPath('userData'), 'config.json');
-
+const PDFParser = require('pdf2json');
 
 let selectedFilePath = ""; // Ensure this updates dynamically
 let mainWindow;
@@ -29,6 +29,49 @@ const createWindow = () => {
 
    mainWindow.loadFile("src/main_menu.html");
 };
+
+function extractPDFText(pdfData) {
+   let fullText = "";
+   if (pdfData && Array.isArray(pdfData.Pages)) {
+     pdfData.Pages.forEach((page) => {
+       if (Array.isArray(page.Texts)) {
+         page.Texts.forEach((textItem) => {
+           if (Array.isArray(textItem.R)) {
+             textItem.R.forEach((fragment) => {
+               if (fragment.T) {
+                 // Decode the URL-encoded text fragment and append it
+                 fullText += decodeURIComponent(fragment.T) + " ";
+               }
+             });
+           }
+         });
+         fullText += "\n"; // Newline between pages
+       }
+     });
+   }
+   return fullText;
+ }
+
+ipcMain.handle('get-pdf-text', (event, filePath) => {
+   return new Promise((resolve, reject) => {
+     const pdfParser = new PDFParser();
+ 
+     pdfParser.on("pdfParser_dataError", (errData) => {
+       console.error("PDF parsing error:", errData.parserError);
+       reject(errData.parserError);
+     });
+ 
+     pdfParser.on("pdfParser_dataReady", (pdfData) => {
+      console.log("Full PDF Data:", pdfData);
+       // Use getRawTextContent() to extract the text
+       const textContent = extractPDFText(pdfData);
+       console.log("Extracted Text:", textContent);
+       resolve(textContent);
+     });
+ 
+     pdfParser.loadPDF(filePath);
+   });
+ });
 
 // Handle file path retrieval and updates
 ipcMain.handle('getFilePath', () => selectedFilePath);
