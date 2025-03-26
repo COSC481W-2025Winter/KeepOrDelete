@@ -1,6 +1,12 @@
 
 window.onload = async function () {
     let files = JSON.parse(localStorage.getItem("files")) || [];
+
+    // Pre-convert DOCX files to PDF for preview purposes.
+    for (var file of files.filter((f) => f.endsWith(".docx"))) {
+      
+    }
+    
     let currentIndex = 0;
     const previewContainer = document.getElementById("previewContainer");
     let inspectMode = false;

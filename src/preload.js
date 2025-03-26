@@ -1,9 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const { generatePreviewHTML } = require("./preview.js");
+const { convertDocxToPdf } = require("./docxConverter.js");
 const fs = require("node:fs");
 const mime = require("mime");
 const path = require('path');
-const os = require('node:os');
 
 contextBridge.exposeInMainWorld('file', {
    getFilePath: () => ipcRenderer.invoke('getFilePath'),
@@ -33,6 +33,11 @@ contextBridge.exposeInMainWorld('fileFinal', {
    getDeletedFiles: () => JSON.parse(localStorage.getItem("deletedFiles")) || [],
    renameFile: (oldPath, newPath) => ipcRenderer.invoke('renameFile', { oldPath, newPath }),
 });
+
+contextBridge.exposeInMainWorld('converter', {
+   convertDocxToPdf: async (pathname) => convertDocxToPdf(pathname),
+});
+
 // Create bridge for OpenAI API call through Lambda via HTTPS
 contextBridge.exposeInMainWorld('openai', {
    openaiRequest: async (messages = {}) => {
