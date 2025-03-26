@@ -169,7 +169,22 @@ window.onload = async function () {
         }
     }
 
+    confirmRename
+    const renameModal = document.getElementById("renameModal");
+    const closeModal = document.getElementById("closeModal");
     document.getElementById('renameButton').addEventListener('click', async (event) => {
+        if (!hasFiles()) return;
+        renameModal.showModal();
+        event.preventDefault();
+        event.stopPropagation();
+        await handleRename();
+    });
+
+    closeModal.addEventListener("click", () => {
+        renameModal.close();
+    });
+
+    document.getElementById("confirmRename").addEventListener('click', async (event) => {
         if (!hasFiles()) return;
         event.preventDefault();
         event.stopPropagation();
@@ -231,6 +246,7 @@ window.onload = async function () {
             // Step 4: Perform the rename
             const response = await window.file.renameFile(currentFile, newFilePath);
             if (response.success) {
+                document.getElementById("renameModal").close();
                 showNotification(`File renamed successfully to ${finalName}`, 'success');
                 files[currentIndex] = newFilePath;
                 displayCurrentFile();
@@ -544,10 +560,12 @@ window.onload = async function () {
     });
 
 
-    document.getElementById("aiButton").addEventListener("click", () => {
+    document.getElementById('popup').addEventListener("click", () => {
         if (!hasFiles()) return;
         LLM();
     });
+
+
     function LLM() {
         popup.style.display = 'inline-block';
         const filename = files[currentIndex];

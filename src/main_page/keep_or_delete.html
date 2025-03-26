@@ -19,25 +19,27 @@
    <div id="dirDisplay">
       <p id="dirPath"></p>
       <button id="inspectButton">Inspect Document</button>
+      <button id="renameButton">Rename File</button>  
       <div id="previewContainer"></div>
    </div>
 
-   <div id="notification">
-   </div>
-
-   <div class="wrapper">
+   <div id="notification"> </div>
+   <dialog id="renameModal">
       <div id="renameContainer">
-        <input type="text" id="renameInput" placeholder="Enter new file name">
-        <p id="renameWarning"></p>
+         <input type="text" id="renameInput" placeholder="Enter new file name">
+         <p id="renameWarning"></p>
       </div>
-      <div class="popup" id="popup" placeholder="AI Suggested Name">
-        AI: <span id="popupContent"></span>
+      <div class="popup" id="popup">
+         AI: <span id="popupContent">Suggested Name</span>
       </div>
-    </div>
+      <div class="modal-buttons">
+         <button id="closeModal">Cancel</button>
+         <button id="confirmRename">Confirm</button>
+      </div>
+   </dialog>
     
-  <button id="renameButton">Rename File</button>  
-  <button id="aiButton">AI Suggestion</button>
-  <button id="backButton">Change Directory</button>
+  
+   <button id="backButton">Change Directory</button>
    <div class="file-info">
       <p id="currentItem"></p>
       <p id="currentItemSize"></p>
@@ -47,7 +49,7 @@
       <button id="nextButton">Keep</button>
       <button id="finalPageButton">Review & Finalize</button>
    </div>
-<div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
+   <div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
    <div>
       <a href="../trash_page.html" id="trash_button">
          <img src="trash.jpg" alt="Clickable Image" width="50">
