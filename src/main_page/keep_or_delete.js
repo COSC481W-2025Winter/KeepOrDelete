@@ -3,6 +3,7 @@ window.onload = async function () {
     let files = JSON.parse(localStorage.getItem("files")) || [];
     let currentIndex = 0;
     const previewContainer = document.getElementById("previewContainer");
+    const dirDisplay = document.getElementById("dirDisplay");
     let inspectMode = false;
     let keptFiles = JSON.parse(localStorage.getItem("keptFiles")) || [];
     let filesToBeDeleted = JSON.parse(localStorage.getItem("deletedFiles")) || [];
@@ -12,7 +13,7 @@ window.onload = async function () {
         const dirPath = await window.file.getFilePath();
 
         document.getElementById("dirPath").innerText =
-            dirPath ? `Selected Directory: \n${dirPath}` : "No directory selected";
+            dirPath ? `${dirPath}` : "No directory selected";
 
         if (dirPath) {
             // Fetch files in the directory
@@ -340,7 +341,7 @@ window.onload = async function () {
         } else {
             filePath = files[currentIndex];
             let fileName = window.file.pathBasename(filePath);
-            document.getElementById("currentItem").innerText = "Current File: " + fileName;
+            document.getElementById("currentItem").innerText = fileName;
 
             let stats = window.file.getFileSize(filePath);
             let fileSize = stats.size;
@@ -375,9 +376,9 @@ window.onload = async function () {
 
     // Resets preview container position post swipe
     function resetPreviewPosition() {
-        previewContainer.style.transition = "transform 0.2s ease-out";
-        previewContainer.style.transform = "translateX(0px) rotate(0deg)";
-        previewContainer.style.opacity = "1";
+        dirDisplay.style.transition = "transform 0.2s ease-out";
+        dirDisplay.style.transform = "translateX(0px) rotate(0deg)";
+        dirDisplay.style.opacity = "1";
     }
 
     // Swipe animation handler
@@ -399,23 +400,24 @@ window.onload = async function () {
             rotateDeg = "20deg";
 
         }
-        previewContainer.appendChild(icon);
+        dirDisplay.appendChild(icon);
         icon.classList.add("show");
 
         // Swipe animation
-        previewContainer.style.transition = "transform 0.25s ease-out, opacity 0.25s ease-out";
-        previewContainer.style.transform = `translateX(${translateX}) rotate(${rotateDeg})`;
-        previewContainer.style.opacity = "0";
+        dirDisplay.style.transition = "transform 0.25s ease-out, opacity 0.25s ease-out";
+        dirDisplay.style.transform = `translateX(${translateX}) rotate(${rotateDeg})`;
+        dirDisplay.style.opacity = "0";
+        
 
         // File handling will occurr after CSS animation
-        previewContainer.addEventListener("transitionend", function handleTransitionEnd() {
+        dirDisplay.addEventListener("transitionend", function handleTransitionEnd() {
             if (direction === "right") nextFile();
             else deleteFile();
             if (!hasFiles()){
-                previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up."; 
+                dirDisplay.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up."; 
                 icon.remove();
             };
-            previewContainer.removeEventListener("transitionend", handleTransitionEnd);
+            dirDisplay.removeEventListener("transitionend", handleTransitionEnd);
         });
     }
 
@@ -439,7 +441,7 @@ window.onload = async function () {
         // Calculate distance moved
         let diffX = currentX - startX;
         // Use distance moved to move the previewContainer
-        previewContainer.style.transform = `translateX(${diffX}px) rotate(${diffX / 15}deg)`;
+        dirDisplay.style.transform = `translateX(${diffX}px) rotate(${diffX / 15}deg)`;
     }
 
     function endSwipe(e) {

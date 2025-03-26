@@ -2,7 +2,7 @@
 html, body {
   overflow: hidden;
 }
-
+  
 body {
   position: relative;
   margin: 0;
@@ -13,27 +13,6 @@ body {
   text-align: center;
 }
 
-/* button to view recently deleted */
-#trash_button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-
-/* Headings */
-h1 {
-  margin-bottom: 0.2em;
-}
-
-/* Container elements (if needed) */
-#dirDisplay {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 1em;
-}
-
-/* Modern button styling */
 button {
   padding: 0.75em 1.5em;
   margin: 0.5em;
@@ -41,7 +20,7 @@ button {
   font-weight: 600;
   color: #fff;
   background-color: #007bff;
-  border: none;
+  border: none; 
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.1s ease;
@@ -56,63 +35,71 @@ button:active {
   transform: scale(0.98);
 }
 
-#backButton {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 0.5em 1em;
-  font-size: 0.9rem;
+#Header {
+  display: flex;
+  justify-content: center; /* Center elements horizontally */
+  align-items: center; /* Center elements vertically */
+  gap: 20px; /* Add spacing between elements */
+  height: 80px; /* Set a height for proper alignment */
+  /*background-color: #3f3f3f; /* Optional background for visibility */
 }
 
-.button-container {
+#Header > * {
   display: flex;
   justify-content: center;
-  gap: 1em;
-  margin-top: auto;
+  align-items: center;
+  text-align: center;
+  flex: 1; /* Distribute space evenly among children */
 }
 
-/* Optional: Styling for the disclaimer and other texts */
-.disclaimer {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 1em;
+#dirDisplay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%; /* Ensure it takes up the full available width */
 }
 
-/* Code block styling */
+#previewContainer  {
+  width: 100%;
+  display: flex;
+  user-select: none;
+  font-size: 1rem;
+  height: 300px;
+  justify-content: center;
+}
+
+#file-info {
+  display: flex;
+  justify-content: center; /* Center elements horizontally */
+  align-items: center; /* Center elements vertically */
+  gap: 20px; /* Add spacing between elements */
+  height: 60px;
+  border: 2px solid #bbbbbb; /* Black border */
+  border-top: none; /* Remove top border */
+  border-radius: 0 0 10px 10px;
+  width: 70%;
+}
+
 code {
   background-color: #eaeaea;
   padding: 0.2em 0.4em;
   border-radius: 3px;
 }
 
-#previewContainer {
-   user-select: none;
-   font-size: 1rem;
-   width: 500px;
-   height: 300px;
-}
-
-#previewContainer * {
-   width: inherit;
-   height: inherit;
-}
-
 .txtPreview {
    border: 2px solid #bbbbbb;
+   border-bottom: none;
    background-color: #e5e5e5;
    overflow: hidden;
    font-family: monospace;
-   border-radius: 10px;
+   border-radius: 10px 10px 0px 0px;
    text-align: left;
    user-select: none;
+   width: 70%;
 }
 
 .pdfPreview iframe {
   pointer-events: none;
-}
-
-.txtPreview * {
-  margin: 8px;
 }
 
 .imgPreview img {
@@ -138,121 +125,6 @@ code {
    max-width: 100%; /* Remain within bounds of the preview container. */
 }
 
-.final-page{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.final-container {
-  width: 100%;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.file-container {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: 20px;
-}
-.kept-files, .deleted-files {
-  flex: 1;
-  padding: 10px;
-  max-height: 70vh;
-  overflow: auto;
-  box-sizing: border-box;
-}
-
-.final-page .rename-input {
-  border: none;
-  background: transparent;
-  font-size: 1rem;
-  text-align: left;
-  width: 100%;
-  outline: none;
-}
-
-.final-page .rename-input:hover {
-  background: #f0f0f0;
-  cursor: text;
-}
-
-/* Two-column layout for kept and deleted files */
-.file-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 80%;
-  margin: auto;
-}
-
-/* Kept files (left side) */
-.kept-files {
-  flex: 1;
-  text-align: left;
-  max-width: 45%;
-}
-
-/* Deleted files (right side) */
-.deleted-files {
-  flex: 1;
-  text-align: left;
-  max-width: 45%;
-}
-
-/* Remove bullet points */
-#keptFilesList, #deletedFilesList {
-  list-style-type: none;
-  padding: 0;
-}
-
-/* Rename input styling */
-.rename-input {
-  border: 1px solid transparent; /* Initially transparent */
-  background: #fafafa;
-  font-size: 1rem;
-  text-align: left;
-  width: 100%;
-  outline: none;
-  padding: 5px;
-  margin-bottom: 5px;
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
-}
-
-.rename-input:hover {
-  background: #f0f0f0;
-  border-color: #ccc;
-  cursor: text;
-}
-
-/* When focused (clicked), emphasize it */
-.rename-input:focus {
-  background: white;
-  border: 1px solid #007bff;
-  box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
-}
-
-/* Button Styling */
-#finalizeButton {
-  display: block;
-  margin: 20px auto;
-  padding: 10px 20px;
-  font-size: 1rem;
-  font-weight: bold;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#finalizeButton:hover {
-  background-color: #0056b3;
-}
 
 .swipeIcon {
   position: absolute;
@@ -269,22 +141,6 @@ code {
 }
 
 
-/* settings styling */
-.settings {
-  display: flex;
-  justify-content: space-between;
-}
-.settings-row {
-  flex: 1;
-  padding: 10px;
-}
-.settings-row h3 {
-  text-align: center;
-}
-
-#renameContainer {
-   display: inline-block;
-}
 
 .popup {
   position: relative;
@@ -340,18 +196,4 @@ code {
 
 .wiggle {
   animation: wiggle 0.5s ease-in-out;
-}
-
-.trash-container {
-  height: 70vh;
-  width: 80%;
-  margin: 20px auto;
-  padding: 20px;
-  overflow:auto;
-}
-.file-info {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
 }

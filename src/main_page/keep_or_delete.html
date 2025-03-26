@@ -15,11 +15,25 @@
 <!-- Here u can add other tabs and compnents for display-->
 
 <body>
-   <h1>KeepOrDelete</h1>
-   <div id="dirDisplay">
+   <div id="Header">
+      <h1>KeepOrDelete</h1>
       <p id="dirPath"></p>
+      <a href="../settings.html" id="settings_button">
+      <img src="settings_gear.png" alt="Clickable Image" width="25">
+      </a>
+   </div>
+
+   <hr>
+   
+   <div id="overallPreview">
       <button id="inspectButton">Inspect Document</button>
-      <div id="previewContainer"></div>
+      <div id="dirDisplay">
+         <div id="previewContainer"></div>
+         <div id="file-info">
+            <p id="currentItem"></p>
+            <p id="currentItemSize"></p>
+         </div>
+      </div>
    </div>
 
    <div id="notification">
@@ -38,10 +52,7 @@
   <button id="renameButton">Rename File</button>  
   <button id="aiButton">AI Suggestion</button>
   <button id="backButton">Change Directory</button>
-   <div class="file-info">
-      <p id="currentItem"></p>
-      <p id="currentItemSize"></p>
-   </div>
+   
    <div class="button-container">
       <button id="deleteButton">Delete</button>
       <button id="nextButton">Keep</button>
