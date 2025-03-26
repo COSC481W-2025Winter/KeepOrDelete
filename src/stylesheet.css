@@ -362,3 +362,13 @@ code {
   padding: 10px; 
   box-shadow: 0 0 10px rgba(0,0,0,0.2); 
 }
+
+@keyframes inputGlow {
+  0% { box-shadow: 0 0 5px rgba(0, 255, 0, 0.5); }
+  50% { box-shadow: 0 0 15px rgba(0, 255, 0, 1); }
+  100% { box-shadow: 0 0 5px rgba(0, 255, 0, 0.5); }
+}
+
+.glowing {
+  animation: inputGlow 0.5s ease-out;
+}

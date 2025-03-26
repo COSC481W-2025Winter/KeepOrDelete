@@ -169,19 +169,18 @@ window.onload = async function () {
         }
     }
 
-    confirmRename
     const renameModal = document.getElementById("renameModal");
     const closeModal = document.getElementById("closeModal");
     document.getElementById('renameButton').addEventListener('click', async (event) => {
         if (!hasFiles()) return;
         renameModal.showModal();
-        event.preventDefault();
-        event.stopPropagation();
-        await handleRename();
+        document.getElementById('popupContent').innerText = "AI Suggested Name"
     });
 
     closeModal.addEventListener("click", () => {
+        const renameContainer = document.getElementById('renameContainer');
         renameModal.close();
+        resetRenameInput(renameContainer);
     });
 
     document.getElementById("confirmRename").addEventListener('click', async (event) => {
@@ -559,7 +558,6 @@ window.onload = async function () {
         }
     });
 
-
     document.getElementById('popup').addEventListener("click", () => {
         if (!hasFiles()) return;
         LLM();
@@ -589,21 +587,31 @@ window.onload = async function () {
             ])
                 .then(response => {
                     const suggestion = response.choices[0].message;
-                    console.log("Renaming Suggestion:", suggestion.content);
-
+                    console.log("Renaming Suggestion:", suggestion.content);                                
                     // Display the popup and suggested name. 
-                    const popup = document.getElementById('popup');
                     const popupContent = document.getElementById('popupContent');
-                    popupContent.textContent = suggestion.content;
 
                     // Add a click event listener to the popup. Populates the input field wih the suggestion.
-                    popup.onclick = () => {
-                        const renameInput = document.getElementById('renameInput');
-                        if (renameInput && !renameInput.value.trim()) {
-                            renameInput.value = suggestion.content;
-                        }
-                        popup.style.display = 'none';
+                    const renameInput = document.getElementById('renameInput');
+                    if (renameInput) {
+                        renameInput.value = suggestion.content;
+                    
+                        // Remove previous animation classes
+                        renameInput.classList.remove("glowing", "wiggle");
+                    
+                        // Force reflow to restart animations
+                        void renameInput.offsetWidth;
+                    
+                        // Add animation classes again
+                        renameInput.classList.add("glowing", "wiggle");
+                    
+                        // Remove the classes after the animation completes
+                        setTimeout(() => { 
+                            renameInput.classList.remove("glowing", "wiggle"); 
+                        }, 500);
                     }
+                    document.getElementById('popupContent').textContent = "Get new AI Name";
+                                          
 
                 })
                 .catch(error => {
@@ -612,7 +620,6 @@ window.onload = async function () {
 
         }
     }
-
 
     // Checks to see if user is a test agent
     const isTesting = navigator.userAgent.includes("Playwright");
