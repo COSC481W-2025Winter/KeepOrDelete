@@ -1,14 +1,12 @@
-const { session } = require("electron");
-const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, remote } = require("electron");
 const path = require("node:path");
 const fs = require("fs");
 const { promises: fsPromises } = require('fs');
-const configPath = path.join(app.getPath('userData'), 'config.json');
 const PDFParser = require('pdf2json');
+var configPath = path.join(app.getPath('userData'), 'config.json');
 
 let selectedFilePath = ""; // Ensure this updates dynamically
 let mainWindow;
-
 
 const createWindow = () => {
    mainWindow = new BrowserWindow({
@@ -24,10 +22,11 @@ const createWindow = () => {
          nodeIntegration: false,
          contextIsolation: true,
          enableRemoteModule: false,
+         webSecurity: false
       }
    });
 
-   mainWindow.loadFile("src/main_menu.html");
+   mainWindow.loadFile(path.join(__dirname, "main_page", "/keep_or_delete.html"));
 };
 /* Having the parsing logic in the main process avoids conflicts
  or errors related to worker configuration in preload.js */
@@ -148,7 +147,24 @@ const getConfig = () => {
    return config;
 };
 
+// Overrides config file for the duration of the process.
+// Intended for test cases.
+if (process.argv.includes("--test-config")) {
+   const tmp = require("tmp");
 
+   // Auto clean up config when the process exits.
+   tmp.setGracefulCleanup()
+
+   // Generate a randomized tmp directory.
+   // Clean it up even if it contains files.
+   configDir = tmp.dirSync({ unsafeCleanup: true }).name
+
+   // Overwrite global config path.
+   configPath = path.join(configDir, "config.json")
+
+   // Create the config file.
+   fs.writeFileSync(configPath, JSON.stringify([], null, 2));
+};
 
 //method to add a file type to the removeFileType
 ipcMain.handle("removeFileType", async (event, fileType) => {
@@ -207,6 +223,7 @@ ipcMain.handle("getRemovedFileTypes", async (event) => {
 });
 
 
+app.commandLine.appendSwitch("disable-blink-features", "AutofillServerCommunication"); //suppresses error message 
 
 
 

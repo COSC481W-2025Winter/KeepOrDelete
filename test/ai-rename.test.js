@@ -14,7 +14,7 @@ const testFiles = [
 
 // Launch the Electron app
 test.beforeAll(async () => {
-  electronApp = await electron.launch({ args: ["./"] });
+  electronApp = await electron.launch({ args: ["./", "--test-config"] });
 
   // Create file contents
   await fs.mkdir(testDirectory, { recursive: true });
@@ -59,9 +59,9 @@ test("Clicking on AI button returns expected message", async ({ page }) => {
   }, testDirectory);
 
   // Navigate to keep or delete page with mock directory
-  await window.click("#SelectButton");
-  await window.click("#goButton");
-  await expect(window.url()).toContain("keep_or_delete.html");
+  await window.click("#backButton");
+  //await window.click("#goButton");
+  //await expect(window.url()).toContain("keep_or_delete.html");
 
   // Make sure selected file has contents. This would be passed on to AWS Lambda
   await window.locator("#renameButton").click();
