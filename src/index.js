@@ -29,7 +29,12 @@ const createWindow = () => {
 
    mainWindow.loadFile("src/main_menu.html");
 };
+/* Having the parsing logic in the main process avoids conflicts
+ or errors related to worker configuration in preload.js */
 
+ /* pdf2json library converts a PDF into a JSON structure, 
+ This custom function is created to process the JSON structure 
+ and extract all text into one continuous string.*/
 function extractPDFText(pdfData) {
    let fullText = "";
    if (pdfData && Array.isArray(pdfData.Pages)) {
@@ -52,6 +57,7 @@ function extractPDFText(pdfData) {
    return fullText;
  }
 
+ // Handle PDF text extraction (Copy and Paste from pdf2json docs)
 ipcMain.handle('get-pdf-text', (event, filePath) => {
    return new Promise((resolve, reject) => {
      const pdfParser = new PDFParser();

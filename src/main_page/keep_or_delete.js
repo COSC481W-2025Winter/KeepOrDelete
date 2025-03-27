@@ -573,6 +573,9 @@ window.onload = async function () {
                       const fileContents = window.file.getFileContents(filename);
                       if (!fileContents || fileContents.length === 0) {
                           popupContent.textContent = "No file contents found.";
+                          setTimeout(() => {
+                            popupContent.textContent = "Try another file buddy 😭"; 
+                          }, 4000);
                           return;
                         } 
                       popupContent.textContent = "Thinking...";
@@ -618,7 +621,7 @@ window.onload = async function () {
             }
         // PDF
         else if(mimeType == "application/pdf"){
-            // Creating a Async function to process the PDF contents ()
+            // Creating a Async function to process all PDF contents before using data.
             async function pdfAIcall() {
                   const pdfContent = await window.file.getPDFtext(filename);
                   console.log("PDF Content:", pdfContent);
@@ -635,24 +638,13 @@ window.onload = async function () {
                   .then((response) => {
                     const suggestion = response.choices[0].message;
                     console.log("Renaming Suggestion:", suggestion.content);                                
-                    // Display the popup and suggested name. 
                     const popupContent = document.getElementById('popupContent');
-
-                    // Add a click event listener to the popup. Populates the input field wih the suggestion.
                     const renameInput = document.getElementById('renameInput');
                     if (renameInput) {
                         renameInput.value = suggestion.content;
-                    
-                        // Remove previous animation classes
                         renameInput.classList.remove("glowing", "wiggle");
-                    
-                        // Force reflow to restart animations
                         void renameInput.offsetWidth;
-                    
-                        // Add animation classes again
                         renameInput.classList.add("glowing", "wiggle");
-                    
-                        // Remove the classes after the animation completes
                         setTimeout(() => { 
                             renameInput.classList.remove("glowing", "wiggle"); 
                         }, 500);
@@ -705,17 +697,9 @@ window.onload = async function () {
                 const renameInput = document.getElementById('renameInput');
                 if (renameInput) {
                     renameInput.value = suggestion.content;
-                
-                    // Remove previous animation classes
                     renameInput.classList.remove("glowing", "wiggle");
-                
-                    // Force reflow to restart animations
                     void renameInput.offsetWidth;
-                
-                    // Add animation classes again
                     renameInput.classList.add("glowing", "wiggle");
-                
-                    // Remove the classes after the animation completes
                     setTimeout(() => { 
                         renameInput.classList.remove("glowing", "wiggle"); 
                     }, 500);
@@ -724,7 +708,7 @@ window.onload = async function () {
               })
               .catch((error) => {
                 console.error("Error sending OpenAI request:", error);
-                popupContent.textContent = "This image goes against our requirements.";
+                popupContent.textContent = "This image goes against my requirements.";
               });
           } catch (error) {
             console.error("Error reading image file:", error);
@@ -733,6 +717,9 @@ window.onload = async function () {
             // Handle unsupported file types
             console.log("Unsupported file type:", mimeType);
             popupContent.textContent = 'File type not supported.';
+            setTimeout(() => {
+                popupContent.textContent = "Try another file buddy 😭";
+              }, 4000);
             return; 
         }
       }    
