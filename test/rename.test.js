@@ -61,8 +61,10 @@ test("shows error notification for empty rename input (single file)", async ({ p
     await window.waitForURL("**/keep_or_delete.html");
 
     // Ensure input is empty and click rename button
-    await window.locator("#renameInput").fill("");
     await window.locator("#renameButton").click();
+    await window.locator("#renameInput").fill("");
+    await window.locator("#confirmRename").click();
+    
 
     // Explicitly wait for the error notification
     const notification = window.locator("#notification");
@@ -93,9 +95,11 @@ test("will rename common file types", async () => {
     for (let originalFilePath of testFiles) {
         const renamedFilePath = originalFilePath.replace(/(.*)(\..*)$/, "$1_renamed$2");
 
-        await window.locator("#renameInput").fill(path.basename(renamedFilePath));
-
         await window.locator("#renameButton").click();
+        await window.locator("#renameInput").fill(path.basename(renamedFilePath));
+        await window.locator("#confirmRename").click();
+
+        
 
         const renamedExists = await fs.stat(renamedFilePath).then(() => true).catch(() => false, { timeout: 10000 });
         expect(renamedExists).toBe(true);
