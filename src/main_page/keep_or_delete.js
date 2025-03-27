@@ -169,7 +169,21 @@ window.onload = async function () {
         }
     }
 
+    const renameModal = document.getElementById("renameModal");
+    const closeModal = document.getElementById("closeModal");
     document.getElementById('renameButton').addEventListener('click', async (event) => {
+        if (!hasFiles()) return;
+        renameModal.showModal();
+        document.getElementById('popupContent').innerText = "AI Suggested Name"
+    });
+
+    closeModal.addEventListener("click", () => {
+        const renameContainer = document.getElementById('renameContainer');
+        renameModal.close();
+        resetRenameInput(renameContainer);
+    });
+
+    document.getElementById("confirmRename").addEventListener('click', async (event) => {
         if (!hasFiles()) return;
         event.preventDefault();
         event.stopPropagation();
@@ -231,6 +245,7 @@ window.onload = async function () {
             // Step 4: Perform the rename
             const response = await window.file.renameFile(currentFile, newFilePath);
             if (response.success) {
+                document.getElementById("renameModal").close();
                 showNotification(`File renamed successfully to ${finalName}`, 'success');
                 files[currentIndex] = newFilePath;
                 displayCurrentFile();
@@ -543,8 +558,7 @@ window.onload = async function () {
         }
     });
 
-
-    document.getElementById("aiButton").addEventListener("click", () => {
+    document.getElementById('popup').addEventListener("click", () => {
         if (!hasFiles()) return;
         LLM();
     });
@@ -573,17 +587,30 @@ window.onload = async function () {
                         ])
                         .then((response) => {
                           const suggestion = response.choices[0].message;
-                          console.log("Renaming Suggestion:", suggestion.content);
-                          const popup = document.getElementById("popup");
-                          const popupContent = document.getElementById("popupContent");
-                          popupContent.textContent = suggestion.content;
-                          popup.onclick = () => {
-                            const renameInput = document.getElementById("renameInput");
-                            if (renameInput && !renameInput.value.trim()) {
+                          console.log("Renaming Suggestion:", suggestion.content);                                
+                          // Display the popup and suggested name. 
+                          const popupContent = document.getElementById('popupContent');
+      
+                          // Add a click event listener to the popup. Populates the input field wih the suggestion.
+                          const renameInput = document.getElementById('renameInput');
+                          if (renameInput) {
                               renameInput.value = suggestion.content;
-                            }
-                            popup.style.display = "none";
-                          };
+                          
+                              // Remove previous animation classes
+                              renameInput.classList.remove("glowing", "wiggle");
+                          
+                              // Force reflow to restart animations
+                              void renameInput.offsetWidth;
+                          
+                              // Add animation classes again
+                              renameInput.classList.add("glowing", "wiggle");
+                          
+                              // Remove the classes after the animation completes
+                              setTimeout(() => { 
+                                  renameInput.classList.remove("glowing", "wiggle"); 
+                              }, 500);
+                          }
+                          document.getElementById('popupContent').textContent = "Get new AI Name";
                         })
                         .catch((error) => {
                           console.error("Error sending OpenAI request:", error);
@@ -607,18 +634,30 @@ window.onload = async function () {
                   ])
                   .then((response) => {
                     const suggestion = response.choices[0].message;
-                    console.log("Renaming Suggestion:", suggestion.content);
-                    const popup = document.getElementById("popup");
-                    const popupContent = document.getElementById("popupContent");
-                    popupContent.textContent = suggestion.content;
-        
-                    popup.onclick = () => {
-                      const renameInput = document.getElementById("renameInput");
-                      if (renameInput && !renameInput.value.trim()) {
+                    console.log("Renaming Suggestion:", suggestion.content);                                
+                    // Display the popup and suggested name. 
+                    const popupContent = document.getElementById('popupContent');
+
+                    // Add a click event listener to the popup. Populates the input field wih the suggestion.
+                    const renameInput = document.getElementById('renameInput');
+                    if (renameInput) {
                         renameInput.value = suggestion.content;
-                      }
-                      popup.style.display = "none";
-                    };
+                    
+                        // Remove previous animation classes
+                        renameInput.classList.remove("glowing", "wiggle");
+                    
+                        // Force reflow to restart animations
+                        void renameInput.offsetWidth;
+                    
+                        // Add animation classes again
+                        renameInput.classList.add("glowing", "wiggle");
+                    
+                        // Remove the classes after the animation completes
+                        setTimeout(() => { 
+                            renameInput.classList.remove("glowing", "wiggle"); 
+                        }, 500);
+                    }
+                    document.getElementById('popupContent').textContent = "Get new AI Name";
                   })
                   .catch((error) => {
                     console.error("Error sending OpenAI request:", error);
@@ -658,17 +697,30 @@ window.onload = async function () {
               ])
               .then((response) => {
                 const suggestion = response.choices[0].message;
-                console.log("Renaming Suggestion:", suggestion.content);
-                popupContent.textContent = suggestion.content;
-    
-                popup.onclick = () => {
-                  const renameInput = document.getElementById("renameInput");
-                  if (renameInput && !renameInput.value.trim()) {
-                    renameInput.value = suggestion.content;
-                  }
-                  popup.style.display = "none";
-                };
+                console.log("Renaming Suggestion:", suggestion.content);                               
+                // Display the popup and suggested name. 
+                const popupContent = document.getElementById('popupContent');
 
+                // Add a click event listener to the popup. Populates the input field wih the suggestion.
+                const renameInput = document.getElementById('renameInput');
+                if (renameInput) {
+                    renameInput.value = suggestion.content;
+                
+                    // Remove previous animation classes
+                    renameInput.classList.remove("glowing", "wiggle");
+                
+                    // Force reflow to restart animations
+                    void renameInput.offsetWidth;
+                
+                    // Add animation classes again
+                    renameInput.classList.add("glowing", "wiggle");
+                
+                    // Remove the classes after the animation completes
+                    setTimeout(() => { 
+                        renameInput.classList.remove("glowing", "wiggle"); 
+                    }, 500);
+                }
+                document.getElementById('popupContent').textContent = "Get new AI Name";
               })
               .catch((error) => {
                 console.error("Error sending OpenAI request:", error);
@@ -684,6 +736,7 @@ window.onload = async function () {
             return; 
         }
       }    
+
     // Checks to see if user is a test agent
     const isTesting = navigator.userAgent.includes("Playwright");
     let tooltip;
