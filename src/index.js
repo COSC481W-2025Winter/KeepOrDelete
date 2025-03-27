@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog, remote } = require("electron");
 const path = require("node:path");
 const fs = require("fs");
 const { promises: fsPromises } = require('fs');
+const PDFParser = require('pdf2json');
 var configPath = path.join(app.getPath('userData'), 'config.json');
 
 let selectedFilePath = ""; // Ensure this updates dynamically
@@ -27,6 +28,55 @@ const createWindow = () => {
 
    mainWindow.loadFile(path.join(__dirname, "main_page", "/keep_or_delete.html"));
 };
+/* Having the parsing logic in the main process avoids conflicts
+ or errors related to worker configuration in preload.js */
+
+ /* pdf2json library converts a PDF into a JSON structure, 
+ This custom function is created to process the JSON structure 
+ and extract all text into one continuous string.*/
+function extractPDFText(pdfData) {
+   let fullText = "";
+   if (pdfData && Array.isArray(pdfData.Pages)) {
+     pdfData.Pages.forEach((page) => {
+       if (Array.isArray(page.Texts)) {
+         page.Texts.forEach((textItem) => {
+           if (Array.isArray(textItem.R)) {
+             textItem.R.forEach((fragment) => {
+               if (fragment.T) {
+                 // Decode the URL-encoded text fragment and append it
+                 fullText += decodeURIComponent(fragment.T) + " ";
+               }
+             });
+           }
+         });
+         fullText += "\n"; // Newline between pages
+       }
+     });
+   }
+   return fullText;
+ }
+
+ // Handle PDF text extraction (Copy and Paste from pdf2json docs)
+ipcMain.handle('get-pdf-text', (event, filePath) => {
+   return new Promise((resolve, reject) => {
+     const pdfParser = new PDFParser();
+ 
+     pdfParser.on("pdfParser_dataError", (errData) => {
+       console.error("PDF parsing error:", errData.parserError);
+       reject(errData.parserError);
+     });
+ 
+     pdfParser.on("pdfParser_dataReady", (pdfData) => {
+      console.log("Full PDF Data:", pdfData);
+       // Use getRawTextContent() to extract the text
+       const textContent = extractPDFText(pdfData);
+       console.log("Extracted Text:", textContent);
+       resolve(textContent);
+     });
+ 
+     pdfParser.loadPDF(filePath);
+   });
+ });
 
 // Handle file path retrieval and updates
 ipcMain.handle('getFilePath', () => selectedFilePath);

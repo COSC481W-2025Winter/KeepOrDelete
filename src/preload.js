@@ -26,6 +26,8 @@ contextBridge.exposeInMainWorld('file', {
    getRemovedFileTypes: () => ipcRenderer.invoke("getRemovedFileTypes"),
    quitApp: () => ipcRenderer.send('quit-app'), //allow quitting the app
    platform: process.platform, 
+   getBase64: (filePath) => fs.readFileSync(filePath, "base64"), // convert to base64
+   getPDFtext: (filePath) => ipcRenderer.invoke('get-pdf-text', filePath),
 });
 
 contextBridge.exposeInMainWorld('fileFinal', {

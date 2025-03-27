@@ -64,15 +64,20 @@ test("Clicking on AI button returns expected message", async ({ page }) => {
   //await expect(window.url()).toContain("keep_or_delete.html");
 
   // Make sure selected file has contents. This would be passed on to AWS Lambda
-  await window.locator("#aiButton").click();
-  const popupContentLocator = window.locator("#popupContent");
+  await window.locator("#renameButton").click();
+  await window.locator("#popupContent").click();
+  const inputText = window.locator("#renameInput");
   //david did this btw
-  await expect(popupContentLocator).toContainText("dummy suggestion");
+  await expect(inputText).toHaveValue("dummy suggestion");
+  await window.locator("#closeModal").click();
 
   // Make sure selected file is empty. This would not be passed on to AWS Lambda.
   await window.locator("#nextButton").click();
   await page.waitForTimeout(1000);
-  await window.locator("#aiButton").click();
+  await window.locator("#renameButton").click();
+  await window.locator("#popupContent").click();
+  const popupContentLocator = window.locator("#popupContent");
   await expect(popupContentLocator).toContainText("No file contents found.");
+
   await window.evaluate(() => localStorage.clear());
 });

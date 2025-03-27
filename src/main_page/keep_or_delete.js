@@ -199,7 +199,21 @@ window.onload = async function () {
         }
     }
 
+    const renameModal = document.getElementById("renameModal");
+    const closeModal = document.getElementById("closeModal");
     document.getElementById('renameButton').addEventListener('click', async (event) => {
+        if (!hasFiles()) return;
+        renameModal.showModal();
+        document.getElementById('popupContent').innerText = "AI Suggested Name"
+    });
+
+    closeModal.addEventListener("click", () => {
+        const renameContainer = document.getElementById('renameContainer');
+        renameModal.close();
+        resetRenameInput(renameContainer);
+    });
+
+    document.getElementById("confirmRename").addEventListener('click', async (event) => {
         if (!hasFiles()) return;
         event.preventDefault();
         event.stopPropagation();
@@ -261,6 +275,7 @@ window.onload = async function () {
             // Step 4: Perform the rename
             const response = await window.file.renameFile(currentFile, newFilePath);
             if (response.success) {
+                document.getElementById("renameModal").close();
                 showNotification(`File renamed successfully to ${finalName}`, 'success');
                 files[currentIndex] = newFilePath;
                 displayCurrentFile();
@@ -575,58 +590,171 @@ window.onload = async function () {
         }
     });
 
-
-    document.getElementById("aiButton").addEventListener("click", () => {
+    document.getElementById('popup').addEventListener("click", () => {
         if (!hasFiles()) return;
         LLM();
     });
-    function LLM() {
-        popup.style.display = 'inline-block';
+      function LLM() {
+        popup.style.display = "inline-block";
         const filename = files[currentIndex];
-        const fileContents = window.file.getFileContents(filename);
-        // Check for images using mime and fs to convert to base64
+        // Check for file types using mime 
+        //--------------------------------------------------------------------
         const mimeType = window.file.getMimeType(filename);
-        if (!fileContents || fileContents.length === 0) {
-            popupContent.textContent = 'No file contents found.';
-            return;
-        }
-        else if (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType.startsWith("application/")) {
-            popupContent.textContent = 'File type is currently not supported.';
-        }
-        else {
-            popupContent.textContent = 'Thinking...';
-            // Here id implenment a if statement to check file type and change the API Call
-            // Chat can take images so .png or .jpg will have a different call.
-            window.openai.openaiRequest([
-                { role: "system", content: "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension." },
-                { role: "user", content: fileContents }
-            ])
-                .then(response => {
+        if ( mimeType.startsWith("text/")) {
+                      // Text
+                      const fileContents = window.file.getFileContents(filename);
+                      if (!fileContents || fileContents.length === 0) {
+                          popupContent.textContent = "No file contents found.";
+                          setTimeout(() => {
+                            popupContent.textContent = "Try another file buddy 😭"; 
+                          }, 4000);
+                          return;
+                        } 
+                      popupContent.textContent = "Thinking...";
+                      window.openai
+                        .openaiRequest([
+                          {
+                            role: "system",
+                            content:
+                              "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
+                          },
+                          { role: "user", content: fileContents },
+                        ])
+                        .then((response) => {
+                          const suggestion = response.choices[0].message;
+                          console.log("Renaming Suggestion:", suggestion.content);                                
+                          // Display the popup and suggested name. 
+                          const popupContent = document.getElementById('popupContent');
+      
+                          // Add a click event listener to the popup. Populates the input field wih the suggestion.
+                          const renameInput = document.getElementById('renameInput');
+                          if (renameInput) {
+                              renameInput.value = suggestion.content;
+                          
+                              // Remove previous animation classes
+                              renameInput.classList.remove("glowing", "wiggle");
+                          
+                              // Force reflow to restart animations
+                              void renameInput.offsetWidth;
+                          
+                              // Add animation classes again
+                              renameInput.classList.add("glowing", "wiggle");
+                          
+                              // Remove the classes after the animation completes
+                              setTimeout(() => { 
+                                  renameInput.classList.remove("glowing", "wiggle"); 
+                              }, 500);
+                          }
+                          document.getElementById('popupContent').textContent = "Get new AI Name";
+                        })
+                        .catch((error) => {
+                          console.error("Error sending OpenAI request:", error);
+                        });
+            }
+        // PDF
+        else if(mimeType == "application/pdf"){
+            // Creating a Async function to process all PDF contents before using data.
+            async function pdfAIcall() {
+                  const pdfContent = await window.file.getPDFtext(filename);
+                  console.log("PDF Content:", pdfContent);
+                  popupContent.textContent = "Thinking...";
+                  window.openai
+                  .openaiRequest([
+                    {
+                      role: "system",
+                      content:
+                        "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
+                    },
+                    { role: "user", content: pdfContent},
+                  ])
+                  .then((response) => {
                     const suggestion = response.choices[0].message;
-                    console.log("Renaming Suggestion:", suggestion.content);
-
-                    // Display the popup and suggested name. 
-                    const popup = document.getElementById('popup');
+                    console.log("Renaming Suggestion:", suggestion.content);                                
                     const popupContent = document.getElementById('popupContent');
-                    popupContent.textContent = suggestion.content;
-
-                    // Add a click event listener to the popup. Populates the input field wih the suggestion.
-                    popup.onclick = () => {
-                        const renameInput = document.getElementById('renameInput');
-                        if (renameInput && !renameInput.value.trim()) {
-                            renameInput.value = suggestion.content;
-                        }
-                        popup.style.display = 'none';
+                    const renameInput = document.getElementById('renameInput');
+                    if (renameInput) {
+                        renameInput.value = suggestion.content;
+                        renameInput.classList.remove("glowing", "wiggle");
+                        void renameInput.offsetWidth;
+                        renameInput.classList.add("glowing", "wiggle");
+                        setTimeout(() => { 
+                            renameInput.classList.remove("glowing", "wiggle"); 
+                        }, 500);
                     }
-
-                })
-                .catch(error => {
-                    console.error('Error sending OpenAI request:', error);
-                });
-
+                    document.getElementById('popupContent').textContent = "Get new AI Name";
+                  })
+                  .catch((error) => {
+                    console.error("Error sending OpenAI request:", error);
+                  });
+              }
+            pdfAIcall();
         }
-    }
+        // Jpeg or png
+        else if (mimeType.startsWith("image/")) {
+          try {
+            const base64Image = window.file.getBase64(filename);
+            popupContent.textContent = "Thinking...";
+    
+            window.openai
+              .openaiRequest([
+                {
+                  role: "system",
+                  content:
+                    "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output."
+                },
+                {
+                  role: "user",
+                  content: [
+                    {
+                      type: "text",
+                      text: "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output.",
+                    },
+                    {
+                      type: "image_url",
+                      image_url: {
+                        url: `data:${mimeType};base64,${base64Image}`,
+                        detail: "low",
+                      },
+                    },
+                  ],
+                },
+              ])
+              .then((response) => {
+                const suggestion = response.choices[0].message;
+                console.log("Renaming Suggestion:", suggestion.content);                               
+                // Display the popup and suggested name. 
+                const popupContent = document.getElementById('popupContent');
 
+                // Add a click event listener to the popup. Populates the input field wih the suggestion.
+                const renameInput = document.getElementById('renameInput');
+                if (renameInput) {
+                    renameInput.value = suggestion.content;
+                    renameInput.classList.remove("glowing", "wiggle");
+                    void renameInput.offsetWidth;
+                    renameInput.classList.add("glowing", "wiggle");
+                    setTimeout(() => { 
+                        renameInput.classList.remove("glowing", "wiggle"); 
+                    }, 500);
+                }
+                document.getElementById('popupContent').textContent = "Get new AI Name";
+              })
+              .catch((error) => {
+                console.error("Error sending OpenAI request:", error);
+                popupContent.textContent = "This image goes against my requirements.";
+              });
+          } catch (error) {
+            console.error("Error reading image file:", error);
+          }
+        } else {
+            // Handle unsupported file types
+            console.log("Unsupported file type:", mimeType);
+            popupContent.textContent = 'File type not supported.';
+            setTimeout(() => {
+                popupContent.textContent = "Try another file buddy 😭";
+              }, 4000);
+            return; 
+        }
+      }    
 
     // Checks to see if user is a test agent
     const isTesting = navigator.userAgent.includes("Playwright");

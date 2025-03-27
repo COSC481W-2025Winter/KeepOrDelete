@@ -19,26 +19,28 @@
    <div id="dirDisplay">
       <p id="dirPath"></p>
       <button id="inspectButton">Inspect Document</button>
+      <button id="renameButton">Rename File</button>  
       <div id="previewContainer"></div>
    </div>
 
-   <div id="notification">
-   </div>
-
-   <div class="wrapper">
+   <div id="notification"> </div>
+   <dialog id="renameModal">
       <div id="renameContainer">
          <input type="text" id="renameInput" placeholder="Enter new file name">
          <p id="renameWarning"></p>
       </div>
-      <div class="popup" id="popup" placeholder="AI Suggested Name">
-         AI: <span id="popupContent"></span>
+      <div class="popup" id="popup">
+          <span id="popupContent">AI Suggested Name</span>
       </div>
-   </div>
-
-   <button id="renameButton">Rename File</button>
-   <button id="aiButton">AI Suggestion</button>
+      <div class="modal-buttons">
+         <button id="closeModal">Cancel</button>
+         <button id="confirmRename">Confirm</button>
+      </div>
+   </dialog>
+    
+  
    <button id="backButton">Change Directory</button>
-   <p>Directory to be Sorted: <code><span id="filepath"></span></code></p>
+
    <div class="file-info">
       <p id="currentItem"></p>
       <p id="currentItemSize"></p>
