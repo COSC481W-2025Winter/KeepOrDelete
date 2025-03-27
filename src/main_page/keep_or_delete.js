@@ -1,6 +1,11 @@
-
 window.onload = async function () {
     let files = JSON.parse(localStorage.getItem("files")) || [];
+    //added this on load as well as when dir selected, sometimes populated without dir
+    files = files.filter(file => {
+        const fileName = file.split("/").pop();
+        return fileName !== ".DS_Store";
+    });
+    console.log("files found: ", files);
     let currentIndex = 0;
     const previewContainer = document.getElementById("previewContainer");
     let inspectMode = false;
@@ -8,50 +13,58 @@ window.onload = async function () {
     let filesToBeDeleted = JSON.parse(localStorage.getItem("deletedFiles")) || [];
     const hasShownTooltip = sessionStorage.getItem("tooltipShown");
     try {
-        // Fetch the selected directory path
-        const dirPath = await window.file.getFilePath();
-
-        document.getElementById("dirPath").innerText =
-            dirPath ? `Selected Directory: \n${dirPath}` : "No directory selected";
-
-        if (dirPath) {
-            // Fetch files in the directory
-            files = await window.file.getFilesInDirectory();
-            localStorage.setItem("files", JSON.stringify(files));
-            console.log("Filtered file list:", files);
-            removedFileTypes = new Set(await window.file.getRemovedFileTypes());
-            console.log("Initial file list:", files);
-            console.log("Removed file types:", Array.from(removedFileTypes));
-            // Keep only files not in removedFileTypes 
-            files = files.filter(file => {
-                const fileName = file.split("/").pop();
-                const shouldKeep = fileName !== ".DS_Store";
-                if (!shouldKeep) {
-                    console.log(`Removing: ${file} (Reason: ${fileName === ".DS_Store" ? "DS_Store file" : "Blocked file type"})`);
+        //this stretch of code checks if we are navigating to this page from the final page from
+        //final page after finalize and select new directory, if yes, no directory shown, if no, get dir
+        let finalPage = localStorage.getItem("finalPage") === "true"; //boolean
+        if (finalPage) {
+            document.getElementById("backButton").innerText = "Select a Directory"
+            localStorage.removeItem("files");
+            document.getElementById("dirPath").innerText = "No directory selected";
+            files = []; //files is now empty because files shouldnt carry over from final page
+        } else {
+            const dirPath = await window.file.getFilePath(); //else, keep the directory
+            document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
+            if (dirPath) {
+                //get the files and populate, this is old code
+                files = await window.file.getFilesInDirectory();
+                localStorage.setItem("files", JSON.stringify(files));
+                //console.log("Filtered file list:", files); these commented out lines were for debugging
+                removedFileTypes = new Set(await window.file.getRemovedFileTypes());
+                //console.log("Initial file list:", files);
+                //console.log("Removed file types:", Array.from(removedFileTypes));
+                //remove ds_store files
+                files = files.filter(file => {
+                    const fileName = file.split("/").pop();
+                    return fileName !== ".DS_Store";
+                });
+                files = files.filter(file => {
+                    const fileType = file.split(".").pop();
+                    return !removedFileTypes.has(fileType);
+                });
+                // Apply additional filters if needed
+                if (keptFiles.length > 0 || filesToBeDeleted.length > 0) {
+                    files = files.filter(file =>
+                        !(keptFiles.includes(file) || filesToBeDeleted.includes(file))
+                    );
                 }
 
-                return shouldKeep;
-            });
-            files = files.filter(file => {
-                const fileType = file.split(".").pop();
-                return !removedFileTypes.has(fileType);
-            });
-            //if there is anything kept or deleted already, filter files on page load
-            if (keptFiles.length > 0 || filesToBeDeleted.length > 0) {
-                files = files.filter(file =>
-                    !(keptFiles.includes(file) || filesToBeDeleted.includes(file))
-                );
+            } else {
+                document.getElementById("backButton").innerText = "Select a Directory"
+            }
+
+            //display files
+            if (files.length > 0) {
+                displayCurrentFile();
+                setTimeout(() => {
+                    resetRenameInput(document.getElementById('renameContainer'));
+                }, 10);
+            } else {
+                document.getElementById("currentItem").innerText = "No files found.";
             }
         }
+        //set localstorage to be false
+        localStorage.setItem("finalPage", "false");
 
-        if (files.length > 0) {
-            displayCurrentFile();
-            setTimeout(() => {
-                resetRenameInput(document.getElementById('renameContainer'));
-            }, 10);
-        } else {
-            document.getElementById("currentItem").innerText = "No files found.";
-        }
 
     } catch (error) {
         console.error(error);
@@ -69,8 +82,25 @@ window.onload = async function () {
     }
 
     // Change Directory Button
-    document.getElementById("backButton").addEventListener("click", () => {
-        window.location.href = "../main_menu.html";
+    document.getElementById("backButton").addEventListener("click", async () => {
+        try {
+            const dirPath = await window.file.selectDirectory();
+            localStorage.clear();
+            if (dirPath) {
+                window.file.setFilePath(dirPath);
+                document.getElementById("filepath").innerText = dirPath;
+            } else {
+                console.log("Directory selection was canceled.");
+            }
+            const currentDir = document.getElementById("filepath").innerText.trim();
+            if (!currentDir || currentDir === "No directory selected") {
+                alert("Please select a directory first.");
+                return;
+            }
+            window.location.reload();
+        } catch (error) {
+            console.error("Error selecting directory:", error);
+        }
     });
 
 
@@ -367,7 +397,9 @@ window.onload = async function () {
 
         const filename = files[currentIndex];
 
-        previewContainer.innerHTML = await window.file.generatePreviewHTML(filename)
+        const previewHTML = await window.file.generatePreviewHTML(filename);
+        previewContainer.innerHTML = previewHTML || "<p>Preview not available</p>";
+
 
         resetPreviewPosition();
     }
@@ -411,8 +443,8 @@ window.onload = async function () {
         previewContainer.addEventListener("transitionend", function handleTransitionEnd() {
             if (direction === "right") nextFile();
             else deleteFile();
-            if (!hasFiles()){
-                previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up."; 
+            if (!hasFiles()) {
+                previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
                 icon.remove();
             };
             previewContainer.removeEventListener("transitionend", handleTransitionEnd);
@@ -558,7 +590,7 @@ window.onload = async function () {
             popupContent.textContent = 'No file contents found.';
             return;
         }
-        else if( mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType.startsWith("application/")) {
+        else if (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType.startsWith("application/")) {
             popupContent.textContent = 'File type is currently not supported.';
         }
         else {
@@ -640,5 +672,9 @@ window.onload = async function () {
         }
         return true;
     }
+
+    document.getElementById("settingsButton").addEventListener("click", () => {
+        window.location.href = "../settings.html";
+    });
 
 };

@@ -27,17 +27,18 @@
 
    <div class="wrapper">
       <div id="renameContainer">
-        <input type="text" id="renameInput" placeholder="Enter new file name">
-        <p id="renameWarning"></p>
+         <input type="text" id="renameInput" placeholder="Enter new file name">
+         <p id="renameWarning"></p>
       </div>
       <div class="popup" id="popup" placeholder="AI Suggested Name">
-        AI: <span id="popupContent"></span>
+         AI: <span id="popupContent"></span>
       </div>
-    </div>
-    
-  <button id="renameButton">Rename File</button>  
-  <button id="aiButton">AI Suggestion</button>
-  <button id="backButton">Change Directory</button>
+   </div>
+
+   <button id="renameButton">Rename File</button>
+   <button id="aiButton">AI Suggestion</button>
+   <button id="backButton">Change Directory</button>
+   <p>Directory to be Sorted: <code><span id="filepath"></span></code></p>
    <div class="file-info">
       <p id="currentItem"></p>
       <p id="currentItemSize"></p>
@@ -46,13 +47,17 @@
       <button id="deleteButton">Delete</button>
       <button id="nextButton">Keep</button>
       <button id="finalPageButton">Review & Finalize</button>
+      <button id="settingsButton">Settings</button>
    </div>
-<div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
+
+   <div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
+
    <div>
       <a href="../trash_page.html" id="trash_button">
          <img src="trash.jpg" alt="Clickable Image" width="50">
       </a>
    </div>
+
 
 </body>
 <script src="./keep_or_delete.js"></script>

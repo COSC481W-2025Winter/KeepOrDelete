@@ -21,10 +21,11 @@ const createWindow = () => {
          nodeIntegration: false,
          contextIsolation: true,
          enableRemoteModule: false,
+         webSecurity: false
       }
    });
 
-   mainWindow.loadFile("src/main_menu.html");
+   mainWindow.loadFile(path.join(__dirname, "main_page", "/keep_or_delete.html"));
 };
 
 // Handle file path retrieval and updates
@@ -172,6 +173,7 @@ ipcMain.handle("getRemovedFileTypes", async (event) => {
 });
 
 
+app.commandLine.appendSwitch("disable-blink-features", "AutofillServerCommunication"); //suppresses error message 
 
 
 

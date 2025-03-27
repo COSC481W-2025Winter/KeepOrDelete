@@ -5,7 +5,7 @@ const fs = require("fs/promises");
 
 let app;
 //entry point in our file tree
-const filePath = path.resolve(__dirname, "../src/main_menu.html");
+const filePath = path.resolve(__dirname, "../src/main_page/keep_or_delete.html");
 const fileUrl = `file://${filePath}`;
 
 const testDirectory = path.join(__dirname, "test-files"); //test directory and files
@@ -32,7 +32,7 @@ test.beforeEach(async () => {
 test("will delete common file types with next button", async ({ page }) => {
     //this to line 56 is getting us to keep_or_delete.html
     const window = await app.firstWindow();
-    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+    await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
     await window.evaluate(() => localStorage.clear());
     await app.evaluate(({ dialog }, testDirectory) => {
         dialog.showOpenDialog = async () => ({
@@ -42,9 +42,9 @@ test("will delete common file types with next button", async ({ page }) => {
     }, testDirectory);
 
     // Click to open file picker, but our override will inject testDirectory
-    await window.locator("#SelectButton").click();
-    await window.locator("#goButton").click();
-    await window.waitForURL("**/keep_or_delete.html");
+    await window.locator("#backButton").click();
+    //await window.locator("#goButton").click();
+    //await window.waitForURL("**/keep_or_delete.html");
 
     for (let index in testFiles) {
         const fileExists = await fs.stat(testFiles[index]).then(() => true).catch(() => false);
@@ -86,9 +86,8 @@ test("will delete common file types with next button", async ({ page }) => {
 test("will delete common file types with swiping", async ({ page }) => {
     //this to line 56 is getting us to keep_or_delete.html
     const window = await app.firstWindow();
+    await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
     await window.evaluate(() => localStorage.clear());
-    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
-    // Intercept file selection dialog
     await app.evaluate(({ dialog }, testDirectory) => {
         dialog.showOpenDialog = async () => ({
             canceled: false,
@@ -97,9 +96,9 @@ test("will delete common file types with swiping", async ({ page }) => {
     }, testDirectory);
 
     // Click to open file picker, but our override will inject testDirectory
-    await window.locator("#SelectButton").click();
-    await window.locator("#goButton").click();
-    await window.waitForURL("**/keep_or_delete.html");
+    await window.locator("#backButton").click();
+    //await window.locator("#goButton").click();
+    //await window.waitForURL("**/keep_or_delete.html");
 
     for (let index in testFiles) {
         //iterate through array, stat sees if they exist

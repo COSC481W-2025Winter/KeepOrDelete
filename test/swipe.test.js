@@ -9,7 +9,7 @@ let swapper;
 const testDirPath = path.join(os.tmpdir(), "keepordelete-preview-tests");
 
 /** Forcefully delete test directory if it exists. */
-const cleanTestDir = function() {
+const cleanTestDir = function () {
    // Clean temporary directory if it exists.
    if (fs.existsSync(testDirPath)) {
       fs.rmSync(testDirPath, { recursive: true, force: true });
@@ -64,7 +64,7 @@ const testFileProcessing = async (window, swipeAction) => {
 
 test("Button press to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
-   await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+   await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
 
    // Intercept file selection dialog
    await electronApp.evaluate(({ dialog }, testDirPath) => {
@@ -75,10 +75,10 @@ test("Button press to keep on KeepOrDelete page", async () => {
    }, testDirPath);
 
    // Navigate to next page using the override
-   await window.locator("#SelectButton").click();
-   await window.locator("#goButton").click();
-   await window.waitForURL("**/keep_or_delete.html");
-  
+   await window.locator("#backButton").click();
+   //await window.locator("#goButton").click();
+   //await window.waitForURL("**/keep_or_delete.html");
+
    await testFileProcessing(window, async (direction) => {
       await window.locator(direction === "left" ? "#deleteButton" : "#nextButton").click();
    });
@@ -87,7 +87,7 @@ test("Button press to keep on KeepOrDelete page", async () => {
 
 test("Touch swipe to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
-   await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+   await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
 
    // Intercept file selection dialog
    await electronApp.evaluate(({ dialog }, testDirPath) => {
@@ -98,9 +98,9 @@ test("Touch swipe to keep on KeepOrDelete page", async () => {
    }, testDirPath);
 
    // Navigate to next page using the override
-   await window.locator("#SelectButton").click();
-   await window.locator("#goButton").click();
-   await window.waitForURL("**/keep_or_delete.html");
+   await window.locator("#backButton").click();
+   //await window.locator("#goButton").click();
+   //await window.waitForURL("**/keep_or_delete.html");
 
    await testFileProcessing(window, async (direction) => {
       const previewContainer = window.locator("#previewContainer");
@@ -116,7 +116,7 @@ test("Touch swipe to keep on KeepOrDelete page", async () => {
 test("Arrow key Swipe to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
    await window.evaluate(() => localStorage.clear());
-   await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+   await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
 
    // Intercept file selection dialog
    await electronApp.evaluate(({ dialog }, testDirPath) => {
@@ -127,9 +127,9 @@ test("Arrow key Swipe to keep on KeepOrDelete page", async () => {
    }, testDirPath);
 
    // Navigate to next page using the override
-   await window.locator("#SelectButton").click();
-   await window.locator("#goButton").click();
-   await window.waitForURL("**/keep_or_delete.html");
+   await window.locator("#backButton").click();
+   //await window.locator("#goButton").click();
+   //await window.waitForURL("**/keep_or_delete.html");
 
    await testFileProcessing(window, async (direction) => {
       await window.keyboard.press(direction === "left" ? "ArrowLeft" : "ArrowRight");

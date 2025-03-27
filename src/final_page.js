@@ -233,7 +233,8 @@ window.onload = async function () {
             }
         }
         localStorage.clear(); // Clears stored session data
-        window.location.href = "./main_menu.html";
+        let finalPage = localStorage.setItem("finalPage", 'true');
+        window.location.href = "./main_page/keep_or_delete.html";
     });
 
     document.getElementById("exitButton").addEventListener("click", async () => {

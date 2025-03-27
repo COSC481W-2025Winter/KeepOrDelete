@@ -20,7 +20,7 @@ test.afterAll(async () => {
 test('Settings page: toggle txt checkbox and check config update', async () => {
   const window = await electronApp.firstWindow();
   await window.evaluate(() => localStorage.clear());
-  await window.click('#settings');
+  await window.click('#settingsButton');
 
   // Ensure the 'txt' checkbox is checked at the start
   log("Setting 'txt' checkbox to checked...");
