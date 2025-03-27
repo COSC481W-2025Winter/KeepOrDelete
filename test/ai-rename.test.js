@@ -14,7 +14,7 @@ const testFiles = [
 
 // Launch the Electron app
 test.beforeAll(async () => {
-  electronApp = await electron.launch({ args: ["./"] });
+  electronApp = await electron.launch({ args: ["./", "--test-config"] });
 
   // Create file contents
   await fs.mkdir(testDirectory, { recursive: true });
