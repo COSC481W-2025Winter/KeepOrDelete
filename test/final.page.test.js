@@ -37,7 +37,7 @@ test.afterAll(async () => {
 test("Kept files should appear in the final kept files list and allow renaming", async () => {
     const window = await electronApp.firstWindow();
     await window.evaluate(() => localStorage.clear());
-    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+    await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
 
     // Mock file selection dialog
     await electronApp.evaluate(({ dialog }, testDirectory) => {
@@ -48,9 +48,9 @@ test("Kept files should appear in the final kept files list and allow renaming",
     }, testDirectory);
 
     // Click to select directory and go to KeepOrDelete page
-    await window.locator("#SelectButton").click();
-    await window.locator("#goButton").click();
-    await window.waitForURL("**/keep_or_delete.html");
+    await window.locator("#backButton").click();
+    //await window.locator("#goButton").click();
+    //await window.waitForURL("**/keep_or_delete.html");
 
     // Keep all files 
     for (let i = 0; i < keptFiles.length; i++) {

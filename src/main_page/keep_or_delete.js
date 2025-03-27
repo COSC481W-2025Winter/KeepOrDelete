@@ -1,6 +1,6 @@
 window.onload = async function () {
     let files = JSON.parse(localStorage.getItem("files")) || [];
-    console.log("files found: ", files)
+    console.log("files found: ", files);
     let currentIndex = 0;
     const previewContainer = document.getElementById("previewContainer");
     let inspectMode = false;
@@ -12,6 +12,7 @@ window.onload = async function () {
         //final page after finalize and select new directory, if yes, no directory shown, if no, get dir
         let finalPage = localStorage.getItem("finalPage") === "true"; //boolean
         if (finalPage) {
+            document.getElementById("backButton").innerText = "Select a Directory"
             localStorage.removeItem("files");
             document.getElementById("dirPath").innerText = "No directory selected";
             files = []; //files is now empty because files shouldnt carry over from final page
@@ -41,7 +42,11 @@ window.onload = async function () {
                         !(keptFiles.includes(file) || filesToBeDeleted.includes(file))
                     );
                 }
+
+            } else {
+                document.getElementById("backButton").innerText = "Select a Directory"
             }
+
             //display files
             if (files.length > 0) {
                 displayCurrentFile();

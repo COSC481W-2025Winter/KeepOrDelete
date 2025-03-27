@@ -75,7 +75,7 @@ test("shows error notification for empty rename input (single file)", async ({ p
 test("will rename common file types", async () => {
     const window = await electronApp.firstWindow();
     await window.evaluate(() => localStorage.clear());
-    await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+    await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
 
     // Intercept file selection dialog
     await electronApp.evaluate(({ dialog }, testDirectory) => {
@@ -86,9 +86,9 @@ test("will rename common file types", async () => {
     }, testDirectory);
 
     // Click to open file picker, but our override will inject testDirectory
-    await window.locator("#SelectButton").click();
-    await window.locator("#goButton").click();
-    await window.waitForURL("**/keep_or_delete.html");
+    await window.locator("#backButton").click();
+    //await window.locator("#goButton").click();
+    //await window.waitForURL("**/keep_or_delete.html");
 
     for (let originalFilePath of testFiles) {
         const renamedFilePath = originalFilePath.replace(/(.*)(\..*)$/, "$1_renamed$2");
