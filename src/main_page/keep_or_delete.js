@@ -552,15 +552,46 @@ window.onload = async function () {
         popup.style.display = "inline-block";
         const filename = files[currentIndex];
         // Check for file types using mime 
-        //Unsupported file types
+        //--------------------------------------------------------------------
         const mimeType = window.file.getMimeType(filename);
-        if ( mimeType.startsWith("video/") || mimeType.startsWith("audio/")) {
-                     popupContent.textContent = 'File type is currently not supported.';
-                     return;
+        if ( mimeType.startsWith("text/")) {
+                      // Text
+                      const fileContents = window.file.getFileContents(filename);
+                      if (!fileContents || fileContents.length === 0) {
+                          popupContent.textContent = "No file contents found.";
+                          return;
+                        } 
+                      popupContent.textContent = "Thinking...";
+                      window.openai
+                        .openaiRequest([
+                          {
+                            role: "system",
+                            content:
+                              "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
+                          },
+                          { role: "user", content: fileContents },
+                        ])
+                        .then((response) => {
+                          const suggestion = response.choices[0].message;
+                          console.log("Renaming Suggestion:", suggestion.content);
+                          const popup = document.getElementById("popup");
+                          const popupContent = document.getElementById("popupContent");
+                          popupContent.textContent = suggestion.content;
+                          popup.onclick = () => {
+                            const renameInput = document.getElementById("renameInput");
+                            if (renameInput && !renameInput.value.trim()) {
+                              renameInput.value = suggestion.content;
+                            }
+                            popup.style.display = "none";
+                          };
+                        })
+                        .catch((error) => {
+                          console.error("Error sending OpenAI request:", error);
+                        });
             }
         // PDF
-        else if(mimeType.startsWith("application/")){
-            // Creating a Async function to process the PDF contents 
+        else if(mimeType == "application/pdf"){
+            // Creating a Async function to process the PDF contents ()
             async function pdfAIcall() {
                   const pdfContent = await window.file.getPDFtext(filename);
                   console.log("PDF Content:", pdfContent);
@@ -577,13 +608,10 @@ window.onload = async function () {
                   .then((response) => {
                     const suggestion = response.choices[0].message;
                     console.log("Renaming Suggestion:", suggestion.content);
-        
-                    // Display the popup and suggested name.
                     const popup = document.getElementById("popup");
                     const popupContent = document.getElementById("popupContent");
                     popupContent.textContent = suggestion.content;
         
-                    // Add a click event listener to the popup. Populates the input field wih the suggestion.
                     popup.onclick = () => {
                       const renameInput = document.getElementById("renameInput");
                       if (renameInput && !renameInput.value.trim()) {
@@ -650,45 +678,10 @@ window.onload = async function () {
             console.error("Error reading image file:", error);
           }
         } else {
-            // Text
-            const fileContents = window.file.getFileContents(filename);
-            if (!fileContents || fileContents.length === 0) {
-                popupContent.textContent = "No file contents found.";
-                return;
-              } 
-            popupContent.textContent = "Thinking...";
-            // Here id implenment a if statement to check file type and change the API Call
-            // Chat can take images so .png or .jpg will have a different call.
-            window.openai
-              .openaiRequest([
-                {
-                  role: "system",
-                  content:
-                    "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
-                },
-                { role: "user", content: fileContents },
-              ])
-              .then((response) => {
-                const suggestion = response.choices[0].message;
-                console.log("Renaming Suggestion:", suggestion.content);
-    
-                // Display the popup and suggested name.
-                const popup = document.getElementById("popup");
-                const popupContent = document.getElementById("popupContent");
-                popupContent.textContent = suggestion.content;
-    
-                // Add a click event listener to the popup. Populates the input field wih the suggestion.
-                popup.onclick = () => {
-                  const renameInput = document.getElementById("renameInput");
-                  if (renameInput && !renameInput.value.trim()) {
-                    renameInput.value = suggestion.content;
-                  }
-                  popup.style.display = "none";
-                };
-              })
-              .catch((error) => {
-                console.error("Error sending OpenAI request:", error);
-              });
+            // Handle unsupported file types
+            console.log("Unsupported file type:", mimeType);
+            popupContent.textContent = 'File type not supported.';
+            return; 
         }
       }    
     // Checks to see if user is a test agent
