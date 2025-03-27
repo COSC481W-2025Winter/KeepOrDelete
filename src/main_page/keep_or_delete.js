@@ -1,5 +1,10 @@
 window.onload = async function () {
     let files = JSON.parse(localStorage.getItem("files")) || [];
+    //added this on load as well as when dir selected, sometimes populated without dir
+    files = files.filter(file => {
+        const fileName = file.split("/").pop();
+        return fileName !== ".DS_Store";
+    });
     console.log("files found: ", files);
     let currentIndex = 0;
     const previewContainer = document.getElementById("previewContainer");
@@ -667,5 +672,9 @@ window.onload = async function () {
         }
         return true;
     }
+
+    document.getElementById("settings").addEventListener("click", () => {
+        window.location.href = "../settings.html";
+    });
 
 };
