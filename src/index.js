@@ -21,8 +21,7 @@ const createWindow = () => {
          sandbox: false,
          nodeIntegration: false,
          contextIsolation: true,
-         enableRemoteModule: false,
-         webSecurity: false
+         enableRemoteModule: false
       }
    });
 
