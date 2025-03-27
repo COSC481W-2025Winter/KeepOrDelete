@@ -506,16 +506,6 @@ window.onload = async function () {
         }
     }
 
-    //track Kept Files
-    function keepCurrentFile(index) {
-        if (files.length > 0) {
-            const currentFile = files[index];
-            if (!keptFiles.includes(currentFile)) {
-                keptFiles.push(currentFile);
-            }
-        }
-    }
-
     //button to go to the final page
     document.getElementById("finalPageButton").addEventListener("click", () => {
         localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
@@ -556,17 +546,6 @@ window.onload = async function () {
         // Update button text
         document.getElementById("inspectButton").innerText = inspectMode ? "Exit Inspect" : "Inspect Document";
     });
-
-
-    //track Kept Files
-    function keepCurrentFile(index) {
-        if (files.length > 0) {
-            const currentFile = files[index];
-            if (!keptFiles.includes(currentFile)) {
-                keptFiles.push(currentFile);
-            }
-        }
-    }
 
     //button to go to the final page
     document.getElementById("finalPageButton").addEventListener("click", () => {
