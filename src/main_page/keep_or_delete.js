@@ -673,7 +673,7 @@ window.onload = async function () {
         return true;
     }
 
-    document.getElementById("settings").addEventListener("click", () => {
+    document.getElementById("settingsButton").addEventListener("click", () => {
         window.location.href = "../settings.html";
     });
 

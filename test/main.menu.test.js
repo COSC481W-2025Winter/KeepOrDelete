@@ -35,8 +35,8 @@ test("navigate to settings window", async () => {
   await window.goto(fileUrl);
 
   //wait for settings button and then click
-  await window.waitForSelector("#settings");
-  await window.click("#settings");
+  await window.waitForSelector("#settingsButton");
+  await window.click("#settingsButton");
 
   //wait for element from settings window to confirm window loaded
   const element = await window.waitForSelector("#txt");
