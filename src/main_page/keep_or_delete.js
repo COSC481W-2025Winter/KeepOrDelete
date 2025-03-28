@@ -12,6 +12,29 @@ window.onload = async function () {
     let keptFiles = JSON.parse(localStorage.getItem("keptFiles")) || [];
     let filesToBeDeleted = JSON.parse(localStorage.getItem("deletedFiles")) || [];
     const hasShownTooltip = sessionStorage.getItem("tooltipShown");
+    
+    // Progress Bar based on files left
+    const progress = document.getElementById("progress");
+    function updateProgress() {
+        const totalFiles = files.length + keptFiles.length + filesToBeDeleted.length;
+        const completedFiles = keptFiles.length + filesToBeDeleted.length;
+        const percent = totalFiles > 0 ? Math.round((completedFiles / totalFiles) * 100) : 0;
+        progress.style.width = `${percent}%`;
+        progress.textContent = "%" + percent;
+        
+        // Adding some glowing and scaling animation cause vibes.
+        if (percent === 100) {
+            progress.classList.add("complete");
+            setTimeout(() => {
+                progress.classList.remove("complete");
+            }, 1000);
+        }
+        // Re-trigger the glowing animation
+        progress.classList.remove("glowing");
+        void progress.offsetWidth;
+        progress.classList.add("glowing");
+       
+    }
     try {
         //this stretch of code checks if we are navigating to this page from the final page from
         //final page after finalize and select new directory, if yes, no directory shown, if no, get dir
@@ -146,6 +169,7 @@ window.onload = async function () {
                 currentIndex++;
             }*/
             displayCurrentFile();
+            updateProgress();
         }
         catch (error) {
             console.error("Error deleting file:", error);
@@ -162,6 +186,7 @@ window.onload = async function () {
     document.getElementById("nextButton").addEventListener("click", async () => {
         if (!hasFiles()) return;
         animateSwipe("right");
+        updateProgress();
     });
 
     // Next file function (aka Keep)
@@ -187,6 +212,7 @@ window.onload = async function () {
             /*currentIndex++;
             displayCurrentFile();
             keepCurrentFile(currentIndex - 1);*/
+            updateProgress();
         } catch {
             console.error("Error keeping file:", error);
             await window.file.showMessageBox({
