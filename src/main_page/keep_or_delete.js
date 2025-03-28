@@ -20,8 +20,8 @@ window.onload = async function () {
         const completedFiles = keptFiles.length + filesToBeDeleted.length;
         const percent = totalFiles > 0 ? Math.round((completedFiles / totalFiles) * 100) : 0;
         progress.style.width = `${percent}%`;
-        progress.textContent = "%" + percent;
-        
+        progress.textContent = percent + "%";
+
         // Adding some glowing and scaling animation cause vibes.
         if (percent === 100) {
             progress.classList.add("complete");
@@ -186,7 +186,6 @@ window.onload = async function () {
     document.getElementById("nextButton").addEventListener("click", async () => {
         if (!hasFiles()) return;
         animateSwipe("right");
-        updateProgress();
     });
 
     // Next file function (aka Keep)
