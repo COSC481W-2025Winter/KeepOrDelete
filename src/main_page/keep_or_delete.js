@@ -129,6 +129,22 @@ window.onload = async function () {
         animateSwipe("right");
     });
 
+    document.getElementById("keepButton").addEventListener("mousedown", async () => {
+        document.getElementById("keepButton").children[0].src = "../res/check-pressed.png"
+    });
+
+    document.getElementById("keepButton").addEventListener("mouseup", async () => {
+        document.getElementById("keepButton").children[0].src = "../res/check.png"
+    });
+
+    document.getElementById("deleteButton").addEventListener("mousedown", async () => {
+        document.getElementById("deleteButton").children[0].src = "../res/x-pressed.png"
+    });
+
+    document.getElementById("deleteButton").addEventListener("mouseup", async () => {
+        document.getElementById("deleteButton").children[0].src = "../res/x.png"
+    });
+
     // Next file function (aka Keep)
     async function nextFile() {
         if (!hasFiles()) return;
