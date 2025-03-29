@@ -155,7 +155,7 @@ p:has(#basename), #basename {
    bottom: 0px;
 }
 
-object { /* Keep or Delete button SVGs. */
+img.btn { /* Keep or Delete buttons */
    pointer-events: none;
    user-select: none;
 }
