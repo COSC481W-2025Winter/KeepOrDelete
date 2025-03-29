@@ -51,7 +51,7 @@ button {
    left: 21px;
 }
 
-#current-dir {
+#dirPath {
    width: auto;
    position: relative;
    left: 40px;
@@ -227,3 +227,30 @@ object { /* Keep or Delete button SVGs. */
   opacity: 1;
 }
 
+#tooltip {
+  pointer-events: none;
+  position: fixed;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(2px);
+  color: white;
+  padding: 20px 35px;
+  border-radius: 15px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out, transform 0.3s ease-in-out;
+}
+
+#tooltip.show {
+  opacity: 1;
+}
+
+#tooltip.hide {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.9);
+}

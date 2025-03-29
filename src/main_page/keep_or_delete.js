@@ -1,51 +1,44 @@
+// File data object
+class FileObject {
+    constructor({ name, path, modifiedDate, createdDate, size, status = null }) {
+      this.name = name;
+      this.path = path;
+      this.modifiedDate = new Date(modifiedDate);
+      this.createdDate = new Date(createdDate);
+      this.size = size;
+      this.status = status;
+    }
+}
+
+let fileObjects = [];
+let currentIndex = 0;
 
 window.onload = async function () {
-    let files = JSON.parse(localStorage.getItem("files")) || [];
-    let currentIndex = 0;
     const previewContainer = document.getElementById("previewContainer");
     const fileCard = document.getElementById("file-card");
     let inspectMode = false;
-    let keptFiles = JSON.parse(localStorage.getItem("keptFiles")) || [];
-    let filesToBeDeleted = JSON.parse(localStorage.getItem("deletedFiles")) || [];
     const hasShownTooltip = sessionStorage.getItem("tooltipShown");
-    try {
-        // Fetch the selected directory path
-        const dirPath = await window.file.getFilePath();
-
-        document.getElementById("dirPath").innerText =
-            dirPath ? dirPath : "No directory selected";
-
+    // Get stored file objects
+    const storedObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
+    //this stretch of code checks if we are navigating to this page from the final page from
+    //final page after finalize and select new directory, if yes, no directory shown, if no, get dir
+    let finalPage = localStorage.getItem("finalPage") === "true"; //boolean
+    if (finalPage) {
+        document.getElementById("backButton").innerText = "Select a Directory"
+        localStorage.removeItem("fileObjects"); // Clear old file data
+        document.getElementById("dirPath").innerText = "No directory selected";
+        localStorage.setItem("finalPage", "false");
+        fileObjects = []; //files is now empty because files shouldnt carry over from final page
+    } else {
+        // Convert stored file objects to actual FileObject instances
+        fileObjects = storedObjects.map(f => new FileObject(f));
+        const dirPath = await window.file.getFilePath(); //else, keep the directory
+        document.getElementById("dirPath").innerText = "No directory selected.";
         if (dirPath) {
-            // Fetch files in the directory
-            files = await window.file.getFilesInDirectory();
-            localStorage.setItem("files", JSON.stringify(files));
-            console.log("Filtered file list:", files);
-            removedFileTypes = new Set(await window.file.getRemovedFileTypes());
-            console.log("Initial file list:", files);
-            console.log("Removed file types:", Array.from(removedFileTypes));
-            // Keep only files not in removedFileTypes 
-            files = files.filter(file => {
-                const fileName = file.split("/").pop();
-                const shouldKeep = fileName !== ".DS_Store";
-                if (!shouldKeep) {
-                    console.log(`Removing: ${file} (Reason: ${fileName === ".DS_Store" ? "DS_Store file" : "Blocked file type"})`);
-                }
-
-                return shouldKeep;
-            });
-            files = files.filter(file => {
-                const fileType = file.split(".").pop();
-                return !removedFileTypes.has(fileType);
-            });
-            //if there is anything kept or deleted already, filter files on page load
-            if (keptFiles.length > 0 || filesToBeDeleted.length > 0) {
-                files = files.filter(file =>
-                    !(keptFiles.includes(file) || filesToBeDeleted.includes(file))
-                );
-            }
+            document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
         }
-
-        if (files.length > 0) {
+        //display files
+        if (hasFiles()) {
             displayCurrentFile();
             setTimeout(() => {
                 resetRenameInput(document.getElementById('renameContainer'));
@@ -53,10 +46,41 @@ window.onload = async function () {
         } else {
             fileCard.hidden = true;
         }
-
-    } catch (error) {
-        console.error(error);
     }
+    //set localstorage to be false
+    localStorage.setItem("finalPage", "false");
+
+    // Select directory and load new files
+    async function selectNewDirectory() {
+        const dirPath = await window.file.selectDirectory();
+        if (!dirPath) {
+            alert("Directory selection was canceled.");
+            return;
+        }
+    
+        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;    
+        let files = await window.file.getFileData(dirPath);
+        const removedFileTypes = new Set(await window.file.getRemovedFileTypes());
+    
+        // Filter out DS_Store and unselected extensions
+        files = files.filter(file => {
+            const fileName = file.name.split("/").pop();
+            const fileType = file.name.split(".").pop();
+            return fileName !== ".DS_Store" && !removedFileTypes.has(fileType);
+        });
+    
+        // Convert raw data into FileObject instances
+        fileObjects = files.map(f => new FileObject(f));
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+        currentIndex = 0;
+    
+        if (hasFiles()) {
+            displayCurrentFile();
+        } else {
+            document.getElementById("currentItem").innerText = "No files found.";
+        }
+    }
+    
 
     function showNotification(message) {
         const notification = document.getElementById('notification');
@@ -70,21 +94,21 @@ window.onload = async function () {
     }
 
     // Change Directory Button
-    document.getElementById("backButton").addEventListener("click", () => {
-        window.location.href = "../main_menu.html";
+    document.getElementById("backButton").addEventListener("click", async () => {
+        await selectNewDirectory();
     });
 
 
     // Delete button press
     document.getElementById("deleteButton").addEventListener("click", async () => {
         if (!hasFiles()) return;
-        animateSwipe("left");;
+        animateSwipe("left");
     });
 
     // Delete function
     async function deleteFile() {
         // Don't attempt deletion if there are no [more] files.
-        if (files.length === 0) {
+        if (!hasFiles()) {
             await window.file.showMessageBox({
                 type: "error",
                 title: "Error",
@@ -92,40 +116,10 @@ window.onload = async function () {
             });
             return;
         }
-        try {
-            const filePath = files[currentIndex];
-            //now this function just updates are of files and removes file to be deleted, and adds it to the array that
-            //is waiting to be deleted
-            filesToBeDeleted.push(filePath); //add the file to the array that is waiting to be deleted
-            // - bridge but actually exists at line 52 of index.js
-            console.log(filesToBeDeleted[0]);
-            let newArr = [];
-            for (let file of files) {
-                if (file !== filePath) {
-                    newArr.push(file);
-                }
-            }
-            files = newArr; // Update files array
-            localStorage.setItem("files", JSON.stringify(files));
-            localStorage.setItem("deletedFiles", JSON.stringify(filesToBeDeleted));
-            currentIndex = 0;
-            //code below doesnt work
-            // When deleting final file, display second to last file.
-            /*if (currentIndex == files.length) {
-                currentIndex--;
-            } else {
-                currentIndex++;
-            }*/
-            displayCurrentFile();
-        }
-        catch (error) {
-            console.error("Error deleting file:", error);
-            await window.file.showMessageBox({
-                type: "error",
-                title: "Error",
-                message: "Error deleting file: " + error.message
-            });
-        }
+        fileObjects[currentIndex].status = "delete";
+        currentIndex++;
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+        displayCurrentFile();
         resetPreviewPosition();
     };
 
@@ -138,39 +132,27 @@ window.onload = async function () {
     // Next file function (aka Keep)
     async function nextFile() {
         if (!hasFiles()) return;
-        try {
-            const filePath = files[currentIndex];
-
-            keptFiles.push(filePath);
-            console.log(keptFiles[0]);
-            let newArr = [];
-            for (let file of files) {
-                if (file !== filePath) {
-                    newArr.push(file);
-                }
-            }
-            files = newArr; // Update files array
-            localStorage.setItem("files", JSON.stringify(files));
-            localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
-            currentIndex = 0;
-
-            displayCurrentFile();
-            /*currentIndex++;
-            displayCurrentFile();
-            keepCurrentFile(currentIndex - 1);*/
-        } catch {
-            console.error("Error keeping file:", error);
-            await window.file.showMessageBox({
-                type: "error",
-                title: "Error",
-                message: "Error keeping file: " + error.message
-            });
-            resetPreviewPosition();
-            //keepCurrentFile(currentIndex);
-        }
+        fileObjects[currentIndex].status = "keep";
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+        currentIndex++;
+        displayCurrentFile();
     }
 
+    const renameModal = document.getElementById("renameModal");
+    const closeModal = document.getElementById("closeModal");
     document.getElementById('renameButton').addEventListener('click', async (event) => {
+        if (!hasFiles()) return;
+        renameModal.showModal();
+        document.getElementById('popupContent').innerText = "AI Suggested Name"
+    });
+
+    closeModal.addEventListener("click", () => {
+        const renameContainer = document.getElementById('renameContainer');
+        renameModal.close();
+        resetRenameInput(renameContainer);
+    });
+
+    document.getElementById("confirmRename").addEventListener('click', async (event) => {
         if (!hasFiles()) return;
         event.preventDefault();
         event.stopPropagation();
@@ -191,7 +173,7 @@ window.onload = async function () {
         //const renameContainer = document.getElementById('renameContainer');
         const renameInput = document.getElementById('renameInput');
         const newName = renameInput.value.trim();
-        let currentFile = files[currentIndex];
+        let currentFile = fileObjects[currentIndex].path;
 
         if (!newName) {
             showNotification('Please enter a new file name.', 'error');
@@ -232,8 +214,10 @@ window.onload = async function () {
             // Step 4: Perform the rename
             const response = await window.file.renameFile(currentFile, newFilePath);
             if (response.success) {
+                document.getElementById("renameModal").close();
                 showNotification(`File renamed successfully to ${finalName}`, 'success');
-                files[currentIndex] = newFilePath;
+                fileObjects[currentIndex].name = window.file.pathBasename(newFilePath);
+                fileObjects[currentIndex].path = newFilePath;
                 displayCurrentFile();
                 resetRenameInput(renameContainer);
             } else {
@@ -335,21 +319,22 @@ window.onload = async function () {
     }
 
     function displayCurrentFile() {
-        if (currentIndex < 0 || currentIndex >= files.length) {
-            fileCard.innerHTML = "No files remaining in queue."
-        } else {
-            filePath = files[currentIndex];
-            let fileName = window.file.pathBasename(filePath);
-            document.getElementById("basename").innerText = fileName;
-
-            let stats = window.file.getFileSize(filePath);
-            let fileSize = stats.size;
-            let formattedSize = formatFileSize(fileSize);
-            document.getElementById("filesize").innerText = formattedSize;
-
-            refreshPreview();
+        while (currentIndex < fileObjects.length && fileObjects[currentIndex].status !== null) {
+            currentIndex++;
         }
 
+        if (currentIndex >= fileObjects.length) {
+            document.getElementById("currentItem").innerText = "No files in queue.";
+            document.getElementById("currentItemSize").innerText = "";
+            previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
+            return
+        }
+         
+        const file = fileObjects[currentIndex];
+        document.getElementById("currentItem").innerText = file.name;
+        let formattedSize = formatFileSize(file.size);
+        document.getElementById("currentItemSize").innerText = formattedSize;
+        refreshPreview(file.path);
         // Reset rename input field
         resetRenameInput(document.getElementById('renameContainer'));
         //reset inspect mode upon file change
@@ -435,7 +420,11 @@ window.onload = async function () {
     function moveSwipe(e) {
         if (!isSwiping) return;
         // Get current position
-        currentX = e.clientX || e.touches[0].clientX;
+        if (e.type === "touchmove") {
+            currentX = e.touches[0].clientX;
+        } else {
+            currentX = e.clientX;
+        }
         // Calculate distance moved
         let diffX = currentX - startX;
         // Use distance moved to move the fileCard
@@ -459,20 +448,9 @@ window.onload = async function () {
         }
     }
 
-    //track Kept Files
-    function keepCurrentFile(index) {
-        if (files.length > 0) {
-            const currentFile = files[index];
-            if (!keptFiles.includes(currentFile)) {
-                keptFiles.push(currentFile);
-            }
-        }
-    }
-
     //button to go to the final page
     document.getElementById("finalPageButton").addEventListener("click", () => {
-        localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
-        localStorage.setItem("deletedFiles", JSON.stringify(deletedFiles));
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
         window.location.href = "../final_page.html";
     });
     // Mouse event listeners for swipe
@@ -510,27 +488,14 @@ window.onload = async function () {
         document.getElementById("inspectButton").innerText = inspectMode ? "Exit Inspect" : "Inspect Document";
     });
 
-
-    //track Kept Files
-    function keepCurrentFile(index) {
-        if (files.length > 0) {
-            const currentFile = files[index];
-            if (!keptFiles.includes(currentFile)) {
-                keptFiles.push(currentFile);
-            }
-        }
-    }
-
     //button to go to the final page
     document.getElementById("finalPageButton").addEventListener("click", () => {
-        localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
-        localStorage.setItem("deletedFiles", JSON.stringify(filesToBeDeleted));
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
         window.location.href = "../final_page.html";
     });
 
     document.getElementById("trash_button").addEventListener("click", () => {
-        localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
-        localStorage.setItem("deletedFiles", JSON.stringify(filesToBeDeleted));
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
     });
 
     // Arrow key file swiping
@@ -543,58 +508,171 @@ window.onload = async function () {
         }
     });
 
-
-    document.getElementById("aiButton").addEventListener("click", () => {
+    document.getElementById('popup').addEventListener("click", () => {
         if (!hasFiles()) return;
         LLM();
     });
-    function LLM() {
-        popup.style.display = 'inline-block';
-        const filename = files[currentIndex];
-        const fileContents = window.file.getFileContents(filename);
-        // Check for images using mime and fs to convert to base64
+      function LLM() {
+        popup.style.display = "inline-block";
+        const filename = fileObjects[currentIndex].path;
+        // Check for file types using mime 
+        //--------------------------------------------------------------------
         const mimeType = window.file.getMimeType(filename);
-        if (!fileContents || fileContents.length === 0) {
-            popupContent.textContent = 'No file contents found.';
-            return;
-        }
-        else if( mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType.startsWith("application/")) {
-            popupContent.textContent = 'File type is currently not supported.';
-        }
-        else {
-            popupContent.textContent = 'Thinking...';
-            // Here id implenment a if statement to check file type and change the API Call
-            // Chat can take images so .png or .jpg will have a different call.
-            window.openai.openaiRequest([
-                { role: "system", content: "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension." },
-                { role: "user", content: fileContents }
-            ])
-                .then(response => {
+        if ( mimeType.startsWith("text/")) {
+                      // Text
+                      const fileContents = window.file.getFileContents(filename);
+                      if (!fileContents || fileContents.length === 0) {
+                          popupContent.textContent = "No file contents found.";
+                          setTimeout(() => {
+                            popupContent.textContent = "Try another file buddy 😭"; 
+                          }, 4000);
+                          return;
+                        } 
+                      popupContent.textContent = "Thinking...";
+                      window.openai
+                        .openaiRequest([
+                          {
+                            role: "system",
+                            content:
+                              "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
+                          },
+                          { role: "user", content: fileContents },
+                        ])
+                        .then((response) => {
+                          const suggestion = response.choices[0].message;
+                          console.log("Renaming Suggestion:", suggestion.content);                                
+                          // Display the popup and suggested name. 
+                          const popupContent = document.getElementById('popupContent');
+      
+                          // Add a click event listener to the popup. Populates the input field wih the suggestion.
+                          const renameInput = document.getElementById('renameInput');
+                          if (renameInput) {
+                              renameInput.value = suggestion.content;
+                          
+                              // Remove previous animation classes
+                              renameInput.classList.remove("glowing", "wiggle");
+                          
+                              // Force reflow to restart animations
+                              void renameInput.offsetWidth;
+                          
+                              // Add animation classes again
+                              renameInput.classList.add("glowing", "wiggle");
+                          
+                              // Remove the classes after the animation completes
+                              setTimeout(() => { 
+                                  renameInput.classList.remove("glowing", "wiggle"); 
+                              }, 500);
+                          }
+                          document.getElementById('popupContent').textContent = "Get new AI Name";
+                        })
+                        .catch((error) => {
+                          console.error("Error sending OpenAI request:", error);
+                        });
+            }
+        // PDF
+        else if(mimeType == "application/pdf"){
+            // Creating a Async function to process all PDF contents before using data.
+            async function pdfAIcall() {
+                  const pdfContent = await window.file.getPDFtext(filename);
+                  console.log("PDF Content:", pdfContent);
+                  popupContent.textContent = "Thinking...";
+                  window.openai
+                  .openaiRequest([
+                    {
+                      role: "system",
+                      content:
+                        "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
+                    },
+                    { role: "user", content: pdfContent},
+                  ])
+                  .then((response) => {
                     const suggestion = response.choices[0].message;
-                    console.log("Renaming Suggestion:", suggestion.content);
-
-                    // Display the popup and suggested name. 
-                    const popup = document.getElementById('popup');
+                    console.log("Renaming Suggestion:", suggestion.content);                                
                     const popupContent = document.getElementById('popupContent');
-                    popupContent.textContent = suggestion.content;
-
-                    // Add a click event listener to the popup. Populates the input field wih the suggestion.
-                    popup.onclick = () => {
-                        const renameInput = document.getElementById('renameInput');
-                        if (renameInput && !renameInput.value.trim()) {
-                            renameInput.value = suggestion.content;
-                        }
-                        popup.style.display = 'none';
+                    const renameInput = document.getElementById('renameInput');
+                    if (renameInput) {
+                        renameInput.value = suggestion.content;
+                        renameInput.classList.remove("glowing", "wiggle");
+                        void renameInput.offsetWidth;
+                        renameInput.classList.add("glowing", "wiggle");
+                        setTimeout(() => { 
+                            renameInput.classList.remove("glowing", "wiggle"); 
+                        }, 500);
                     }
-
-                })
-                .catch(error => {
-                    console.error('Error sending OpenAI request:', error);
-                });
-
+                    document.getElementById('popupContent').textContent = "Get new AI Name";
+                  })
+                  .catch((error) => {
+                    console.error("Error sending OpenAI request:", error);
+                  });
+              }
+            pdfAIcall();
         }
-    }
+        // Jpeg or png
+        else if (mimeType.startsWith("image/")) {
+          try {
+            const base64Image = window.file.getBase64(filename);
+            popupContent.textContent = "Thinking...";
+    
+            window.openai
+              .openaiRequest([
+                {
+                  role: "system",
+                  content:
+                    "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output."
+                },
+                {
+                  role: "user",
+                  content: [
+                    {
+                      type: "text",
+                      text: "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output.",
+                    },
+                    {
+                      type: "image_url",
+                      image_url: {
+                        url: `data:${mimeType};base64,${base64Image}`,
+                        detail: "low",
+                      },
+                    },
+                  ],
+                },
+              ])
+              .then((response) => {
+                const suggestion = response.choices[0].message;
+                console.log("Renaming Suggestion:", suggestion.content);                               
+                // Display the popup and suggested name. 
+                const popupContent = document.getElementById('popupContent');
 
+                // Add a click event listener to the popup. Populates the input field wih the suggestion.
+                const renameInput = document.getElementById('renameInput');
+                if (renameInput) {
+                    renameInput.value = suggestion.content;
+                    renameInput.classList.remove("glowing", "wiggle");
+                    void renameInput.offsetWidth;
+                    renameInput.classList.add("glowing", "wiggle");
+                    setTimeout(() => { 
+                        renameInput.classList.remove("glowing", "wiggle"); 
+                    }, 500);
+                }
+                document.getElementById('popupContent').textContent = "Get new AI Name";
+              })
+              .catch((error) => {
+                console.error("Error sending OpenAI request:", error);
+                popupContent.textContent = "This image goes against my requirements.";
+              });
+          } catch (error) {
+            console.error("Error reading image file:", error);
+          }
+        } else {
+            // Handle unsupported file types
+            console.log("Unsupported file type:", mimeType);
+            popupContent.textContent = 'File type not supported.';
+            setTimeout(() => {
+                popupContent.textContent = "Try another file buddy 😭";
+              }, 4000);
+            return; 
+        }
+      }    
 
     // Checks to see if user is a test agent
     const isTesting = navigator.userAgent.includes("Playwright");
@@ -634,11 +712,11 @@ window.onload = async function () {
 
     // Checks if there are files left
     function hasFiles() {
-        if (files.length === 0) {
-            console.warn("No files left.");
-            return false;
-        }
-        return true;
+        return fileObjects.slice(currentIndex).some(f => f.status === null);
     }
+
+    document.getElementById("settingsButton").addEventListener("click", () => {
+        window.location.href = "../settings.html";
+    });
 
 };
