@@ -12,6 +12,7 @@ class FileObject {
 
 let fileObjects = [];
 let currentIndex = 0;
+let spaceSaved = 0;
 
 window.onload = async function () {
     const previewContainer = document.getElementById("previewContainer");
@@ -29,9 +30,14 @@ window.onload = async function () {
         progress.style.width = `${percent}%`;
         progress.textContent = percent + "%";
 
+        // Calculate total space saved
+        const totalSpaceSaved = filesToBeDeleted.reduce((sum, file) => sum + file.size, 0);
+        
         // Adding some glowing and scaling animation cause vibes.
         if (percent === 100) {
             progress.classList.add("complete");
+            const saved = document.getElementById("dataSaved");
+            saved.textContent = "You've saved: " + formatFileSize(totalSpaceSaved) + "!";
             setTimeout(() => {
                 progress.classList.remove("complete");
             }, 1000);
@@ -40,7 +46,6 @@ window.onload = async function () {
         progress.classList.remove("glowing");
         void progress.offsetWidth;
         progress.classList.add("glowing");
-       
     }
     // Get stored file objects
     const storedObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
