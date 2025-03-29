@@ -35,7 +35,7 @@ window.onload = async function () {
         const dirPath = await window.file.getFilePath(); //else, keep the directory
         document.getElementById("dirPath").innerText = "No directory selected.";
         if (dirPath) {
-            document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
+            document.getElementById("dirPath").innerText = `Selected Directory: ${dirPath}`;
         }
         //display files
         if (hasFiles()) {
@@ -345,15 +345,8 @@ window.onload = async function () {
     }
 
     async function refreshPreview() {
-        if (files.length == 0) {
-            fileCard.innerHTML = "";
-            return;
-        }
-
-        const filename = files[currentIndex];
-
-        previewContainer.innerHTML = await window.file.generatePreviewHTML(filename)
-
+        const previewHTML = await window.file.generatePreviewHTML(fileObjects[currentIndex].path);
+        previewContainer.innerHTML = previewHTML || "<p>Preview not available</p>";
         resetPreviewPosition();
     }
 

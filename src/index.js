@@ -13,7 +13,7 @@ const createWindow = () => {
       width: 900,
       height: 900,
       // Lock window rezing until we do our UI overhaul to prevent hidden items
-      resizable: false,
+      resizable: true,
       // Hide the top menu bar for release
       autoHideMenuBar: true,
       webPreferences: {

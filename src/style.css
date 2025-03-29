@@ -26,11 +26,30 @@ body {
    top: 0px;
 
    display: flex;
-   justify-content: left;
    align-items: center;
 
    background: #FFFFFF;
    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.14);
+}
+
+#barRight {
+   display: flex;
+   width: 100%;
+   justify-content: space-between;
+}
+
+#dirPathContainer {
+   width: fit-content;
+}
+
+#settingsButton {
+   display: flex;
+   align-items: center;
+   margin-right: 20px;
+}
+
+#settingsButton object {
+   width: 2em;
 }
 
 button {
@@ -46,9 +65,14 @@ button {
    padding: 0 25px;
 }
 
-#backButton {
+#backButtonContainer {
+   width: fit-content;
    position: relative;
    left: 21px;
+}
+
+#backButton {
+   width: 190px;
 }
 
 #dirPath {

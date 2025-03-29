@@ -13,8 +13,15 @@
 <body>
 
    <div id="bar">
-      <button id="backButton">Change directory</button>
-      <p id="dirPath"></p>
+      <div id="backButtonContainer">
+         <button id="backButton">Change directory</button>
+      </div>
+      <div id="barRight">
+            <div id="dirPathContainer">
+               <p id="dirPath"></p>
+            </div>
+         <div id="settingsButton"><object data="../res/gear.svg"></object></div>
+      </div>
    </div>
 
    <div id="file-card">
@@ -44,20 +51,20 @@
 
    <button id="finalPageButton">Review & Finalize</button>
 
-   <!-- <div id="notification"> </div> -->
-   <!-- <dialog id="renameModal"> -->
-   <!--    <div id="renameContainer"> -->
-   <!--       <input type="text" id="renameInput" placeholder="Enter new file name"> -->
-   <!--       <p id="renameWarning"></p> -->
-   <!--    </div> -->
-   <!--    <div class="popup" id="popup"> -->
-   <!--        <span id="popupContent">AI Suggested Name</span> -->
-   <!--    </div> -->
-   <!--    <div class="modal-buttons"> -->
-   <!--       <button id="closeModal">Cancel</button> -->
-   <!--       <button id="confirmRename">Confirm</button> -->
-   <!--    </div> -->
-   <!-- </dialog> -->
+   <div id="notification"> </div>
+   <dialog id="renameModal">
+      <div id="renameContainer">
+         <input type="text" id="renameInput" placeholder="Enter new file name">
+         <p id="renameWarning"></p>
+      </div>
+      <div class="popup" id="popup">
+          <span id="popupContent">AI Suggested Name</span>
+      </div>
+      <div class="modal-buttons">
+         <button id="closeModal">Cancel</button>
+         <button id="confirmRename">Confirm</button>
+      </div>
+   </dialog>
 
    <div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
 
