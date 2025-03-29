@@ -36,6 +36,9 @@ window.onload = async function () {
         if (dirPath) {
             document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
         }
+        if(fileObjects.length === 0){
+            document.getElementById("backButton").innerText = "Select Directory"
+        }
         //display files
         if (hasFiles()) {
             displayCurrentFile();
@@ -46,8 +49,6 @@ window.onload = async function () {
             document.getElementById("currentItem").innerText = "No files found.";
         }
     }
-    //set localstorage to be false
-    localStorage.setItem("finalPage", "false");
 
     // Select directory and load new files
     async function selectNewDirectory() {
@@ -56,7 +57,6 @@ window.onload = async function () {
             alert("Directory selection was canceled.");
             return;
         }
-    
         document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;    
         let files = await window.file.getFileData(dirPath);
         const removedFileTypes = new Set(await window.file.getRemovedFileTypes());
@@ -74,6 +74,7 @@ window.onload = async function () {
         currentIndex = 0;
     
         if (hasFiles()) {
+            document.getElementById("backButton").innerText = "Change Directory"
             displayCurrentFile();
         } else {
             document.getElementById("currentItem").innerText = "No files found.";
