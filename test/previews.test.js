@@ -22,7 +22,7 @@ class TestFile {
 
 // Create the empty test directory before running the tests.
 test.beforeAll(async () => {
-   electronApp = await electron.launch({ args: ["./"] });
+   electronApp = await electron.launch({ args: ["./", "--test-config"] });
 });
 
 test.afterAll(async () => {
@@ -60,7 +60,7 @@ async function setupWithTestFile(testFile) {
       })
    }
 
-   await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+   await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
 
    // Intercept file selection dialog
    await electronApp.evaluate(({ dialog }, tmpDir) => {
@@ -71,9 +71,9 @@ async function setupWithTestFile(testFile) {
    }, tmpDir);
 
    // Navigate to next page using the override
-   await window.locator("#SelectButton").click();
-   await window.locator("#goButton").click();
-   await window.waitForURL("**/keep_or_delete.html");
+   await window.locator("#backButton").click();
+   //await window.locator("#goButton").click();
+   //await window.waitForURL("**/keep_or_delete.html");
 }
 
 test("Preview `.txt`", async () => {

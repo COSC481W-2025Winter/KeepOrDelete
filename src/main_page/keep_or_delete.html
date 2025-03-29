@@ -18,52 +18,52 @@
    <div id="Header">
       <h1>KeepOrDelete</h1>
       <p id="dirPath"></p>
-      <a href="../settings.html" id="settings_button">
-      <img src="settings_gear.png" alt="Clickable Image" width="25">
-      </a>
-   </div>
-
-   <hr>
-   
-   <div id="overallPreview">
       <button id="inspectButton">Inspect Document</button>
-      <div id="dirDisplay">
-         <div id="previewContainer"></div>
-         <div id="file-info">
-            <p id="currentItem"></p>
-            <p id="currentItemSize"></p>
-         </div>
-      </div>
+      <button id="renameButton">Rename File</button>  
+      <div id="previewContainer"></div>
    </div>
 
-   <div id="notification">
-   </div>
-
-   <div class="wrapper">
+   <div id="notification"> </div>
+   <dialog id="renameModal">
       <div id="renameContainer">
-        <input type="text" id="renameInput" placeholder="Enter new file name">
-        <p id="renameWarning"></p>
+         <input type="text" id="renameInput" placeholder="Enter new file name">
+         <p id="renameWarning"></p>
       </div>
-      <div class="popup" id="popup" placeholder="AI Suggested Name">
-        AI: <span id="popupContent"></span>
+      <div class="popup" id="popup">
+          <span id="popupContent">AI Suggested Name</span>
       </div>
-    </div>
+      <div class="modal-buttons">
+         <button id="closeModal">Cancel</button>
+         <button id="confirmRename">Confirm</button>
+      </div>
+   </dialog>
     
   <button id="renameButton">Rename File</button>  
   <button id="aiButton">AI Suggestion</button>
   <button id="backButton">Change Directory</button>
    
+   <p>Directory to be Sorted: <code><span id="filepath"></span></code></p>
+   <button id="backButton">Change Directory</button>
+
+   <div class="file-info">
+      <p id="currentItem"></p>
+      <p id="currentItemSize"></p>
+   </div>
    <div class="button-container">
       <button id="deleteButton">Delete</button>
       <button id="nextButton">Keep</button>
       <button id="finalPageButton">Review & Finalize</button>
+      <button id="settingsButton">Settings</button>
    </div>
-<div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
+
+   <div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
+
    <div>
       <a href="../trash_page.html" id="trash_button">
          <img src="trash.jpg" alt="Clickable Image" width="50">
       </a>
    </div>
+
 
 </body>
 <script src="./keep_or_delete.js"></script>
