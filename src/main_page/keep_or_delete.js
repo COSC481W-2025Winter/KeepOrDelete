@@ -21,7 +21,9 @@ window.onload = async function () {
     // Progress Bar based on files left
     const progress = document.getElementById("progress");
     function updateProgress() {
-        const totalFiles = files.length + keptFiles.length + filesToBeDeleted.length;
+        const totalFiles = fileObjects.length;
+        const keptFiles = fileObjects.filter(f => f.status === "keep");
+        const filesToBeDeleted = fileObjects.filter(f => f.status === "delete");
         const completedFiles = keptFiles.length + filesToBeDeleted.length;
         const percent = totalFiles > 0 ? Math.round((completedFiles / totalFiles) * 100) : 0;
         progress.style.width = `${percent}%`;
