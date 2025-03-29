@@ -12,11 +12,41 @@ class FileObject {
 
 let fileObjects = [];
 let currentIndex = 0;
+let spaceSaved = 0;
 
 window.onload = async function () {
     const previewContainer = document.getElementById("previewContainer");
     let inspectMode = false;
     const hasShownTooltip = sessionStorage.getItem("tooltipShown");
+ 
+    // Progress Bar based on files left
+    const progress = document.getElementById("progress");
+    function updateProgress() {
+        const totalFiles = fileObjects.length;
+        const keptFiles = fileObjects.filter(f => f.status === "keep");
+        const filesToBeDeleted = fileObjects.filter(f => f.status === "delete");
+        const completedFiles = keptFiles.length + filesToBeDeleted.length;
+        const percent = totalFiles > 0 ? Math.round((completedFiles / totalFiles) * 100) : 0;
+        progress.style.width = `${percent}%`;
+        progress.textContent = percent + "%";
+
+        // Calculate total space saved
+        const totalSpaceSaved = filesToBeDeleted.reduce((sum, file) => sum + file.size, 0);
+        
+        // Adding some glowing and scaling animation cause vibes.
+        if (percent === 100) {
+            progress.classList.add("complete");
+            const saved = document.getElementById("dataSaved");
+            saved.textContent = "You've saved: " + formatFileSize(totalSpaceSaved) + "!";
+            setTimeout(() => {
+                progress.classList.remove("complete");
+            }, 1000);
+        }
+        // Re-trigger the glowing animation
+        progress.classList.remove("glowing");
+        void progress.offsetWidth;
+        progress.classList.add("glowing");
+    }
     // Get stored file objects
     const storedObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
     //this stretch of code checks if we are navigating to this page from the final page from
@@ -120,6 +150,7 @@ window.onload = async function () {
         currentIndex++;
         localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
         displayCurrentFile();
+        updateProgress();
         resetPreviewPosition();
     };
 
@@ -136,6 +167,7 @@ window.onload = async function () {
         localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
         currentIndex++;
         displayCurrentFile();
+        updateProgress();
     }
 
     const renameModal = document.getElementById("renameModal");
@@ -348,6 +380,7 @@ window.onload = async function () {
         const previewHTML = await window.file.generatePreviewHTML(filePath);
         previewContainer.innerHTML = previewHTML || "<p>Preview not available</p>";
         resetPreviewPosition();
+        updateProgress();
     }
 
 
