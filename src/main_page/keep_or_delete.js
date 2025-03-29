@@ -84,6 +84,7 @@ window.onload = async function () {
             alert("Directory selection was canceled.");
             return;
         }
+        showTooltip();
         dirPathElement.innerText = `Selected Directory: \n${dirPath}`;    
         let files = await window.file.getFileData(dirPath);
         const removedFileTypes = new Set(await window.file.getRemovedFileTypes());
@@ -672,24 +673,27 @@ window.onload = async function () {
         }
       }    
 
-    // Checks to see if user is a test agent
-    const isTesting = navigator.userAgent.includes("Playwright");
-
-
-    // Only runs if user is real
-    if (!isTesting && !hasShownTooltip) {
-        tooltip.classList.add("show");
-
-        // Dismiss tooltip on user input
-        document.addEventListener("mousedown", dismissTooltip);
-        document.addEventListener("keydown", dismissTooltip);
-        document.addEventListener("touchstart", dismissTooltip);
-
-        // WIGGLE IS THE MOST IMPORTANT PART OF THE PROJECT
-        triggerWiggle();
-        setInterval(triggerWiggle, 3000);
-        sessionStorage.setItem("tooltipShown", "true");
+    
+    function showTooltip(){
+        // Checks to see if user is a test agent
+        const isTesting = navigator.userAgent.includes("Playwright");
+    
+        // Only runs if user is real
+        if (!isTesting && !hasShownTooltip) {
+            tooltip.classList.add("show");
+    
+            // Dismiss tooltip on user input
+            document.addEventListener("mousedown", dismissTooltip);
+            document.addEventListener("keydown", dismissTooltip);
+            document.addEventListener("touchstart", dismissTooltip);
+    
+            // WIGGLE IS THE MOST IMPORTANT PART OF THE PROJECT
+            triggerWiggle();
+            setInterval(triggerWiggle, 3000);
+            sessionStorage.setItem("tooltipShown", "true");
+        }
     }
+    
 
     // Dismiss tooltip
     function dismissTooltip() {
