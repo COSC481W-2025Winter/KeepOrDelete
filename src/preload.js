@@ -28,11 +28,29 @@ contextBridge.exposeInMainWorld('file', {
    platform: process.platform, 
    getBase64: (filePath) => fs.readFileSync(filePath, "base64"), // convert to base64
    getPDFtext: (filePath) => ipcRenderer.invoke('get-pdf-text', filePath),
+   getFileData: (directoryPath) => { // Returns file data to create file objects
+      const files = fs.readdirSync(directoryPath);
+      return files.map((filename) => {
+        const fullPath = path.join(directoryPath, filename);
+        const stats = fs.statSync(fullPath);
+        if (!stats.isFile()) return null; // Ignore non-files
+
+        return {
+          name: filename,
+          path: fullPath,
+          modifiedDate: stats.mtime,
+          createdDate: stats.ctime,
+          size: stats.size,
+          status: null,
+        };
+      })
+      .filter(Boolean); // Filter out non-files 
+    },
 });
 
 contextBridge.exposeInMainWorld('fileFinal', {
-   getKeptFiles: () => JSON.parse(localStorage.getItem("keptFiles")) || [],
-   getDeletedFiles: () => JSON.parse(localStorage.getItem("deletedFiles")) || [],
+   getKeptFiles: () => JSON.parse(localStorage.getItem("keptFiles") || []).filter(f => f.status === "keep"),
+   getDeletedFiles: () => JSON.parse(localStorage.getItem("deletedFiles") || []).filter(f => f.status === "delete"),
    renameFile: (oldPath, newPath) => ipcRenderer.invoke('renameFile', { oldPath, newPath }),
 });
 // Create bridge for OpenAI API call through Lambda via HTTPS
