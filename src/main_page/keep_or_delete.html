@@ -19,7 +19,7 @@
    <div id="dirDisplay">
       <p id="dirPath"></p>
       <button id="inspectButton">Inspect Document</button>
-      <button id="renameButton">Rename File</button>  
+      <button id="renameButton">Rename File</button>
       <div id="previewContainer"></div>
    </div>
 
@@ -30,14 +30,14 @@
          <p id="renameWarning"></p>
       </div>
       <div class="popup" id="popup">
-          <span id="popupContent">AI Suggested Name</span>
+         <span id="popupContent">AI Suggested Name</span>
       </div>
       <div class="modal-buttons">
          <button id="closeModal">Cancel</button>
          <button id="confirmRename">Confirm</button>
       </div>
    </dialog>
-    
+
    <p>Directory to be Sorted: <code><span id="filepath"></span></code></p>
    <button id="backButton">Change Directory</button>
 
@@ -55,11 +55,13 @@
    <div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
 
    <div>
-      <a href="../trash_page.html" id="trash_button">
-         <img src="trash.jpg" alt="Clickable Image" width="50">
-      </a>
+      <img src="trash.jpg" id="trash_button">
    </div>
-
+   <dialog id="trash_dialog">
+      <h2>Trash Page</h2>
+      <p>This is the content of the trash page.</p>
+      <button id="close_dialog">Close</button>
+   </dialog>
 
 </body>
 <script src="./keep_or_delete.js"></script>
