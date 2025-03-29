@@ -18,7 +18,7 @@ const testFiles = [
 
 // Launch the Electron app
 test.beforeAll(async () => {
-    electronApp = await electron.launch({ args: ["./", "--test-config"] });
+    electronApp = await electron.launch({ args: ["./", "--test-config"], userAgent: "Playwright" });
 
     await fs.mkdir(testDirectory, { recursive: true });
     await Promise.all([
