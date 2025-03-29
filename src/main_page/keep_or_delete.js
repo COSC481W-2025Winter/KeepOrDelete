@@ -379,6 +379,7 @@ window.onload = async function () {
         const previewHTML = await window.file.generatePreviewHTML(filePath);
         previewContainer.innerHTML = previewHTML || "<p>Preview not available</p>";
         resetPreviewPosition();
+        updateProgress();
     }
 
 
