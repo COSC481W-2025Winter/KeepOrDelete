@@ -735,7 +735,7 @@ window.onload = async function () {
               }, 4000);
             return; 
         }
-      }    
+    }    
 
     // Checks to see if user is a test agent
     const isTesting = navigator.userAgent.includes("Playwright");

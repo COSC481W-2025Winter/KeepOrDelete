@@ -16,11 +16,9 @@
 
 <body>
    <div id="Header">
+      <button id="backButton">Change Directory</button>
       <h1>KeepOrDelete</h1>
       <p id="dirPath"></p>
-      <button id="inspectButton">Inspect Document</button>
-      <button id="renameButton">Rename File</button>  
-      <div id="previewContainer"></div>
    </div>
 
    <div id="notification"> </div>
@@ -37,18 +35,25 @@
          <button id="confirmRename">Confirm</button>
       </div>
    </dialog>
-    
-  <button id="renameButton">Rename File</button>  
-  <button id="aiButton">AI Suggestion</button>
-  <button id="backButton">Change Directory</button>
+
+   <div>
+      <button id="inspectButton">Inspect Document</button>
+      <button id="renameButton">Rename File</button>  
+      <div id="dirDisplay">
+         <div id="previewContainer"></div>
+         <div class="file-info">
+            <p id="currentItem"></p>
+            <p id="currentItemSize"></p>
+         </div>
+      </div>
+      
+   </div>
+
+
    
    <p>Directory to be Sorted: <code><span id="filepath"></span></code></p>
-   <button id="backButton">Change Directory</button>
+   
 
-   <div class="file-info">
-      <p id="currentItem"></p>
-      <p id="currentItemSize"></p>
-   </div>
    <div class="button-container">
       <button id="deleteButton">Delete</button>
       <button id="nextButton">Keep</button>
