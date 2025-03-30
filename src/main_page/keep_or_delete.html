@@ -54,15 +54,20 @@
    <div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
 
    <div>
-      <img src="trash.jpg" id="trash_button">
+      <img src="trash.jpg" id="trash_button" alt="Trash Icon">
    </div>
+
    <dialog id="trash_dialog">
-      <h2>Trash Page</h2>
-      <p>This is the content of the trash page.</p>
+      <h2>Deleted Files</h2>
+      <ul id="deletedFilesList"></ul>
       <button id="close_dialog">Close</button>
    </dialog>
 
+
+
+
 </body>
 <script src="./keep_or_delete.js"></script>
+<script src="../trash_page.js"></script>
 
 </html>

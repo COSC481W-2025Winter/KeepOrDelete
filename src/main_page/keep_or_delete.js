@@ -1,12 +1,12 @@
 // File data object
 class FileObject {
     constructor({ name, path, modifiedDate, createdDate, size, status = null }) {
-      this.name = name;
-      this.path = path;
-      this.modifiedDate = new Date(modifiedDate);
-      this.createdDate = new Date(createdDate);
-      this.size = size;
-      this.status = status;
+        this.name = name;
+        this.path = path;
+        this.modifiedDate = new Date(modifiedDate);
+        this.createdDate = new Date(createdDate);
+        this.size = size;
+        this.status = status;
     }
 }
 
@@ -36,7 +36,7 @@ window.onload = async function () {
         if (dirPath) {
             document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
         }
-        if(fileObjects.length === 0){
+        if (fileObjects.length === 0) {
             document.getElementById("backButton").innerText = "Select Directory"
         }
         //display files
@@ -57,22 +57,22 @@ window.onload = async function () {
             alert("Directory selection was canceled.");
             return;
         }
-        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;    
+        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
         let files = await window.file.getFileData(dirPath);
         const removedFileTypes = new Set(await window.file.getRemovedFileTypes());
-    
+
         // Filter out DS_Store and unselected extensions
         files = files.filter(file => {
             const fileName = file.name.split("/").pop();
             const fileType = file.name.split(".").pop();
             return fileName !== ".DS_Store" && !removedFileTypes.has(fileType);
         });
-    
+
         // Convert raw data into FileObject instances
         fileObjects = files.map(f => new FileObject(f));
         localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
         currentIndex = 0;
-    
+
         if (hasFiles()) {
             document.getElementById("backButton").innerText = "Change Directory"
             displayCurrentFile();
@@ -80,7 +80,7 @@ window.onload = async function () {
             document.getElementById("currentItem").innerText = "No files found.";
         }
     }
-    
+
 
     function showNotification(message) {
         const notification = document.getElementById('notification');
@@ -329,7 +329,7 @@ window.onload = async function () {
             previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
             return
         }
-         
+
         const file = fileObjects[currentIndex];
         document.getElementById("currentItem").innerText = "Current File: " + file.name;
         let formattedSize = formatFileSize(file.size);
