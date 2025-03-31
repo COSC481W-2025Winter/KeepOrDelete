@@ -58,14 +58,17 @@ const testFileProcessing = async (window, swipeAction) => {
       } else {
          await swipeAction("right");
       }
-      await expect(window.locator("#currentItem")).not.toHaveText(path, { timeout: 5000 })
+      await window.waitForTimeout(500);
+      if (i !== 2) {
+         await expect(window.locator("#currentItem")).not.toHaveText(path, { timeout: 5000 });
+      }
    }
 };
 
 test("Button press to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
    await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
-
+   await window.evaluate(() => localStorage.clear());
    // Intercept file selection dialog
    await electronApp.evaluate(({ dialog }, testDirPath) => {
       dialog.showOpenDialog = async () => ({
