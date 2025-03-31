@@ -8,7 +8,7 @@ Visit our [Releases](https://github.com/COSC481W-2025Winter/KeepOrDelete/release
 
 For Windows users, we recommend downloading and running `KeepOrDelete-Setup-X.X.X.exe`.
 
-If Windows displays a pop-up preventing the file from executing, click `More Info`, then click `Run Anyway`.
+If Windows displays a pop-up preventing the file from executing, click "More Info", then click "Run Anyway".
 
 ### Mac
 
