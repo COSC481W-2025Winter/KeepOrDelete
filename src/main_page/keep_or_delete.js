@@ -36,7 +36,6 @@ window.onload = async function () {
     // Handle directory selection from the welcome screen
     document.getElementById("selectDirButton").addEventListener("click", async () => {
         await selectNewDirectory();
-        //showUIElements()
     });
 
     // Hide UI elements when app is first loaded
@@ -353,11 +352,6 @@ window.onload = async function () {
         setTimeout(() => {
             newRenameInput.blur();  // Remove highlight after creation
         }, 100);
-
-        // Optionally, refocus the input when the user interacts with it
-        //newRenameInput.addEventListener('focus', () => {
-        //  console.log('Input refocused when user interacts.');
-        //});
     }
 
     function containsIllegalCharacters(name) {
@@ -435,8 +429,6 @@ window.onload = async function () {
         //reset inspect mode upon file change
         inspectMode = false;
         document.getElementById("inspectButton").innerText = "Inspect Document";
-        // Attach Enter event listener for renaming
-        //attachRenameListeners();
     }
 
     async function refreshPreview(filePath) {
