@@ -46,6 +46,55 @@ test("navigate to settings window", async () => {
   await window.evaluate(() => localStorage.clear());
 });
 
+test("Select new directory successfully", async () => {
+  const window = await app.firstWindow(); // Use const here
+  await window.evaluate(() => localStorage.clear());
+  await window.goto(fileUrl);
+
+  // Intercept file selection dialog
+  await app.evaluate(({ dialog }, testDirectory) => {
+    dialog.showOpenDialog = async () => ({
+      canceled: false,
+      filePaths: [testDirectory],
+    });
+  }, testDirectory);
+
+  // Click Select Directory Button
+  await window.locator("#selectDirButton").click();
+  const dirPathText = await window.locator("#dirPath").innerText();
+
+  // Check that directory was selected
+  expect(dirPathText).toMatch(/Selected Directory:/);
+  await window.evaluate(() => localStorage.clear());
+});
+
+test("Cancel directory selection", async () => {
+  const window = await app.firstWindow(); // Use const here
+  await window.evaluate(() => localStorage.clear());
+  await window.goto(fileUrl);
+
+  // Simulate cancellation by setting canceled to true
+  await app.evaluate(({ dialog }) => {
+    dialog.showOpenDialog = async () => ({
+      canceled: true,
+      filePaths: [],
+    });
+  });
+
+  // Click Select Directory Button
+  await window.locator("#backButton").click();
+
+  // Listen for alert dialog
+  let alertTriggered = false;
+  window.on("dialog", async (dialog) => {
+    console.log(`Dialog detected: ${dialog.message()}`);
+    expect(dialog.type()).toBe("alert"); // Check if it's an alert
+    expect(dialog.message()).toContain("Directory selection was canceled.");
+    await dialog.accept(); // Accept the alert
+    alertTriggered = true;
+  });
+
+});
 //test go button when user doesn't select file
 /*
 test("go button with no file path", async () => {
