@@ -22,7 +22,7 @@ class TestFile {
 
 // Create the empty test directory before running the tests.
 test.beforeAll(async () => {
-   electronApp = await electron.launch({ args: ["./", "--test-config"] });
+   electronApp = await electron.launch({ args: ["./", "--test-config"], userAgent: "Playwright"  });
 });
 
 test.afterAll(async () => {

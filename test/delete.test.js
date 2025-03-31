@@ -26,6 +26,7 @@ test.beforeEach(async () => {
     ]);
     app = await electron.launch({
         args: ["./", "--test-config"],
+        userAgent: "Playwright" 
     });
 });
 

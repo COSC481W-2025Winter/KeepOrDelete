@@ -12,7 +12,7 @@ const testDirectory = path.join(__dirname, "test-files");
 
 //setting up app
 test.beforeAll(async () => {
-  app = await electron.launch({ args: ["./", "--test-config"] });
+  app = await electron.launch({ args: ["./", "--test-config"], userAgent: "Playwright" });
   await fs.mkdir(testDirectory, { recursive: true });
 });
 
