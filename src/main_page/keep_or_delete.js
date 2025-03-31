@@ -160,7 +160,7 @@ window.onload = async function () {
     };
 
     // Go through files in directory +1
-    document.getElementById("nextButton").addEventListener("click", async () => {
+    document.getElementById("keepButton").addEventListener("click", async () => {
         if (!hasFiles()) return;
         animateSwipe("right");
     });
