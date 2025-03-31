@@ -48,7 +48,7 @@ test("Kept files should appear in the final kept files list and allow renaming",
     }, testDirectory);
 
     // Click to select directory and go to KeepOrDelete page
-    await window.locator("#backButton").click();
+    await window.locator("#selectDirButton").click();
     //await window.locator("#goButton").click();
     //await window.waitForURL("**/keep_or_delete.html");
 
