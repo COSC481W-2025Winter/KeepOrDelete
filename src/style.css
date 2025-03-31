@@ -1,0 +1,280 @@
+:root {
+   --accent: #4d92f2;
+
+   --card-height: 400px;
+   --card-preview-height: 325px;
+}
+
+body {
+   background: #FFFFFF;
+   overflow: hidden;
+   font-size: 16px;
+   font-family: "Tahoma"
+}
+
+.flex-center {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+#bar {
+   position: absolute;
+   height: 80px;
+   left: 0px;
+   right: 0px;
+   top: 0px;
+
+   display: flex;
+   align-items: center;
+
+   background: #FFFFFF;
+   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.14);
+}
+
+#barRight {
+   display: flex;
+   width: 100%;
+   justify-content: space-between;
+}
+
+#dirPathContainer {
+   width: fit-content;
+}
+
+#settingsButton {
+   display: flex;
+   align-items: center;
+   margin-right: 20px;
+}
+
+#settingsButton object {
+   width: 2em;
+}
+
+button {
+   background-color: var(--accent);
+   border-radius: 12px;
+   border: none;
+   box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.25);
+   color: white;
+   height: 44px;
+   font-size: inherit;
+   font-weight: bold;
+   width: auto;
+   padding: 0 25px;
+}
+
+#backButtonContainer {
+   width: fit-content;
+   position: relative;
+   left: 21px;
+}
+
+#backButton {
+   width: 190px;
+}
+
+#dirPath {
+   width: auto;
+   position: relative;
+   left: 40px;
+
+   font-style: normal;
+   font-weight: 700;
+   font-size: 16px;
+   line-height: 19px;
+
+   color: #595959;
+
+   display: inline-block;
+   text-overflow: ellipsis;
+   overflow: hidden;
+}
+
+#file-card, #empty-queue {
+   width: 440px;
+   height: var(--card-height);
+   margin: 130px auto 0 auto;
+}
+
+#file-card {
+   box-sizing: border-box;
+
+   border: 2px solid #E2E2E2;
+   border-radius: 12px;
+   overflow: hidden;
+}
+
+#file-card * {
+   pointer-events: none;
+}
+
+#card-bar {
+   position: relative;
+   align-items: center;
+   top: 0;
+   height: calc(var(--card-height) - var(--card-preview-height));
+}
+
+#card-bar p {
+   margin-top: 23px;
+   margin-bottom: 0;
+   margin-left: 20px;
+   font-weight: bold;
+   color: #595959;
+   float: left;
+   overflow: hidden;
+}
+
+p:has(#basename), #basename {
+   text-wrap: nowrap;
+   max-width: 250px;
+   text-overflow: ellipsis;
+}
+
+#card-bar p:last-child {
+   float: right;
+   margin-right: 20px;
+   font-weight: normal;
+}
+
+#kod-btns-container {
+   position: absolute;
+   width: 298px;
+   height: 152px;
+   left: calc(50% - 298px/2);
+   bottom: 58px;
+}
+
+#keepButton {
+   position: absolute;
+   width: 152px;
+   right: 0px;
+   top: 0px;
+   bottom: 0px;
+}
+
+img.btn { /* Keep or Delete buttons */
+   pointer-events: none;
+   user-select: none;
+}
+
+#finalPageButton {
+   position: absolute;
+   width: 205px;
+   height: 44px;
+   right: 21px;
+   bottom: 24px;
+}
+
+/* Previews */
+
+#previewContainer {
+   user-select: none;
+
+   height: var(--card-preview-height);
+
+   background-color: #f5f5f5;
+   font-size: 1rem;
+
+   overflow: hidden;
+}
+
+#previewContainer > div {
+   width: inherit;
+   height: inherit;
+}
+
+.txtPreview {
+   overflow: auto;
+   height: inherit;
+   font-family: monospace;
+   border-radius: 10px;
+   text-align: left;
+   user-select: none;
+}
+
+.txtPreview * {
+   margin: 8px;
+}
+
+.pdfPreview iframe {
+   pointer-events: none;
+   width: 100%;
+   height: 100%;
+}
+
+.imgPreview img {
+   /* Display image at max allowable size inside container. */
+   width: 100%;
+   max-width: 100%;
+   max-height: 100%;
+
+   object-fit: contain; /* Maintain aspect ratio. */
+   pointer-events: none /* Dragging images conflicts with swiping. */
+}
+
+.videoPreview video {
+   width: auto !important; /* Match width of controls with width of video. */
+   height: 100%;
+   max-width: 100%; /* Remain within bounds of the preview container. */
+   background-color: black;
+}
+
+.unsupportedPreview {
+   text-align: center;
+   color: #777777;
+   height: 100%;
+   margin: auto;
+   display: flex;
+   align-items: center;
+}
+
+.unsupportedPreview p {
+   margin: 0 auto;
+}
+
+/* Swipe icon */
+
+.swipeIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10rem;
+  opacity: 0;
+  transition: opacity 0.25s ease-out;
+}
+
+.swipeIcon.show {
+  opacity: 1;
+}
+
+#tooltip {
+  pointer-events: none;
+  position: fixed;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(2px);
+  color: white;
+  padding: 20px 35px;
+  border-radius: 15px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out, transform 0.3s ease-in-out;
+}
+
+#tooltip.show {
+  opacity: 1;
+}
+
+#tooltip.hide {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.9);
+}

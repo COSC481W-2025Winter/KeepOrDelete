@@ -1,364 +1,284 @@
-/* General page styling */
-html,
-body {
-  overflow: hidden;
+:root {
+  --accent: #4d92f2;
+
+  --card-height: 400px;
+  --card-preview-height: 325px;
 }
 
+body {
+  background: #FFFFFF;
+  overflow: hidden;
+  font-size: 16px;
+  font-family: "Tahoma"
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#bar {
+  position: absolute;
+  height: 80px;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+
+  display: flex;
+  align-items: center;
+
+  background: #FFFFFF;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.14);
+}
+
+#barRight {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+#dirPathContainer {
+  width: fit-content;
+}
 
 #settingsButton {
-  position: absolute;
-  bottom: 0px;
-  /* Adjust as needed */
-  right: 0px;
-  /* Adjust as needed */
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
 }
 
-
-  
-body {
-  position: relative;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
-  text-align: center;
+#settingsButton object {
+  width: 2em;
 }
 
 button {
-  padding: 0.75em 1.5em;
-  margin: 0.5em;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
-  background-color: #007bff;
-  border: none; 
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s ease;
+  background-color: var(--accent);
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.25);
+  color: white;
+  height: 44px;
+  font-size: inherit;
+  font-weight: bold;
+  width: auto;
+  padding: 0 25px;
 }
 
-/* Button hover and active states */
-button:hover {
-  background-color: #0056b3;
+#backButtonContainer {
+  width: fit-content;
+  position: relative;
+  left: 21px;
 }
 
-button:active {
-  transform: scale(0.98);
+#backButton {
+  width: 190px;
 }
 
-#Header {
-  display: flex;
-  justify-content: center; /* Center elements horizontally */
-  align-items: center; /* Center elements vertically */
-  gap: 20px; /* Add spacing between elements */
-  height: 80px; /* Set a height for proper alignment */
-  /*background-color: #3f3f3f; /* Optional background for visibility */
+#dirPath {
+  width: auto;
+  position: relative;
+  left: 40px;
+
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 19px;
+
+  color: #595959;
+
+  display: inline-block;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
-#Header > * {
-  display: flex;
-  justify-content: center;
+#file-card, #empty-queue {
+  width: 440px;
+  height: var(--card-height);
+  margin: 130px auto 0 auto;
+}
+
+#file-card {
+  box-sizing: border-box;
+
+  border: 2px solid #E2E2E2;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+#file-card * {
+  pointer-events: none;
+}
+
+#card-bar {
+  position: relative;
   align-items: center;
-  text-align: center;
-  flex: 1; /* Distribute space evenly among children */
+  top: 0;
+  height: calc(var(--card-height) - var(--card-preview-height));
 }
 
-#dirDisplay {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%; /* Ensure it takes up the full available width */
+#card-bar p {
+  margin-top: 23px;
+  margin-bottom: 0;
+  margin-left: 20px;
+  font-weight: bold;
+  color: #595959;
+  float: left;
+  overflow: hidden;
 }
 
-#previewContainer  {
-  width: 100%;
-  display: flex;
+p:has(#basename), #basename {
+  text-wrap: nowrap;
+  max-width: 250px;
+  text-overflow: ellipsis;
+}
+
+#card-bar p:last-child {
+  float: right;
+  margin-right: 20px;
+  font-weight: normal;
+}
+
+#kod-btns-container {
+  position: absolute;
+  width: 298px;
+  height: 152px;
+  left: calc(50% - 298px/2);
+  bottom: 58px;
+}
+
+#keepButton {
+  position: absolute;
+  width: 152px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+}
+
+img.btn { /* Keep or Delete buttons */
+  pointer-events: none;
   user-select: none;
-  font-size: 1rem;
-  height: 300px;
-  justify-content: center;
 }
 
-#file-info {
-  display: flex;
-  justify-content: center; /* Center elements horizontally */
-  align-items: center; /* Center elements vertically */
-  gap: 20px; /* Add spacing between elements */
-  height: 60px;
-  border: 2px solid #bbbbbb; /* Black border */
-  border-top: none; /* Remove top border */
-  border-radius: 0 0 10px 10px;
-  width: 70%;
+#finalPageButton {
+  position: absolute;
+  width: 205px;
+  height: 44px;
+  right: 21px;
+  bottom: 24px;
 }
 
-code {
-  background-color: #eaeaea;
-  padding: 0.2em 0.4em;
-  border-radius: 3px;
-}
+/* Previews */
 
 #previewContainer {
   user-select: none;
+
+  height: var(--card-preview-height);
+
+  background-color: #f5f5f5;
   font-size: 1rem;
-  width: 500px;
-  height: 300px;
+
+  overflow: hidden;
 }
 
-#previewContainer * {
+#previewContainer > div {
   width: inherit;
   height: inherit;
 }
 
 .txtPreview {
-   border: 2px solid #bbbbbb;
-   border-bottom: none;
-   background-color: #e5e5e5;
-   overflow: auto;
-   font-family: monospace;
-   border-radius: 10px 10px 0px 0px;
-   text-align: left;
-   user-select: none;
-   width: 70%;
+  overflow: auto;
+  height: inherit;
+  font-family: monospace;
+  border-radius: 10px;
+  text-align: left;
+  user-select: none;
+}
+
+.txtPreview * {
+  margin: 8px;
 }
 
 .pdfPreview iframe {
   pointer-events: none;
+  width: 100%;
+  height: 100%;
 }
 
 .imgPreview img {
-  width: auto !important;
-  /* Maintain aspect ratio. */
-  pointer-events: none
-    /* Dragging images conflicts with swiping. */
+  /* Display image at max allowable size inside container. */
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+
+  object-fit: contain; /* Maintain aspect ratio. */
+  pointer-events: none /* Dragging images conflicts with swiping. */
+}
+
+.videoPreview video {
+  width: auto !important; /* Match width of controls with width of video. */
+  height: 100%;
+  max-width: 100%; /* Remain within bounds of the preview container. */
+  background-color: black;
 }
 
 .unsupportedPreview {
   text-align: center;
   color: #777777;
-  line-height: 300px;
+  height: 100%;
   margin: auto;
-}
-
-.docxPreview {
-  overflow: scroll;
-  background-color: white;
-  text-align: left;
-}
-
-.videoPreview,
-.videoPreview video {
-  width: auto !important;
-  /* Match width of controls with width of video. */
-  max-width: 100%;
-  /* Remain within bounds of the preview container. */
-}
-
-.final-page {
   display: flex;
-  justify-content: center;
   align-items: center;
 }
 
-.final-container {
-  width: 100%;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.unsupportedPreview p {
+  margin: 0 auto;
 }
 
-.file-container {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: 20px;
-}
-
-.kept-files,
-.deleted-files {
-  flex: 1;
-  padding: 10px;
-  max-height: 70vh;
-  overflow: auto;
-  box-sizing: border-box;
-}
-
-.final-page .rename-input {
-  border: none;
-  background: transparent;
-  font-size: 1rem;
-  text-align: left;
-  width: 100%;
-  outline: none;
-}
-
-.final-page .rename-input:hover {
-  background: #f0f0f0;
-  cursor: text;
-}
-
-/* Two-column layout for kept and deleted files */
-.file-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 80%;
-  margin: auto;
-}
-
-/* Kept files (left side) */
-.kept-files {
-  flex: 1;
-  text-align: left;
-  max-width: 45%;
-}
-
-/* Deleted files (right side) */
-.deleted-files {
-  flex: 1;
-  text-align: left;
-  max-width: 45%;
-}
-
-/* Remove bullet points */
-#keptFilesList,
-#deletedFilesList {
-  list-style-type: none;
-  padding: 0;
-}
-
-/* Rename input styling */
-.rename-input {
-  border: 1px solid transparent;
-  /* Initially transparent */
-  background: #fafafa;
-  font-size: 1rem;
-  text-align: left;
-  width: 100%;
-  outline: none;
-  padding: 5px;
-  margin-bottom: 5px;
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
-}
-
-.rename-input:hover {
-  background: #f0f0f0;
-  border-color: #ccc;
-  cursor: text;
-}
-
-/* When focused (clicked), emphasize it */
-.rename-input:focus {
-  background: white;
-  border: 1px solid #007bff;
-  box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
-}
-
-/* Button Styling */
-#finalizeButton {
-  display: block;
-  margin: 20px auto;
-  padding: 10px 20px;
-  font-size: 1rem;
-  font-weight: bold;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#finalizeButton:hover {
-  background-color: #0056b3;
-}
+/* Swipe icon */
 
 .swipeIcon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 10rem;
-  opacity: 0;
-  transition: opacity 0.25s ease-out;
+ position: absolute;
+ top: 50%;
+ left: 50%;
+ transform: translate(-50%, -50%);
+ font-size: 10rem;
+ opacity: 0;
+ transition: opacity 0.25s ease-out;
 }
 
 .swipeIcon.show {
-  opacity: 1;
-}
-
-
-/* settings styling */
-.settingsBox {
-  display: flex;
-  justify-content: space-between;
-}
-
-.settings-row {
-  flex: 1;
-  padding: 10px;
-}
-
-.settings-row h3 {
-  text-align: center;
-}
-
-#renameContainer {
-  display: inline-block;
-}
-
-.popup {
-  position: relative;
-  display: inline-block;
-  font-family: monospace;
-  background: #08c27b56;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  opacity: .5;
-}
-
-.popup:hover {
-  opacity: 1;
+ opacity: 1;
 }
 
 #tooltip {
-  pointer-events: none;
-  position: fixed;
-  top: 35%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 999;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(2px);
-  color: white;
-  padding: 20px 35px;
-  border-radius: 15px;
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-  opacity: 0;
-  transition: opacity 0.8s ease-in-out, transform 0.3s ease-in-out;
+ pointer-events: none;
+ position: fixed;
+ top: 35%;
+ left: 50%;
+ transform: translate(-50%, -50%);
+ z-index: 999;
+ background: rgba(0, 0, 0, 0.65);
+ backdrop-filter: blur(2px);
+ color: white;
+ padding: 20px 35px;
+ border-radius: 15px;
+ font-size: 20px;
+ font-weight: bold;
+ text-align: center;
+ opacity: 0;
+ transition: opacity 0.8s ease-in-out, transform 0.3s ease-in-out;
 }
 
 #tooltip.show {
-  opacity: 1;
+ opacity: 1;
 }
 
 #tooltip.hide {
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.9);
+ opacity: 0;
+ transform: translate(-50%, -50%) scale(0.9);
 }
+
 
 @keyframes wiggle {
 

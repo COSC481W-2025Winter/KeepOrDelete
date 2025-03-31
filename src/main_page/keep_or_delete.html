@@ -15,10 +15,16 @@
 <!-- Here u can add other tabs and compnents for display-->
 
 <body>
-   <div id="Header">
-      <button id="backButton">Change Directory</button>
-      <h1>KeepOrDelete</h1>
-      <p id="dirPath"></p>
+   <div id="bar">
+      <div id="backButtonContainer">
+         <button id="backButton">Change directory</button>
+      </div>
+      <div id="barRight">
+            <div id="dirPathContainer">
+               <p id="dirPath"></p>
+            </div>
+         <div id="settingsButton"><object data="../res/gear.svg"></object></div>
+      </div>
    </div>
 
    <div id="notification"> </div>
@@ -39,9 +45,9 @@
    <div>
       <button id="inspectButton">Inspect Document</button>
       <button id="renameButton">Rename File</button>  
-      <div id="dirDisplay">
+      <div id="file-card">
          <div id="previewContainer"></div>
-         <div class="file-info">
+         <div class="card-bar">
             <p id="currentItem"></p>
             <p id="currentItemSize"></p>
          </div>

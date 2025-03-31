@@ -8,7 +8,7 @@ window.onload = async function () {
     console.log("files found: ", files);
     let currentIndex = 0;
     const previewContainer = document.getElementById("previewContainer");
-    const dirDisplay = document.getElementById("dirDisplay");
+    const dirDisplay = document.getElementById("file-card");
     let inspectMode = false;
     let keptFiles = JSON.parse(localStorage.getItem("keptFiles")) || [];
     let filesToBeDeleted = JSON.parse(localStorage.getItem("deletedFiles")) || [];
