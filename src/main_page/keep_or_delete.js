@@ -114,10 +114,14 @@ window.onload = async function () {
     //this stretch of code checks if we are navigating to this page from the final page from
     //final page after finalize and select new directory, if yes, no directory shown, if no, get dir
     let finalPage = localStorage.getItem("finalPage") === "true"; //boolean
+    let returnFromSettings = localStorage.getItem("returnFromSettings") === "true";
     if (finalPage) {
         localStorage.removeItem("fileObjects"); // Clear old file data
         localStorage.setItem("finalPage", "false");
         fileObjects = []; //files is now empty because files shouldnt carry over from final page
+        hideUIElements();
+    } else if (returnFromSettings) {
+        localStorage.setItem("returnFromSettings", "false");
         hideUIElements();
     } else {
         // Convert stored file objects to actual FileObject instances
