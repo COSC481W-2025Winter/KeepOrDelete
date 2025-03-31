@@ -102,12 +102,12 @@ window.onload = async function () {
     // Delete button press
     document.getElementById("deleteButton").addEventListener("click", async () => {
         if (!hasFiles()) return;
+        deleteFile();
         animateSwipe("left");
     });
 
     // Delete function
     async function deleteFile() {
-        // Don't attempt deletion if there are no [more] files.
         if (!hasFiles()) {
             await window.file.showMessageBox({
                 type: "error",
@@ -116,12 +116,21 @@ window.onload = async function () {
             });
             return;
         }
+
+        console.log("Before update:", JSON.stringify(fileObjects[currentIndex]));
+
         fileObjects[currentIndex].status = "delete";
-        currentIndex++;
+
+        console.log("After update:", JSON.stringify(fileObjects[currentIndex]));
+
         localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+        console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
+
+        currentIndex++;
         displayCurrentFile();
         resetPreviewPosition();
-    };
+    }
+
 
     // Go through files in directory +1
     document.getElementById("nextButton").addEventListener("click", async () => {
@@ -712,16 +721,66 @@ window.onload = async function () {
         window.location.href = "../settings.html";
     });
 
-    const trashButton = document.getElementById("trash_button");
-    const trashDialog = document.getElementById("trash_dialog");
-    const closeDialog = document.getElementById("close_dialog");
+    const trashModal = document.getElementById("trash_dialog"); //these vars have to do with trash page subwindow
+    const openTrashModal = document.getElementById("trash_button");
+    const closeTrashModal = document.getElementById("closeTrashModal");
+    const deletedFilesList = document.getElementById("deletedFilesList");
+    //ensuring all vars exist before entering this block
+    if (openTrashModal && closeTrashModal && trashModal && deletedFilesList) {
+        openTrashModal.addEventListener("click", function () {
+            loadDeletedFiles();
+            trashModal.showModal(); //load modal 
+        });
+        closeTrashModal.addEventListener("click", function () {
+            trashModal.close();
+        });
+        //master function for this subwindow, this is all logic from trash_page.js
+        function loadDeletedFiles() {
+            deletedFilesList.innerHTML = "<p>No deleted files.</p>"; //start as no deleted files
+            let fileObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
+            let deletedFiles = fileObjects.filter(f => f.status === "delete");
+            console.log(deletedFiles);
+            if (deletedFiles.length > 0) { //if there is something in deleted files, update
+                deletedFilesList.innerHTML = ""; //empty
+                deletedFiles.forEach(file => {
+                    const fileName = file.name;
+                    const listItem = document.createElement("li");
+                    listItem.innerText = fileName;
+                    const deleteButton = document.createElement("button");
+                    deleteButton.innerText = "Move to keep";
+                    deleteButton.classList.add("deleteUndo");
+                    deleteButton.dataset.file = file.path;
+                    listItem.appendChild(deleteButton);
+                    deletedFilesList.appendChild(listItem);
+                    //listener for keep button for each li
+                    deleteButton.addEventListener("click", function () {
+                        const filePath = deleteButton.dataset.file;
+                        //get fileObjects in local storage and get index of file we are interested in
+                        let fileObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
+                        let targetIndex = fileObjects.findIndex(f => f.path === filePath);
+                        if (targetIndex !== -1) { //if its -1, wasn't found
+                            //console.log("Before update:", fileObjects[targetIndex]); //debugging
+                            fileObjects[targetIndex].status = "keep"; //set to keep
+                            localStorage.setItem("fileObjects", JSON.stringify(fileObjects)); //update local storage
+                            //console.log("After update:", fileObjects[targetIndex]);
+                            //console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
+                            listItem.remove(); //built in remove method
+                            //NEED TIMEOUT AND RELOAD TO UPDATE LOCALSTORAGE!
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 500);
+                            loadDeletedFiles();
+                            trashModal.showModal();
+                        }
+                    });
 
-    trashButton.addEventListener("click", () => {
-        trashDialog.showModal(); // Opens the dialog as a modal
-    });
+                });
+            }
+        }
+    } else {
+        console.error("One or more elements not found. Check your HTML IDs.");
+    }
 
-    closeDialog.addEventListener("click", () => {
-        trashDialog.close(); // Closes the dialog
-    });
+
 
 };

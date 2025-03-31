@@ -4,6 +4,20 @@ body {
   overflow: hidden;
 }
 
+.trash_dialog {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  z-index: 1000;
+}
+
+tr dialog::backdrop {
+  background-color: transparent;
+  /* Remove the default gray backdrop */
+}
 
 #settingsButton {
   position: absolute;
