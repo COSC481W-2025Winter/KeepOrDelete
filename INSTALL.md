@@ -65,7 +65,7 @@ Run the application:
 $ npm start
 ```
 
-#### NixOS
+### NixOS
 
 If you are on NixOS and receive the following error:
 
