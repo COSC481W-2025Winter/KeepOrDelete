@@ -595,11 +595,19 @@ window.onload = async function () {
                           console.error("Error sending OpenAI request:", error);
                         });
             }
-        // PDF
-        else if(mimeType == "application/pdf"){
+        // PDF & DOCX files
+        else if(mimeType == "application/pdf" || filename.includes("docx")) {
             // Creating a Async function to process all PDF contents before using data.
             async function pdfAIcall() {
-                  const pdfContent = await window.file.getPDFtext(filename);
+                let pdfPath = filename;
+                if (filename.includes("docx")) {
+                    pdfPath = await window.file.convertDocxToPdf(filename);
+                } else {
+                    // For actual PDF files, extract text directly.
+                    pdfPath = filename;
+                }
+                
+                const pdfContent = await window.file.getPDFtext(pdfPath);
                   console.log("PDF Content:", pdfContent);
                   popupContent.textContent = "Thinking...";
                   window.openai
