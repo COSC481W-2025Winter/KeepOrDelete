@@ -1,5 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron');
-const { generatePreviewHTML } = require("./preview.js");
+const { generatePreviewHTML, convertDocxToPdf } = require("./preview.js");
 const fs = require("node:fs");
 const mime = require("mime");
 const path = require('path');
@@ -46,6 +46,7 @@ contextBridge.exposeInMainWorld('file', {
     const fileData = await Promise.all(fileDataPromises);
     return fileData.filter(Boolean);
   },
+  convertDocxToPdf: (filePath) => convertDocxToPdf(filePath),
 });
 
 contextBridge.exposeInMainWorld('fileFinal', {
