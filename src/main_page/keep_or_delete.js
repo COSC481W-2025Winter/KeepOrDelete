@@ -14,11 +14,12 @@ let fileObjects = [];
 let currentIndex = 0;
 let spaceSaved = 0;
 
+
 window.onload = async function () {
     const previewContainer = document.getElementById("previewContainer");
     let inspectMode = false;
     const hasShownTooltip = sessionStorage.getItem("tooltipShown");
- 
+
     // Progress Bar based on files left
     const progress = document.getElementById("progress");
     function updateProgress() {
@@ -32,7 +33,7 @@ window.onload = async function () {
 
         // Calculate total space saved
         const totalSpaceSaved = filesToBeDeleted.reduce((sum, file) => sum + file.size, 0);
-        
+
         // Adding some glowing and scaling animation cause vibes.
         if (percent === 100) {
             progress.classList.add("complete");
@@ -133,6 +134,7 @@ window.onload = async function () {
     document.getElementById("deleteButton").addEventListener("click", async () => {
         if (!hasFiles()) return;
         deleteFile();
+
         animateSwipe("left");
     });
 
@@ -146,7 +148,6 @@ window.onload = async function () {
             });
             return;
         }
-
         console.log("Before update:", JSON.stringify(fileObjects[currentIndex]));
 
         fileObjects[currentIndex].status = "delete";
@@ -758,6 +759,8 @@ window.onload = async function () {
     const openTrashModal = document.getElementById("trash_button");
     const closeTrashModal = document.getElementById("closeTrashModal");
     const deletedFilesList = document.getElementById("deletedFilesList");
+    const deletedfilesNum = document.getElementById("deletedFilesNum");
+    let filesToBeDeleted = 0;
     //ensuring all vars exist before entering this block
     if (openTrashModal && closeTrashModal && trashModal && deletedFilesList) {
         openTrashModal.addEventListener("click", function () {
@@ -772,6 +775,8 @@ window.onload = async function () {
             deletedFilesList.innerHTML = "<p>No deleted files.</p>"; //start as no deleted files
             let fileObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
             let deletedFiles = fileObjects.filter(f => f.status === "delete");
+            filesToBeDeleted = deletedFiles.length;
+            deletedfilesNum.innerHTML = `<h5>Number of files to be deleted: ${filesToBeDeleted}</h5>`
             console.log(deletedFiles);
             if (deletedFiles.length > 0) { //if there is something in deleted files, update
                 deletedFilesList.innerHTML = ""; //empty
@@ -793,6 +798,7 @@ window.onload = async function () {
                         let targetIndex = fileObjects.findIndex(f => f.path === filePath);
                         if (targetIndex !== -1) { //if its -1, wasn't found
                             //console.log("Before update:", fileObjects[targetIndex]); //debugging
+                            filesToBeDeleted--;
                             fileObjects[targetIndex].status = "keep"; //set to keep
                             localStorage.setItem("fileObjects", JSON.stringify(fileObjects)); //update local storage
                             //console.log("After update:", fileObjects[targetIndex]);
