@@ -47,13 +47,14 @@ window.onload = async function () {
     const hasShownTooltip = sessionStorage.getItem("tooltipShown");
     const dirPath = await window.file.getFilePath();
     const sortOrderDropdown = document.getElementById("sortOrder");
+    const welcome = document.getElementById("welcomeScreen");
 
     if (!dirPath) {
         // Hide all UI elements except welcomeScreen
-        hideUIElements();
+        toggleUIElements(false);
     } else {
         // Show main UI and hide welcome screen
-        showUIElements();
+        toggleUIElements(true);
         document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
         if (hasFiles()) {
             displayCurrentFile();
@@ -67,10 +68,9 @@ window.onload = async function () {
         await selectNewDirectory();
     });
 
-    // Hide UI elements when app is first loaded
-    function hideUIElements() {
-        document.getElementById("welcomeScreen").style.display = "block";
-        const elementsToHide = [
+    function toggleUIElements(visible) {
+        const ids = [
+            "trash_button",
             "dirDisplay",
             "previewContainer",
             "notification",
@@ -80,35 +80,18 @@ window.onload = async function () {
             "backButton",
         ];
 
-        elementsToHide.forEach(id => {
+        ids.forEach(id => {
             const element = document.getElementById(id);
             if (element) {
-                element.style.display = "none";
+                element.classList.toggle("hidden", !visible);
             }
-        });
-    }
 
-    // Show UI elements after directory is selected
-    function showUIElements() {
-        document.getElementById("welcomeScreen").style.display = 'none';
-
-        const elementsToShow = [
-            "dirDisplay",
-            "previewContainer",
-            "notification",
-            "progress-bar",
-            "tooltip",
-            "fileinfo",
-            "backButton",
-        ];
-
-        elementsToShow.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.style.display = "block";
+            if (welcome) {
+                welcome.classList.toggle("hidden", visible);
             }
+        
+            if (visible) resetTooltip();
         });
-        resetTooltip();
     }
     // Progress Bar based on files left
     const progress = document.getElementById("progress");
@@ -126,10 +109,10 @@ window.onload = async function () {
         dirPathElement.innerText = "No directory selected";
         localStorage.setItem("finalPage", "false");
         fileObjects = []; //files is now empty because files shouldnt carry over from final page
-        hideUIElements();
+        toggleUIElements(false);
     } else if (returnFromSettings) {
         localStorage.setItem("returnFromSettings", "false");
-        hideUIElements();
+        toggleUIElements(false);
     } else {
         // Convert stored file objects to actual FileObject instances
         fileObjects = storedObjects.map(f => new FileObject(f));
@@ -160,7 +143,7 @@ window.onload = async function () {
         }
         showTooltip();
         dirPathElement.innerText = `Selected Directory: \n${dirPath}`;    
-        showUIElements()
+        toggleUIElements(true);
         document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;    
         let files = await window.file.getFileData(dirPath);
         const removedFileTypes = new Set(await window.file.getRemovedFileTypes());
