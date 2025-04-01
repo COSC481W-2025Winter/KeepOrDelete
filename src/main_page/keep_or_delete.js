@@ -46,6 +46,8 @@ window.onload = async function () {
     let inspectMode = false;
     const hasShownTooltip = sessionStorage.getItem("tooltipShown");
     const dirPath = await window.file.getFilePath();
+    const sortOrderDropdown = document.getElementById("sortOrder");
+
     if (!dirPath) {
         // Hide all UI elements except welcomeScreen
         hideUIElements();
@@ -183,6 +185,25 @@ window.onload = async function () {
         }
     }
     
+    sortOrderDropdown.addEventListener("change", () => {
+        sortFiles();
+        currentIndex = 0;
+        displayCurrentFile();
+        sortOrderDropdown.blur()
+    });
+    
+
+    function sortFiles() {
+        const sortOrder = sortOrderDropdown.value;
+        fileObjects.sort((a, b) => {
+            const nameA = a.name.toLowerCase();
+            const nameB = b.name.toLowerCase();
+            if (nameA < nameB) return sortOrder === "asc" ? -1 : 1;
+            if (nameA > nameB) return sortOrder === "asc" ? 1 : -1;
+            return 0; // Stable sort
+        });
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+    }
 
     function showNotification(message) {
         const notification = notificationElement;

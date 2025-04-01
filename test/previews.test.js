@@ -85,6 +85,7 @@ test("Preview `.txt`", async () => {
    const f = new TestFile("test.txt", "Standard text file", "utf8");
    await setupWithTestFile(f);
 
+   await window.waitForSelector("#previewContainer pre, #previewContainer p", { timeout: 2000 });
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toEqual(f.contents);
@@ -96,6 +97,7 @@ test("Preview `.csv`", async () => {
    const f = new TestFile("test.csv", "Standard csv file", "utf8");
    await setupWithTestFile(f);
 
+   await window.waitForSelector("#previewContainer pre, #previewContainer p", { timeout: 2000 });
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toEqual(f.contents);
@@ -236,6 +238,7 @@ test("Preview `.frog` (unsupported)", async () => {
    const f = new TestFile("tree.frog", "Frog file contents ribbit", "utf8");
    await setupWithTestFile(f);
 
+   await window.waitForSelector("#previewContainer pre, #previewContainer p", { timeout: 2000 });
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toMatch(noPreviewMsg);
