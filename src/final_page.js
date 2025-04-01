@@ -4,6 +4,12 @@ window.onload = async function () {
     const deletedFilesList = document.getElementById("deletedFilesList");
     const fileObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
 
+    // Get references to the image limit and logged time to preserve after refresh
+    const Limitkey = "imageLimit";
+    const Timekey = "loggedTime";
+    const preservedLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
+    const preservedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
+
     // Render the file lists based on the stored file objects
     function renderFileLists() {
         keptFilesList.innerHTML = "";
@@ -192,6 +198,8 @@ window.onload = async function () {
         }
         localStorage.clear(); // Clears stored session data
         localStorage.setItem("finalPage", 'true');
+        localStorage.setItem(Limitkey, preservedLimit);
+        localStorage.setItem(Timekey, preservedTime);
         window.location.href = "./main_page/keep_or_delete.html";
     });
 
@@ -212,6 +220,8 @@ window.onload = async function () {
         }
         window.file.quitApp(); // Calls the function to quit the app
         localStorage.clear(); // Clears stored session data
+        localStorage.setItem(Limitkey, preservedLimit);
+        localStorage.setItem(Timekey, preservedTime);
     });
     renderFileLists();
 };

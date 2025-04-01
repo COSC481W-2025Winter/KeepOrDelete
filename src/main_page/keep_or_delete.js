@@ -725,57 +725,83 @@ window.onload = async function () {
         }
         // Jpeg or png
         else if (mimeType.startsWith("image/")) {
-            try {
-                const base64Image = window.file.getBase64(filename);
-                popupContentElement.textContent = "Thinking...";
 
-                window.openai
-                    .openaiRequest([
-                        {
-                            role: "system",
-                            content:
-                                "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output."
-                        },
-                        {
-                            role: "user",
-                            content: [
-                                {
-                                    type: "text",
-                                    text: "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output.",
-                                },
-                                {
-                                    type: "image_url",
-                                    image_url: {
-                                        url: `data:${mimeType};base64,${base64Image}`,
-                                        detail: "low",
-                                    },
-                                },
-                            ],
-                        },
-                    ])
-                    .then((response) => {
-                        const suggestion = response.choices[0].message;
-                        console.log("Renaming Suggestion:", suggestion.content);
+            const currentTime = Date.now();
+            // Get the image limit and logged time from local storage
+            let imageLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
+            let loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
 
-                        // Add a click event listener to the popup. Populates the input field wih the suggestion.
-                        if (renameInputElement) {
-                            renameInputElement.value = suggestion.content;
-                            renameInputElement.classList.remove("glowing", "wiggle");
-                            void renameInputElement.offsetWidth;
-                            renameInputElement.classList.add("glowing", "wiggle");
-                            setTimeout(() => {
-                                renameInputElement.classList.remove("glowing", "wiggle");
-                            }, 500);
-                        }
-                        popupContentElement.textContent = "Get new AI Name";
-                    })
-                    .catch((error) => {
-                        console.error("Error sending OpenAI request:", error);
-                        popupContentElement.textContent = "This image goes against my requirements.";
-                    });
-            } catch (error) {
-                console.error("Error reading image file:", error);
+             //reset the counter if 24 hours have passed
+             if (currentTime - loggedTime > 86400000) {
+                imageLimit = 0;
+                loggedTime = currentTime;
+                localStorage.setItem("imageLimit", imageLimit);
+                localStorage.setItem("loggedTime", loggedTime);
+              }
+
+            // 60000 minute
+            // 86400000 24 hours
+            // If 24 hours haven't passed and the image limit is reached, they cooked 
+            if ((currentTime - loggedTime) <= 86400000 && imageLimit >= 2) {
+              popupContentElement.textContent = "You have reached the limit for the day.";
+              setTimeout(() => {
+                popupContentElement.textContent = "Try another file thats not an image fam 😭"; 
+              }, 4000);
+              return;
             }
+          try {
+            const base64Image = window.file.getBase64(filename);
+            popupContentElement.textContent = "Thinking...";
+    
+            window.openai
+              .openaiRequest([
+                {
+                  role: "system",
+                  content:
+                    "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output."
+                },
+                {
+                  role: "user",
+                  content: [
+                    {
+                      type: "text",
+                      text: "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output.",
+                    },
+                    {
+                      type: "image_url",
+                      image_url: {
+                        url: `data:${mimeType};base64,${base64Image}`,
+                        detail: "low",
+                      },
+                    },
+                  ],
+                },
+              ])
+              .then((response) => {
+                const suggestion = response.choices[0].message;
+                console.log("Renaming Suggestion:", suggestion.content);  
+                imageLimit++;
+                localStorage.setItem("imageLimit", imageLimit);                       
+                // Add a click event listener to the popup. Populates the input field wih the suggestion.
+                if (renameInputElement) {
+                    renameInputElement.value = suggestion.content;
+                    renameInputElement.classList.remove("glowing", "wiggle");
+                    void renameInputElement.offsetWidth;
+                    renameInputElement.classList.add("glowing", "wiggle");
+                    setTimeout(() => { 
+                        renameInputElement.classList.remove("glowing", "wiggle"); 
+                    }, 500);
+                }
+                popupContentElement.textContent = "Get new AI Name";
+              })
+              .catch((error) => {
+                console.error("Error sending OpenAI request:", error);
+                popupContentElement.textContent = "This image goes against my requirements.";
+              });
+          } catch (error) {
+            console.error("Error reading image file:", error);
+          }
+
         } else {
             // Handle unsupported file types
             console.log("Unsupported file type:", mimeType);
