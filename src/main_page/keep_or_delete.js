@@ -10,16 +10,105 @@ class FileObject {
     }
 }
 
-let fileObjects = [];
-let currentIndex = 0;
+let fileObjects = []; // Array for FileObject instances
+let currentIndex = 0; // Track file index
+let inspectMode = false; // Inspect mode toggle
+// Variables for swipe tracking
+let startX;
+let currentX;
+let isSwiping;
+let startTime;
 let spaceSaved = 0;
 
 
 window.onload = async function () {
+    // Cache DOM references
     const previewContainer = document.getElementById("previewContainer");
+    const dirPathElement = document.getElementById("dirPath");
+    const currentItemElement = document.getElementById("currentItem");
+    const currentItemSizeElement = document.getElementById("currentItemSize");
+    const notificationElement = document.getElementById("notification");
+    const popupContentElement = document.getElementById('popupContent');
+    const popupElement = document.getElementById('popup')
+    const closeModal = document.getElementById("closeModal");
+    const renameModal = document.getElementById("renameModal");
+    const renameContainer = document.getElementById("renameContainer");
+    let renameInputElement = document.getElementById('renameInput');
+    const renameButton = document.getElementById('renameButton');
+    const confirmRenameButton = document.getElementById("confirmRename");
+    const backButton = document.getElementById("backButton");
+    const deleteButton = document.getElementById("deleteButton");
+    const nextButton = document.getElementById("nextButton");
+    const finalPageButton = document.getElementById("finalPageButton");
+    const settingsButton = document.getElementById("settingsButton");
+    const inspectButton = document.getElementById("inspectButton");
+    const trashButton = document.getElementById("trash_button");
+    const tooltip = document.getElementById("tooltip");
     let inspectMode = false;
     const hasShownTooltip = sessionStorage.getItem("tooltipShown");
+    const dirPath = await window.file.getFilePath();
+    if (!dirPath) {
+        // Hide all UI elements except welcomeScreen
+        hideUIElements();
+    } else {
+        // Show main UI and hide welcome screen
+        showUIElements();
+        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
+        if (hasFiles()) {
+            displayCurrentFile();
+        } else {
+            document.getElementById("currentItem").innerText = "No files found.";
+        }
+    }
 
+    // Handle directory selection from the welcome screen
+    document.getElementById("selectDirButton").addEventListener("click", async () => {
+        await selectNewDirectory();
+    });
+
+    // Hide UI elements when app is first loaded
+    function hideUIElements() {
+        document.getElementById("welcomeScreen").style.display = "block";
+        const elementsToHide = [
+            "dirDisplay",
+            "previewContainer",
+            "notification",
+            "progress-bar",
+            "tooltip",
+            "fileinfo",
+            "backButton",
+        ];
+
+        elementsToHide.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.display = "none";
+            }
+        });
+    }
+
+    // Show UI elements after directory is selected
+    function showUIElements() {
+        document.getElementById("welcomeScreen").style.display = 'none';
+
+        const elementsToShow = [
+            "dirDisplay",
+            "previewContainer",
+            "notification",
+            "progress-bar",
+            "tooltip",
+            "fileinfo",
+            "backButton",
+        ];
+
+        elementsToShow.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.display = "block";
+            }
+        });
+        resetTooltip();
+    }
     // Progress Bar based on files left
     const progress = document.getElementById("progress");
     function updateProgress() {
@@ -53,31 +142,35 @@ window.onload = async function () {
     //this stretch of code checks if we are navigating to this page from the final page from
     //final page after finalize and select new directory, if yes, no directory shown, if no, get dir
     let finalPage = localStorage.getItem("finalPage") === "true"; //boolean
+    let returnFromSettings = localStorage.getItem("returnFromSettings") === "true";
     if (finalPage) {
-        document.getElementById("backButton").innerText = "Select a Directory"
+        backButton.innerText = "Select a Directory"
         localStorage.removeItem("fileObjects"); // Clear old file data
-        document.getElementById("dirPath").innerText = "No directory selected";
+        dirPathElement.innerText = "No directory selected";
         localStorage.setItem("finalPage", "false");
         fileObjects = []; //files is now empty because files shouldnt carry over from final page
+        hideUIElements();
+    } else if (returnFromSettings) {
+        localStorage.setItem("returnFromSettings", "false");
+        hideUIElements();
     } else {
         // Convert stored file objects to actual FileObject instances
         fileObjects = storedObjects.map(f => new FileObject(f));
         const dirPath = await window.file.getFilePath(); //else, keep the directory
-        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
         if (dirPath) {
-            document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
+            dirPathElement.innerText = `Selected Directory: \n${dirPath}`;
         }
         if (fileObjects.length === 0) {
-            document.getElementById("backButton").innerText = "Select Directory"
+            backButton.innerText = "Select Directory"
         }
         //display files
         if (hasFiles()) {
             displayCurrentFile();
             setTimeout(() => {
-                resetRenameInput(document.getElementById('renameContainer'));
+                resetRenameInput(renameContainer);
             }, 10);
         } else {
-            document.getElementById("currentItem").innerText = "No files found.";
+            currentItemElement.innerText = "No files found.";
         }
     }
 
@@ -88,6 +181,9 @@ window.onload = async function () {
             alert("Directory selection was canceled.");
             return;
         }
+        showTooltip();
+        dirPathElement.innerText = `Selected Directory: \n${dirPath}`;
+        showUIElements()
         document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
         let files = await window.file.getFileData(dirPath);
         const removedFileTypes = new Set(await window.file.getRemovedFileTypes());
@@ -105,16 +201,16 @@ window.onload = async function () {
         currentIndex = 0;
 
         if (hasFiles()) {
-            document.getElementById("backButton").innerText = "Change Directory"
+            backButton.innerText = "Change Directory"
             displayCurrentFile();
         } else {
-            document.getElementById("currentItem").innerText = "No files found.";
+            currentItemElement.innerText = "No files found.";
         }
     }
 
 
     function showNotification(message) {
-        const notification = document.getElementById('notification');
+        const notification = notificationElement;
         notification.innerText = message;
         notification.style.display = 'block';
 
@@ -125,13 +221,13 @@ window.onload = async function () {
     }
 
     // Change Directory Button
-    document.getElementById("backButton").addEventListener("click", async () => {
+    backButton.addEventListener("click", async () => {
         await selectNewDirectory();
     });
 
 
     // Delete button press
-    document.getElementById("deleteButton").addEventListener("click", async () => {
+    deleteButton.addEventListener("click", async () => {
         if (!hasFiles()) return;
         deleteFile();
 
@@ -165,7 +261,7 @@ window.onload = async function () {
 
 
     // Go through files in directory +1
-    document.getElementById("nextButton").addEventListener("click", async () => {
+    nextButton.addEventListener("click", async () => {
         if (!hasFiles()) return;
         animateSwipe("right");
     });
@@ -180,21 +276,18 @@ window.onload = async function () {
         updateProgress();
     }
 
-    const renameModal = document.getElementById("renameModal");
-    const closeModal = document.getElementById("closeModal");
-    document.getElementById('renameButton').addEventListener('click', async (event) => {
+    renameButton.addEventListener('click', async (event) => {
         if (!hasFiles()) return;
         renameModal.showModal();
-        document.getElementById('popupContent').innerText = "AI Suggested Name"
+        popupContentElement.innerText = "AI Suggested Name"
     });
 
     closeModal.addEventListener("click", () => {
-        const renameContainer = document.getElementById('renameContainer');
         renameModal.close();
         resetRenameInput(renameContainer);
     });
 
-    document.getElementById("confirmRename").addEventListener('click', async (event) => {
+    confirmRenameButton.addEventListener('click', async (event) => {
         if (!hasFiles()) return;
         event.preventDefault();
         event.stopPropagation();
@@ -202,7 +295,7 @@ window.onload = async function () {
     });
 
     // Add event listener for Enter key
-    document.getElementById('renameInput').addEventListener('keypress', async (event) => {
+    renameInputElement.addEventListener('keypress', async (event) => {
         if (!hasFiles()) return;
         if (event.key === "Enter") {
             event.preventDefault();
@@ -212,9 +305,7 @@ window.onload = async function () {
     });
 
     async function handleRename() {
-        //const renameContainer = document.getElementById('renameContainer');
-        const renameInput = document.getElementById('renameInput');
-        const newName = renameInput.value.trim();
+        const newName = renameInputElement.value.trim();
         let currentFile = fileObjects[currentIndex].path;
 
         if (!newName) {
@@ -256,7 +347,7 @@ window.onload = async function () {
             // Step 4: Perform the rename
             const response = await window.file.renameFile(currentFile, newFilePath);
             if (response.success) {
-                document.getElementById("renameModal").close();
+                renameModal.close();
                 showNotification(`File renamed successfully to ${finalName}`, 'success');
                 fileObjects[currentIndex].name = window.file.pathBasename(newFilePath);
                 fileObjects[currentIndex].path = newFilePath;
@@ -277,34 +368,20 @@ window.onload = async function () {
     function resetRenameInput(container) {
         container.innerHTML = '';  // Clear the old input field
 
-        const newRenameInput = document.createElement('input');
-        newRenameInput.type = 'text';
-        newRenameInput.id = 'renameInput';
-        newRenameInput.placeholder = 'Enter new file name';
+        renameInputElement = document.createElement('input');
+        renameInputElement.type = 'text';
+        renameInputElement.id = 'renameInput';
+        renameInputElement.placeholder = 'Enter new file name';
 
-        container.appendChild(newRenameInput);
+        container.appendChild(renameInputElement);
 
-        // Remove old event listeners before adding new ones
-        newRenameInput.removeEventListener("keypress", renameOnEnter);
-        newRenameInput.addEventListener("keypress", renameOnEnter);
-
-        // Reattach Enter event listener
-        newRenameInput.addEventListener("keypress", async (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                await handleRename();
-            }
-        });
+        // Add event listener
+        renameInputElement.addEventListener("keypress", renameOnEnter);
 
         // Temporary blur to prevent highlighting the input immediately
         setTimeout(() => {
-            newRenameInput.blur();  // Remove highlight after creation
+            renameInputElement.blur();  // Remove highlight after creation
         }, 100);
-
-        // Optionally, refocus the input when the user interacts with it
-        //newRenameInput.addEventListener('focus', () => {
-        //  console.log('Input refocused when user interacts.');
-        //});
     }
 
     function containsIllegalCharacters(name) {
@@ -326,18 +403,16 @@ window.onload = async function () {
 
     // Attach event listeners when renaming input is created
     function attachRenameListeners() {
-        const renameInput = document.getElementById('renameInput');
         // Remove existing event listeners (prevents duplicates)
-        renameInput.removeEventListener("keypress", renameOnEnter);
+        renameInputElement.removeEventListener("keypress", renameOnEnter);
         // Attach Enter key event
-        renameInput.addEventListener("keypress", renameOnEnter);
+        renameInputElement.addEventListener("keypress", renameOnEnter);
     }
 
     async function renameOnEnter(event) {
         if (event.key === "Enter") {
             event.preventDefault();
-            const renameInput = document.getElementById('renameInput');
-            const newName = renameInput.value.trim();
+            const newName = renameInputElement.value.trim();
 
             if (!newName) {
                 showNotification('Please enter a new file name.', 'error');
@@ -366,22 +441,22 @@ window.onload = async function () {
         }
 
         if (currentIndex >= fileObjects.length) {
-            document.getElementById("currentItem").innerText = "No files in queue.";
-            document.getElementById("currentItemSize").innerText = "";
+            currentItemElement.innerText = "No files in queue.";
+            currentItemSizeElement.innerText = "";
             previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
             return
         }
 
         const file = fileObjects[currentIndex];
-        document.getElementById("currentItem").innerText = "Current File: " + file.name;
+        currentItemElement.innerText = "Current File: " + file.name;
         let formattedSize = formatFileSize(file.size);
-        document.getElementById("currentItemSize").innerText = "| File Size: " + formattedSize;
+        currentItemSizeElement.innerText = "| File Size: " + formattedSize;
         refreshPreview(file.path);
         // Reset rename input field
-        resetRenameInput(document.getElementById('renameContainer'));
+        resetRenameInput(renameContainer);
         //reset inspect mode upon file change
         inspectMode = false;
-        document.getElementById("inspectButton").innerText = "Inspect Document";
+        inspectButton.innerText = "Inspect Document";
         // Attach Enter event listener for renaming
         //attachRenameListeners();
     }
@@ -403,6 +478,8 @@ window.onload = async function () {
 
     // Swipe animation handler
     function animateSwipe(direction) {
+        let translateX;
+        let rotateDeg;
         if (!hasFiles()) return;
         const icon = document.createElement("div");
         icon.classList.add("swipeIcon");
@@ -485,7 +562,7 @@ window.onload = async function () {
     }
 
     //button to go to the final page
-    document.getElementById("finalPageButton").addEventListener("click", () => {
+    finalPageButton.addEventListener("click", () => {
         localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
         window.location.href = "../final_page.html";
     });
@@ -504,7 +581,7 @@ window.onload = async function () {
         document.addEventListener("touchend", endSwipe);
     });
 
-    document.getElementById("inspectButton").addEventListener("click", () => {
+    inspectButton.addEventListener("click", () => {
         const iframe = document.querySelector("#previewContainer iframe");
         const textPreview = document.querySelector("#previewContainer pre");
         // Toggle inspect mode state
@@ -521,16 +598,16 @@ window.onload = async function () {
         }
 
         // Update button text
-        document.getElementById("inspectButton").innerText = inspectMode ? "Exit Inspect" : "Inspect Document";
+        inspectButton.innerText = inspectMode ? "Exit Inspect" : "Inspect Document";
     });
 
     //button to go to the final page
-    document.getElementById("finalPageButton").addEventListener("click", () => {
+    finalPageButton.addEventListener("click", () => {
         localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
         window.location.href = "../final_page.html";
     });
 
-    document.getElementById("trash_button").addEventListener("click", () => {
+    trashButton.addEventListener("click", () => {
         localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
     });
 
@@ -544,12 +621,12 @@ window.onload = async function () {
         }
     });
 
-    document.getElementById('popup').addEventListener("click", () => {
+    popupElement.addEventListener("click", () => {
         if (!hasFiles()) return;
         LLM();
     });
     function LLM() {
-        popup.style.display = "inline-block";
+        popupElement.style.display = "inline-block";
         const filename = fileObjects[currentIndex].path;
         // Check for file types using mime 
         //--------------------------------------------------------------------
@@ -558,13 +635,13 @@ window.onload = async function () {
             // Text
             const fileContents = window.file.getFileContents(filename);
             if (!fileContents || fileContents.length === 0) {
-                popupContent.textContent = "No file contents found.";
+                popupContentElement.textContent = "No file contents found.";
                 setTimeout(() => {
-                    popupContent.textContent = "Try another file buddy 😭";
+                    popupContentElement.textContent = "Try another file buddy 😭";
                 }, 4000);
                 return;
             }
-            popupContent.textContent = "Thinking...";
+            popupContentElement.textContent = "Thinking...";
             window.openai
                 .openaiRequest([
                     {
@@ -577,41 +654,46 @@ window.onload = async function () {
                 .then((response) => {
                     const suggestion = response.choices[0].message;
                     console.log("Renaming Suggestion:", suggestion.content);
-                    // Display the popup and suggested name. 
-                    const popupContent = document.getElementById('popupContent');
 
                     // Add a click event listener to the popup. Populates the input field wih the suggestion.
-                    const renameInput = document.getElementById('renameInput');
-                    if (renameInput) {
-                        renameInput.value = suggestion.content;
+                    if (renameInputElement) {
+                        renameInputElement.value = suggestion.content;
 
                         // Remove previous animation classes
-                        renameInput.classList.remove("glowing", "wiggle");
+                        renameInputElement.classList.remove("glowing", "wiggle");
 
                         // Force reflow to restart animations
-                        void renameInput.offsetWidth;
+                        void renameInputElement.offsetWidth;
 
                         // Add animation classes again
-                        renameInput.classList.add("glowing", "wiggle");
+                        renameInputElement.classList.add("glowing", "wiggle");
 
                         // Remove the classes after the animation completes
                         setTimeout(() => {
-                            renameInput.classList.remove("glowing", "wiggle");
+                            renameInputElement.classList.remove("glowing", "wiggle");
                         }, 500);
                     }
-                    document.getElementById('popupContent').textContent = "Get new AI Name";
+                    popupContentElement.textContent = "Get new AI Name";
                 })
                 .catch((error) => {
                     console.error("Error sending OpenAI request:", error);
                 });
         }
-        // PDF
-        else if (mimeType == "application/pdf") {
+        // PDF & DOCX files
+        else if (mimeType == "application/pdf" || filename.includes("docx")) {
             // Creating a Async function to process all PDF contents before using data.
             async function pdfAIcall() {
-                const pdfContent = await window.file.getPDFtext(filename);
+                let pdfPath = filename;
+                if (filename.includes("docx")) {
+                    pdfPath = await window.file.convertDocxToPdf(filename);
+                } else {
+                    // For actual PDF files, extract text directly.
+                    pdfPath = filename;
+                }
+
+                const pdfContent = await window.file.getPDFtext(pdfPath);
                 console.log("PDF Content:", pdfContent);
-                popupContent.textContent = "Thinking...";
+                popupContentElement.textContent = "Thinking...";
                 window.openai
                     .openaiRequest([
                         {
@@ -624,18 +706,16 @@ window.onload = async function () {
                     .then((response) => {
                         const suggestion = response.choices[0].message;
                         console.log("Renaming Suggestion:", suggestion.content);
-                        const popupContent = document.getElementById('popupContent');
-                        const renameInput = document.getElementById('renameInput');
-                        if (renameInput) {
-                            renameInput.value = suggestion.content;
-                            renameInput.classList.remove("glowing", "wiggle");
-                            void renameInput.offsetWidth;
-                            renameInput.classList.add("glowing", "wiggle");
+                        if (renameInputElement) {
+                            renameInputElement.value = suggestion.content;
+                            renameInputElement.classList.remove("glowing", "wiggle");
+                            void renameInputElement.offsetWidth;
+                            renameInputElement.classList.add("glowing", "wiggle");
                             setTimeout(() => {
-                                renameInput.classList.remove("glowing", "wiggle");
+                                renameInputElement.classList.remove("glowing", "wiggle");
                             }, 500);
                         }
-                        document.getElementById('popupContent').textContent = "Get new AI Name";
+                        popupContentElement.textContent = "Get new AI Name";
                     })
                     .catch((error) => {
                         console.error("Error sending OpenAI request:", error);
@@ -647,7 +727,7 @@ window.onload = async function () {
         else if (mimeType.startsWith("image/")) {
             try {
                 const base64Image = window.file.getBase64(filename);
-                popupContent.textContent = "Thinking...";
+                popupContentElement.textContent = "Thinking...";
 
                 window.openai
                     .openaiRequest([
@@ -676,25 +756,22 @@ window.onload = async function () {
                     .then((response) => {
                         const suggestion = response.choices[0].message;
                         console.log("Renaming Suggestion:", suggestion.content);
-                        // Display the popup and suggested name. 
-                        const popupContent = document.getElementById('popupContent');
 
                         // Add a click event listener to the popup. Populates the input field wih the suggestion.
-                        const renameInput = document.getElementById('renameInput');
-                        if (renameInput) {
-                            renameInput.value = suggestion.content;
-                            renameInput.classList.remove("glowing", "wiggle");
-                            void renameInput.offsetWidth;
-                            renameInput.classList.add("glowing", "wiggle");
+                        if (renameInputElement) {
+                            renameInputElement.value = suggestion.content;
+                            renameInputElement.classList.remove("glowing", "wiggle");
+                            void renameInputElement.offsetWidth;
+                            renameInputElement.classList.add("glowing", "wiggle");
                             setTimeout(() => {
-                                renameInput.classList.remove("glowing", "wiggle");
+                                renameInputElement.classList.remove("glowing", "wiggle");
                             }, 500);
                         }
-                        document.getElementById('popupContent').textContent = "Get new AI Name";
+                        popupContentElement.textContent = "Get new AI Name";
                     })
                     .catch((error) => {
                         console.error("Error sending OpenAI request:", error);
-                        popupContent.textContent = "This image goes against my requirements.";
+                        popupContentElement.textContent = "This image goes against my requirements.";
                     });
             } catch (error) {
                 console.error("Error reading image file:", error);
@@ -702,40 +779,69 @@ window.onload = async function () {
         } else {
             // Handle unsupported file types
             console.log("Unsupported file type:", mimeType);
-            popupContent.textContent = 'File type not supported.';
+            popupContentElement.textContent = 'File type not supported.';
             setTimeout(() => {
-                popupContent.textContent = "Try another file buddy 😭";
+                popupContentElement.textContent = "Try another file buddy 😭";
             }, 4000);
             return;
         }
     }
 
-    // Checks to see if user is a test agent
-    const isTesting = navigator.userAgent.includes("Playwright");
-    let tooltip;
 
-    // Only runs if user is real
-    if (!isTesting && !hasShownTooltip) {
-        tooltip = document.getElementById("tooltip");
-        tooltip.classList.add("show");
+    function showTooltip() {
+        // Checks to see if user is a test agent
+        const isTesting = navigator.userAgent.includes("Playwright");
 
-        // Dismiss tooltip on user input
-        document.addEventListener("mousedown", dismissTooltip);
-        document.addEventListener("keydown", dismissTooltip);
-        document.addEventListener("touchstart", dismissTooltip);
+        // Only runs if user is real
+        if (!isTesting && !hasShownTooltip) {
+            tooltip.classList.add("show");
 
-        // WIGGLE IS THE MOST IMPORTANT PART OF THE PROJECT
-        triggerWiggle();
-        setInterval(triggerWiggle, 3000);
-        sessionStorage.setItem("tooltipShown", "true");
+            // Dismiss tooltip on user input
+            document.addEventListener("mousedown", dismissTooltip);
+            document.addEventListener("keydown", dismissTooltip);
+            document.addEventListener("touchstart", dismissTooltip);
+
+            // WIGGLE IS THE MOST IMPORTANT PART OF THE PROJECT
+            triggerWiggle();
+            setInterval(triggerWiggle, 3000);
+            sessionStorage.setItem("tooltipShown", "true");
+        }
     }
+
 
     // Dismiss tooltip
     function dismissTooltip() {
-        tooltip.classList.remove("show");
-        tooltip.classList.add("hide");
+        const tooltip = document.getElementById("tooltip");
 
-        setTimeout(() => tooltip.remove(), 400);
+        if (tooltip) {
+            tooltip.classList.remove("show");
+            tooltip.classList.add("hide");
+
+            // Optionally remove after a timeout
+            setTimeout(() => {
+                tooltip.style.display = "none"; // Completely hide
+            }, 400);
+        }
+    }
+
+    function resetTooltip() {
+        const tooltip = document.getElementById("tooltip");
+
+        // Check if the tooltip has already been reset in this session
+        if (sessionStorage.getItem("tooltipReset") === "true") {
+            return; // Skip if already reset
+        }
+
+        if (tooltip) {
+            tooltip.style.display = "block";  // Show the tooltip
+            tooltip.classList.remove("hide");
+            tooltip.classList.add("show");
+
+            // Mark that the tooltip reset has been done in this session
+            sessionStorage.setItem("tooltipReset", "true");
+        } else {
+            console.error("Tooltip element not found.");
+        }
     }
 
     // WIGGLE WIGGLE WIGGLE
@@ -751,7 +857,7 @@ window.onload = async function () {
         return fileObjects.slice(currentIndex).some(f => f.status === null);
     }
 
-    document.getElementById("settingsButton").addEventListener("click", () => {
+    settingsButton.addEventListener("click", () => {
         window.location.href = "../settings.html";
     });
 
@@ -822,4 +928,34 @@ window.onload = async function () {
 
 
 
+    // Progress Bar based on files left
+    function updateProgress() {
+        const totalFiles = fileObjects.length;
+        const keptFiles = fileObjects.filter(f => f.status === "keep");
+        const filesToBeDeleted = fileObjects.filter(f => f.status === "delete");
+        const completedFiles = keptFiles.length + filesToBeDeleted.length;
+        const percent = totalFiles > 0 ? Math.round((completedFiles / totalFiles) * 100) : 0;
+        progress.style.width = `${percent}%`;
+        progress.textContent = percent + "%";
+
+        // Calculate total space saved
+        const totalSpaceSaved = filesToBeDeleted.reduce((sum, file) => sum + file.size, 0);
+
+        // Adding some glowing and scaling animation cause vibes.
+        if (percent === 100) {
+            progress.classList.add("complete");
+            saved.textContent = "You've saved: " + formatFileSize(totalSpaceSaved) + "!";
+            setTimeout(() => {
+                progress.classList.remove("complete");
+            }, 1000);
+        }
+        // Re-trigger the glowing animation
+        progress.classList.remove("glowing");
+        void progress.offsetWidth;
+        progress.classList.add("glowing");
+    }
+    // Reveal body after all elements are ready only for keep_or_delete.html
+    if (document.body.classList.contains("keep-or-delete")) {
+        document.body.classList.add("show");
+    }
 };

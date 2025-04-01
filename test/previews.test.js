@@ -22,7 +22,7 @@ class TestFile {
 
 // Create the empty test directory before running the tests.
 test.beforeAll(async () => {
-   electronApp = await electron.launch({ args: ["./", "--test-config"] });
+   electronApp = await electron.launch({ args: ["./", "--test-config"], userAgent: "Playwright"  });
 });
 
 test.afterAll(async () => {
@@ -69,7 +69,12 @@ async function setupWithTestFile(testFile) {
          filePaths: [tmpDir], // Inject path
       });
    }, tmpDir);
-
+   await window.evaluate(() => {
+      //document.getElementById("welcomeScreen").style.display = "block";
+      document.getElementById("backButton").style.display = "block";
+      localStorage.setItem("finalPage", "false");
+      sessionStorage.setItem("tooltipShown", "true");  // Prevent tooltip reappearing
+  });
    // Navigate to next page using the override
    await window.locator("#backButton").click();
    //await window.locator("#goButton").click();
@@ -83,6 +88,7 @@ test("Preview `.txt`", async () => {
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toEqual(f.contents);
+   await window.locator("#backButton").click();
    await window.evaluate(() => localStorage.clear());
 })
 
@@ -93,6 +99,7 @@ test("Preview `.csv`", async () => {
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toEqual(f.contents);
+   await window.locator("#backButton").click();
    await window.evaluate(() => localStorage.clear());
 })
 
@@ -117,6 +124,7 @@ test("Preview `.pdf`", async () => {
    const previewHash = crypto.createHash("md5").update(previewPdfContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.locator("#backButton").click();
    await window.evaluate(() => localStorage.clear());
 })
 
@@ -139,6 +147,7 @@ test("Preview `.png`", async () => {
    const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.locator("#backButton").click();
    await window.evaluate(() => localStorage.clear());
 })
 
@@ -161,6 +170,7 @@ test("Preview `.jpg`", async () => {
    const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.locator("#backButton").click();
    await window.evaluate(() => localStorage.clear());
 })
 
@@ -175,7 +185,7 @@ test("Preview `.docx`", async () => {
    // Word docs are currently asynchronously converted to pdf for preview
    // purposes. Give this conversion a time limit.
    expect(fs.existsSync(previewPath), { timeout: 2_000 });
-
+   await window.locator("#backButton").click();
    await window.evaluate(() => localStorage.clear());
 })
 
@@ -198,6 +208,7 @@ test("Preview `.mp4`", async () => {
    const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.locator("#backButton").click();
 })
 
 test("Preview `.mov`", async () => {
@@ -219,6 +230,7 @@ test("Preview `.mov`", async () => {
    const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.locator("#backButton").click();
 })
 test("Preview `.frog` (unsupported)", async () => {
    const f = new TestFile("tree.frog", "Frog file contents ribbit", "utf8");
@@ -227,5 +239,6 @@ test("Preview `.frog` (unsupported)", async () => {
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toMatch(noPreviewMsg);
+   await window.locator("#backButton").click();
    await window.evaluate(() => localStorage.clear());
 })

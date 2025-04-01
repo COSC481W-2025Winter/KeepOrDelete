@@ -17,7 +17,7 @@ const cleanTestDir = function () {
 }
 
 test.beforeAll(async () => {
-   electronApp = await electron.launch({ args: ["./", "--test-config"] });
+   electronApp = await electron.launch({ args: ["./", "--test-config"], userAgent: "Playwright"});
 });
 
 test.beforeEach(async () => {
@@ -78,7 +78,7 @@ test("Button press to keep on KeepOrDelete page", async () => {
    }, testDirPath);
 
    // Navigate to next page using the override
-   await window.locator("#backButton").click();
+   await window.locator("#selectDirButton").click();
    //await window.locator("#goButton").click();
    //await window.waitForURL("**/keep_or_delete.html");
 

@@ -14,7 +14,12 @@
 </head>
 <!-- Here u can add other tabs and compnents for display-->
 
-<body>
+<body class="keep-or-delete">
+   <div id="welcomeScreen" class="welcome-container">
+      <h2>Welcome to KeepOrDelete!</h2>
+      <p>Select a directory to get started.</p>
+      <button id="selectDirButton">Select Directory</button>
+  </div>
    <h1>KeepOrDelete</h1>
    <div id="dirDisplay">
       <p id="dirPath"></p>
@@ -44,7 +49,7 @@
    <div id="dataSaved"></div>
    <button id="backButton">Change Directory</button>
 
-   <div class="file-info">
+   <div id="fileinfo" class="file-info">
       <p id="currentItem"></p>
       <p id="currentItemSize"></p>
    </div>
