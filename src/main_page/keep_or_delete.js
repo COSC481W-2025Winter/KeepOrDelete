@@ -19,7 +19,6 @@ let currentX;
 let isSwiping;
 let startTime; 
 let spaceSaved = 0;
-let ImageLimit = 0;
 
 window.onload = async function () {
     // Cache DOM references
@@ -693,14 +692,29 @@ window.onload = async function () {
         // Jpeg or png
         else if (mimeType.startsWith("image/")) {
             const currentTime = Date.now();
-            // if over limit of 2 images per day
-            if (ImageLimit > 1 && currentTime - localStorage.getItem("loggedTime") < 86400000) {
-                popupContentElement.textContent = "You have reached the image limit for the day.";
-                setTimeout(() => {
-                  popupContentElement.textContent = "Try another file buddy 😭"; 
-                }, 3000);
-                return;
+            // Get the image limit and logged time from local storage
+            let imageLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
+            let loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
+            
+            // 60000 minute
+            // 86400000 24 hours
+            // If 24 hours haven't passed and the image limit is reached, they cooked 
+            if ((currentTime - loggedTime) <= 86400000 && imageLimit >= 1) {
+              popupContentElement.textContent = "You have reached the limit for the day.";
+              setTimeout(() => {
+                popupContentElement.textContent = "Try another file thats not an image fam 😭"; 
+              }, 3000);
+              return;
             }
+            
+            //reset the counter if 24 hours have passed
+            if (currentTime - loggedTime > 86400000) {
+              imageLimit = 0;
+              loggedTime = currentTime;
+              localStorage.setItem("imageLimit", imageLimit);
+              localStorage.setItem("loggedTime", loggedTime);
+            }
+            
           try {
             const base64Image = window.file.getBase64(filename);
             popupContentElement.textContent = "Thinking...";
@@ -732,10 +746,10 @@ window.onload = async function () {
               .then((response) => {
                 const suggestion = response.choices[0].message;
                 console.log("Renaming Suggestion:", suggestion.content);  
-                // Update the logged time and image limit
-                const loggedTimeMillis = Date.now();  
-                localStorage.setItem("LoggedTime", loggedTimeMillis); 
-                ImageLimit++;                          
+                // Update the logged time and image limit in localStorage
+                localStorage.setItem("loggedTime", currentTime);
+                imageLimit++;
+                localStorage.setItem("imageLimit", imageLimit);                       
                 // Add a click event listener to the popup. Populates the input field wih the suggestion.
                 if (renameInputElement) {
                     renameInputElement.value = suggestion.content;
