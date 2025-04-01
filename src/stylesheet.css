@@ -470,3 +470,27 @@ body.keep-or-delete.show {
   opacity: 1;
 }
 
+.sort-container {
+  display: flex;
+  justify-content: center;
+  margin: 10px 50px 5px 0;
+  align-items: center;
+}
+
+.sort-label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.sort-dropdown {
+  padding: 6px 10px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: white;
+  cursor: pointer;
+}
+
+.sort-dropdown:hover {
+  border-color: #007bff;
+}
