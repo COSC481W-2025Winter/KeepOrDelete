@@ -59,7 +59,7 @@ test("Clicking on AI button returns expected message", async ({ page }) => {
   }, testDirectory);
 
   // Navigate to keep or delete page with mock directory
-  await window.click("#backButton");
+  await window.click("#selectDirButton");
   //await window.click("#goButton");
   //await expect(window.url()).toContain("keep_or_delete.html");
 

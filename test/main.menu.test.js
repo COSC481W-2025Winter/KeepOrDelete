@@ -46,57 +46,52 @@ test("navigate to settings window", async () => {
   await window.evaluate(() => localStorage.clear());
 });
 
-//test go button when user doesn't select file
-/*
-test("go button with no file path", async () => {
-  const window = await app.firstWindow();
+test("Select new directory successfully", async () => {
+  const window = await app.firstWindow(); // Use const here
   await window.evaluate(() => localStorage.clear());
-  //navigate to main menu
-  await window.goto(fileUrl); // Navigate to the main menu window
-
-  // listen for alert dialog (window.on is required for dialog box handling afik)
-  window.on("dialog", async (dialog) => {
-    //check if alert box pops up and is correct
-    expect(dialog.type()).toBe("alert");
-    expect(dialog.message()).toContain("Please select a directory first.");
-    //accept alert
-    await dialog.accept();
-  });
-
-  //wait and click go button
-  await window.waitForSelector("#goButton");
-  await window.click("#goButton");
-  await window.evaluate(() => localStorage.clear());
-});
-
-//test go button with selected file
-test("go button with valid file path", async () => {
-  const window = await app.firstWindow();
-  await window.evaluate(() => localStorage.clear());
-  //navigate to main menu
   await window.goto(fileUrl);
 
   // Intercept file selection dialog
   await app.evaluate(({ dialog }, testDirectory) => {
     dialog.showOpenDialog = async () => ({
       canceled: false,
-      filePaths: [testDirectory], // Inject the test directory
+      filePaths: [testDirectory],
     });
   }, testDirectory);
 
-  await window.locator("#SelectButton").click();
+  // Click Select Directory Button
+  await window.locator("#selectDirButton").click();
+  const dirPathText = await window.locator("#dirPath").innerText();
 
-  //wait for go button and click
-  await window.waitForSelector("#goButton");
-  await window.click("#goButton");
-
-  //wait for a selector from keep_or_delete window
-  await window.waitForSelector("h1");
-
-  // Get the title of the window
-  const windowTitle = await window.innerText("h1");
-
-  // compare the text of the selector to confirm window
-  expect(windowTitle).toBe("KeepOrDelete");
+  // Check that directory was selected
+  expect(dirPathText).toMatch(/Selected Directory:/);
   await window.evaluate(() => localStorage.clear());
-});*/
+});
+
+test("Cancel directory selection", async () => {
+  const window = await app.firstWindow(); // Use const here
+  await window.evaluate(() => localStorage.clear());
+  await window.goto(fileUrl);
+
+  // Simulate cancellation by setting canceled to true
+  await app.evaluate(({ dialog }) => {
+    dialog.showOpenDialog = async () => ({
+      canceled: true,
+      filePaths: [],
+    });
+  });
+
+  // Click Select Directory Button
+  await window.locator("#backButton").click();
+
+  // Listen for alert dialog
+  let alertTriggered = false;
+  window.on("dialog", async (dialog) => {
+    console.log(`Dialog detected: ${dialog.message()}`);
+    expect(dialog.type()).toBe("alert"); // Check if it's an alert
+    expect(dialog.message()).toContain("Directory selection was canceled.");
+    await dialog.accept(); // Accept the alert
+    alertTriggered = true;
+  });
+
+});

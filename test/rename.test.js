@@ -56,7 +56,7 @@ test("shows error notification for empty rename input (single file)", async ({ p
         });
     }, testDirectory);
 
-    await window.locator("#backButton").click();
+    await window.locator("#selectDirButton").click();
     //await window.locator("#goButton").click();
     //await window.waitForURL("**/keep_or_delete.html");
 
