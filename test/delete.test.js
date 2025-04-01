@@ -43,7 +43,7 @@ test("will delete common file types with next button", async ({ page }) => {
     }, testDirectory);
 
     // Click to open file picker, but our override will inject testDirectory
-    await window.locator("#backButton").click();
+    await window.locator("#selectDirButton").click();
     //await window.locator("#goButton").click();
     //await window.waitForURL("**/keep_or_delete.html");
 
@@ -97,7 +97,7 @@ test("will delete common file types with swiping", async ({ page }) => {
     }, testDirectory);
 
     // Click to open file picker, but our override will inject testDirectory
-    await window.locator("#backButton").click();
+    await window.locator("#selectDirButton").click();
     //await window.locator("#goButton").click();
     //await window.waitForURL("**/keep_or_delete.html");
 

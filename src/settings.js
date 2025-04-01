@@ -1,5 +1,10 @@
 // Back button functionality
 document.getElementById("backButton").addEventListener("click", () => {
+  const fileObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
+
+  if (fileObjects.length === 0) {
+    localStorage.setItem("returnFromSettings", "true"); // Trigger welcome screen
+  } 
   window.location.href = "./main_page/keep_or_delete.html";
 });
 

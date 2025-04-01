@@ -43,21 +43,91 @@ window.onload = async function () {
     const inspectButton = document.getElementById("inspectButton");
     const trashButton = document.getElementById("trash_button");
     const tooltip = document.getElementById("tooltip");
+    let inspectMode = false;
+    const hasShownTooltip = sessionStorage.getItem("tooltipShown");
+    const dirPath = await window.file.getFilePath();
+    if (!dirPath) {
+        // Hide all UI elements except welcomeScreen
+        hideUIElements();
+    } else {
+        // Show main UI and hide welcome screen
+        showUIElements();
+        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
+        if (hasFiles()) {
+            displayCurrentFile();
+        } else {
+            document.getElementById("currentItem").innerText = "No files found.";
+        }
+    }
+
+    // Handle directory selection from the welcome screen
+    document.getElementById("selectDirButton").addEventListener("click", async () => {
+        await selectNewDirectory();
+    });
+
+    // Hide UI elements when app is first loaded
+    function hideUIElements() {
+        document.getElementById("welcomeScreen").style.display = "block";
+        const elementsToHide = [
+            "dirDisplay",
+            "previewContainer",
+            "notification",
+            "progress-bar",
+            "tooltip",
+            "fileinfo",
+            "backButton",
+        ];
+
+        elementsToHide.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.display = "none";
+            }
+        });
+    }
+
+    // Show UI elements after directory is selected
+    function showUIElements() {
+        document.getElementById("welcomeScreen").style.display = 'none';
+
+        const elementsToShow = [
+            "dirDisplay",
+            "previewContainer",
+            "notification",
+            "progress-bar",
+            "tooltip",
+            "fileinfo",
+            "backButton",
+        ];
+
+        elementsToShow.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.display = "block";
+            }
+        });
+        resetTooltip();
+    }
+    // Progress Bar based on files left
     const progress = document.getElementById("progress");
     const saved = document.getElementById("dataSaved");
 
-    const hasShownTooltip = sessionStorage.getItem("tooltipShown");
     // Get stored file objects
     const storedObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
     //this stretch of code checks if we are navigating to this page from the final page from
     //final page after finalize and select new directory, if yes, no directory shown, if no, get dir
     let finalPage = localStorage.getItem("finalPage") === "true"; //boolean
+    let returnFromSettings = localStorage.getItem("returnFromSettings") === "true";
     if (finalPage) {
         backButton.innerText = "Select a Directory"
         localStorage.removeItem("fileObjects"); // Clear old file data
         dirPathElement.innerText = "No directory selected";
         localStorage.setItem("finalPage", "false");
         fileObjects = []; //files is now empty because files shouldnt carry over from final page
+        hideUIElements();
+    } else if (returnFromSettings) {
+        localStorage.setItem("returnFromSettings", "false");
+        hideUIElements();
     } else {
         // Convert stored file objects to actual FileObject instances
         fileObjects = storedObjects.map(f => new FileObject(f));
@@ -88,6 +158,8 @@ window.onload = async function () {
         }
         showTooltip();
         dirPathElement.innerText = `Selected Directory: \n${dirPath}`;    
+        showUIElements()
+        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;    
         let files = await window.file.getFileData(dirPath);
         const removedFileTypes = new Set(await window.file.getRemovedFileTypes());
     
@@ -276,11 +348,6 @@ window.onload = async function () {
         setTimeout(() => {
             renameInputElement.blur();  // Remove highlight after creation
         }, 100);
-
-        // Optionally, refocus the input when the user interacts with it
-        //newRenameInput.addEventListener('focus', () => {
-        //  console.log('Input refocused when user interacts.');
-        //});
     }
 
     function containsIllegalCharacters(name) {
@@ -710,10 +777,37 @@ window.onload = async function () {
 
     // Dismiss tooltip
     function dismissTooltip() {
-        tooltip.classList.remove("show");
-        tooltip.classList.add("hide");
+        const tooltip = document.getElementById("tooltip");
 
-        setTimeout(() => tooltip.remove(), 400);
+        if (tooltip) {
+            tooltip.classList.remove("show");
+            tooltip.classList.add("hide");
+
+            // Optionally remove after a timeout
+            setTimeout(() => {
+                tooltip.style.display = "none"; // Completely hide
+            }, 400);
+        }
+    }
+
+    function resetTooltip() {
+        const tooltip = document.getElementById("tooltip");
+    
+        // Check if the tooltip has already been reset in this session
+        if (sessionStorage.getItem("tooltipReset") === "true") {
+            return; // Skip if already reset
+        }
+    
+        if (tooltip) {
+            tooltip.style.display = "block";  // Show the tooltip
+            tooltip.classList.remove("hide");
+            tooltip.classList.add("show");
+    
+            // Mark that the tooltip reset has been done in this session
+            sessionStorage.setItem("tooltipReset", "true");
+        } else {
+            console.error("Tooltip element not found.");
+        }
     }
 
     // WIGGLE WIGGLE WIGGLE
@@ -758,5 +852,9 @@ window.onload = async function () {
         progress.classList.remove("glowing");
         void progress.offsetWidth;
         progress.classList.add("glowing");
+    }
+    // Reveal body after all elements are ready only for keep_or_delete.html
+    if (document.body.classList.contains("keep-or-delete")) {
+        document.body.classList.add("show");
     }
 };
