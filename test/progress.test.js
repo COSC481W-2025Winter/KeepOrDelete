@@ -51,7 +51,7 @@ test("Progress bar updates correctly based on file statuses", async () => {
     });
   }, testDirectory);
 
-  await window.locator("#backButton").click();
+  await window.locator("#selectDirButton").click();
 
   await window.locator("#nextButton").click();
   await window.locator("#deleteButton").click();
