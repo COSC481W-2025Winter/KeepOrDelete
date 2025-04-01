@@ -454,7 +454,6 @@ code {
   justify-content: center;
   height: 100vh;
   text-align: center;
-  padding-top: 300px;
 }
 
 /* Hide body only for keep_or_delete.html */
@@ -493,4 +492,8 @@ body.keep-or-delete.show {
 
 .sort-dropdown:hover {
   border-color: #007bff;
+}
+
+.hidden {
+  display: none !important;
 }
