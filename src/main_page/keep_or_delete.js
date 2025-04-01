@@ -697,7 +697,7 @@ window.onload = async function () {
             let loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
 
              //reset the counter if 24 hours have passed
-             if (currentTime - loggedTime > 120000) {
+             if (currentTime - loggedTime > 86400000) {
                 imageLimit = 0;
                 loggedTime = currentTime;
                 localStorage.setItem("imageLimit", imageLimit);
@@ -707,7 +707,7 @@ window.onload = async function () {
             // 60000 minute
             // 86400000 24 hours
             // If 24 hours haven't passed and the image limit is reached, they cooked 
-            if ((currentTime - loggedTime) <= 120000 && imageLimit >= 2) {
+            if ((currentTime - loggedTime) <= 86400000 && imageLimit >= 2) {
               popupContentElement.textContent = "You have reached the limit for the day.";
               setTimeout(() => {
                 popupContentElement.textContent = "Try another file thats not an image fam 😭"; 
