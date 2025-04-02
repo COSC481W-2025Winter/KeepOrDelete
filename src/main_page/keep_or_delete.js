@@ -632,7 +632,6 @@ window.onload = async function () {
         LLM();
     });
     function LLM() {
-        popupElement.style.display = "inline-block";
         const filename = fileObjects[currentIndex].path;
         // Check for file types using mime 
         //--------------------------------------------------------------------
@@ -643,7 +642,7 @@ window.onload = async function () {
             if (!fileContents || fileContents.length === 0) {
                 popupContentElement.textContent = "No file contents found.";
                 setTimeout(() => {
-                    popupContentElement.textContent = "Try another file buddy 😭";
+                    popupContentElement.textContent = "Please choose a file with contents.";
                 }, 4000);
                 return;
             }
@@ -683,6 +682,7 @@ window.onload = async function () {
                 })
                 .catch((error) => {
                     console.error("Error sending OpenAI request:", error);
+                    popupContentElement.textContent = "There was an error reading the contents. Please try again.";
                 });
         }
         // PDF & DOCX files
@@ -749,9 +749,11 @@ window.onload = async function () {
             // 86400000 24 hours
             // If 24 hours haven't passed and the image limit is reached, they cooked 
             if ((currentTime - loggedTime) <= 86400000 && imageLimit >= 2) {
-                popupContentElement.textContent = "You have reached the limit for the day.";
+                const timeLeft = convertMillisecondsToTimeLeft(86400000 - (currentTime - loggedTime));
+                console.log(timeLeft);
+                popupContentElement.textContent = "Your renaming limit for image files has been reached.";
                 setTimeout(() => {
-                    popupContentElement.textContent = "Try another file thats not an image fam 😭";
+                    popupContentElement.textContent = "You have " + timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " left.";
                 }, 4000);
                 return;
             }
@@ -813,7 +815,7 @@ window.onload = async function () {
             console.log("Unsupported file type:", mimeType);
             popupContentElement.textContent = 'File type not supported.';
             setTimeout(() => {
-                popupContentElement.textContent = "Try another file buddy 😭";
+                popupContentElement.textContent = "I only support pdf, docx, jpeg, png, and txt files.";
             }, 4000);
             return;
         }
@@ -986,5 +988,20 @@ window.onload = async function () {
     // Reveal body after all elements are ready only for keep_or_delete.html
     if (document.body.classList.contains("keep-or-delete")) {
         document.body.classList.add("show");
+    }
+    function convertMillisecondsToTimeLeft(milliseconds) {
+        var seconds = Math.floor(milliseconds / 1000);
+        var minutes = Math.floor(seconds / 60);
+        var hours = Math.floor(minutes / 60);
+    
+        hours %= 24;
+        minutes %= 60;
+        seconds %= 60;
+    
+        return {
+            hours: hours,
+            minutes: minutes,
+            seconds: seconds
+        };
     }
 };
