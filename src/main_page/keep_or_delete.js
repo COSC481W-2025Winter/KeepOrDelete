@@ -40,7 +40,7 @@ window.onload = async function () {
     const confirmRenameButton = document.getElementById("confirmRename");
     const backButton = document.getElementById("backButton");
     const deleteButton = document.getElementById("deleteButton");
-    const nextButton = document.getElementById("nextButton");
+    const nextButton = document.getElementById("keepButton");
     const finalPageButton = document.getElementById("finalPageButton");
     const settingsButton = document.getElementById("settingsButton");
     const inspectButton = document.getElementById("inspectButton");
@@ -474,7 +474,6 @@ window.onload = async function () {
         while (currentIndex < fileObjects.length && fileObjects[currentIndex].status !== null) {
             currentIndex++;
         }
-        }
 
         if (currentIndex >= fileObjects.length) {
             currentItemElement.innerText = "No files in queue.";
@@ -852,11 +851,9 @@ window.onload = async function () {
 
     // Checks to see if user is a test agent
     const isTesting = navigator.userAgent.includes("Playwright");
-    let tooltip;
 
     // Only runs if user is real
     if (!isTesting && !hasShownTooltip) {
-        tooltip = document.getElementById("tooltip");
         tooltip.classList.add("show");
 
         // Dismiss tooltip on user input
