@@ -165,6 +165,32 @@ window.onload = async function () {
         animateSwipe("right");
     });
 
+    // these are all necessary to change the keep and delete button sprites
+    document.getElementById("keepButton").addEventListener("mousedown", async () => {
+        document.getElementById("keepButton").children[0].src = "../res/check-pressed.png";
+    });
+    
+    document.getElementById("keepButton").addEventListener("mouseup", async () => {
+        document.getElementById("keepButton").children[0].src = "../res/check.png";
+    });
+    
+    document.getElementById("keepButton").addEventListener("mouseleave", async () => {
+        document.getElementById("keepButton").children[0].src = "../res/check.png"; // Reset on leave
+    });
+    
+    document.getElementById("deleteButton").addEventListener("mousedown", async () => {
+        document.getElementById("deleteButton").children[0].src = "../res/x-pressed.png";
+    });
+    
+    document.getElementById("deleteButton").addEventListener("mouseup", async () => {
+        document.getElementById("deleteButton").children[0].src = "../res/x.png";
+    });
+    
+    document.getElementById("deleteButton").addEventListener("mouseleave", async () => {
+        document.getElementById("deleteButton").children[0].src = "../res/x.png"; // Reset on leave
+    });
+    
+
     // Next file function (aka Keep)
     async function nextFile() {
         if (!hasFiles()) return;
