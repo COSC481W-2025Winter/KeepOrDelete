@@ -2,54 +2,82 @@ window.onload = async function () {
     // Get references to the kept and deleted files 
     const keptFilesList = document.getElementById("keptFilesList");
     const deletedFilesList = document.getElementById("deletedFilesList");
+    const fileObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
 
-    let keptFiles = JSON.parse(localStorage.getItem("keptFiles")) || [];
-    let deletedFiles = JSON.parse(localStorage.getItem("deletedFiles")) || [];
+    // Get references to the image limit and logged time to preserve after refresh
+    const Limitkey = "imageLimit";
+    const Timekey = "loggedTime";
+    const preservedLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
+    const preservedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
 
-    // Remove duplicate file entries
-    keptFiles = [...new Set(keptFiles)];
+    // Render the file lists based on the stored file objects
+    function renderFileLists() {
+        keptFilesList.innerHTML = "";
+        deletedFilesList.innerHTML = "";
 
-    if (keptFiles.length === 0) {
-        keptFilesList.innerHTML = "<p>No kept files.</p>";
-    } else {
-        // Loop through each kept file and create a renameable input field
-        keptFiles.forEach(file => {
+        const keptFiles = fileObjects.filter(f => f.status === "keep");
+        const deletedFiles = fileObjects.filter(f => f.status === "delete");
 
-            const fileName = window.file.pathBasename(file); // Extract full filename
-            const renameInput = document.createElement("input");
-            renameInput.type = "text";
-            renameInput.value = fileName; // Display full name, including extension
-            renameInput.classList.add("rename-input");
-            renameInput.dataset.oldname = file; // Store full path for renaming
-            //this block ensures we dont get duplicates and we only display files, if they don't exist in the other array
-            let filecheck = false;
-            for (let i = 0; i < deletedFiles.length; i++) { //since deletedFiles IS correct, we base our keptFiles off them not existing in deleted
-                if (deletedFiles[i] === file) {
-                    filecheck = true;
-                }
+        if (keptFiles.length === 0) {
+            keptFilesList.innerHTML = "<p>No kept files.</p>";
+        } else {
+            keptFiles.forEach(file => renderKeptFile(file));
+        }
+
+        if (deletedFiles.length === 0) {
+            deletedFilesList.innerHTML = "<p>No deleted files.</p>";
+        } else {
+            deletedFiles.forEach(file => renderDeletedFile(file));
+        }
+    }
+
+    // Display the kept files 
+    function renderKeptFile(file) {
+        const renameInput = document.createElement("input");
+        renameInput.type = "text";
+        renameInput.value = file.name;
+        renameInput.classList.add("rename-input");
+        renameInput.dataset.oldname = file.path;
+
+        const listItem = document.createElement("li");
+        listItem.appendChild(renameInput);
+        keptFilesList.appendChild(listItem);
+
+        renameInput.addEventListener("keypress", async function (event) {
+            if (event.key === "Enter") {
+                await handleRename(renameInput, file);
+                renderFileLists();
             }
-            //only display if file doesn't exist in both arrays
-            if (!filecheck) {
-                const listItem = document.createElement("li");
-                listItem.appendChild(renameInput);
-                keptFilesList.appendChild(listItem);
-            }
-            //filecheck = false;
+        });
 
-            renameInput.addEventListener("keypress", async function (event) {
-                if (event.key === "Enter") {
-                    await handleRename(renameInput, fileName);
-                }
-            });
-
-            // Rename when clicking outside the input field
-            renameInput.addEventListener("blur", async function () {
-                await handleRename(renameInput, fileName);
-            });
+        renameInput.addEventListener("blur", async function () {
+            await handleRename(renameInput, file);
+            renderFileLists();
         });
     }
 
-    async function handleRename(renameInput) {
+    // Display the deleted files 
+    function renderDeletedFile(file) {
+        const listItem = document.createElement("li");
+        listItem.innerText = file.name;
+        const deleteButton = document.createElement("button");
+        deleteButton.innerText = "Move to keep";
+        deleteButton.classList.add("deleteUndo");
+        deleteButton.dataset.path = file.path;
+        listItem.appendChild(deleteButton);
+        deletedFilesList.appendChild(listItem);
+
+        deleteButton.addEventListener("click", () => {
+            // Update file status to keep
+            file.status = "keep";
+            // Update the stored file objects
+            localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+            // Re-render lists
+            renderFileLists();
+        });
+    }
+
+    async function handleRename(renameInput, fileObj) {
         let newName = renameInput.value.trim();
         const oldFilePath = renameInput.dataset.oldname;  // Ensure oldFilePath is correctly defined
         if (!oldFilePath) return; // Prevent errors if filePath is undefined
@@ -98,10 +126,11 @@ window.onload = async function () {
             // Perform rename
             const response = await window.file.renameFile(oldFilePath, newFilePath);
             if (response.success) {
-                keptFiles = keptFiles.map(file => (file === oldFilePath ? newFilePath : file));
-                localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
-                renameInput.dataset.oldname = newFilePath;
-                renameInput.blur(); // Remove focus after renaming
+                fileObj.name = newName;
+                fileObj.path = newFilePath;
+                renameInput.dataset.oldname= newFilePath;
+                renameInput.blur();
+                localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
             } else {
                 await window.file.showMessageBox({
                     type: "error",
@@ -147,112 +176,53 @@ window.onload = async function () {
         }, 3000);
     }
 
-    if (deletedFiles.length === 0) {
-        deletedFilesList.innerHTML = "<p>No deleted files.</p>";
-    } else {
-        deletedFiles.forEach(file => {
-            let filecheck = false;
-            for (let i = 0; i < keptFiles.length; i++) {
-                if (keptFiles[i] === file) {
-                    filecheck = true;
-                }
-            }
-            //only display files that dont exist in both arrays
-            if (!filecheck) {
-                const fileName = window.file.pathBasename(file);
-                const listItem = document.createElement("li");
-                listItem.innerText = fileName;
-                const deleteButton = document.createElement("button");
-                deleteButton.innerText = "Move to keep";
-                deleteButton.id = "deleteUndo";
-                deleteButton.dataset.file = file;
-                listItem.appendChild(deleteButton); // Attach button to the list item
-                deletedFilesList.appendChild(listItem);
-                deleteButton.addEventListener("click", async () => {
-                    const filePath = deleteButton.dataset.file; //get file in dataset
-                    if (!filePath) return;
-                    keptFiles.push(filePath); //push to array and localstorage
-                    localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
-                    const index = deletedFiles.indexOf(filePath);
-                    if (index > -1) { //remove from deletedfiles
-                        deletedFiles.splice(index, 1);
-                        localStorage.setItem("deletedFiles", JSON.stringify(deletedFiles));
-                    }
-                    listItem.remove();//remove from li's
-
-                    const noKeptFilesMsg = document.querySelector("#keptFilesList p");
-                    if (noKeptFilesMsg && noKeptFilesMsg.innerText === "No kept files.") {
-                        noKeptFilesMsg.remove();
-                    }
-
-                    // Add file back to kept files list
-                    const fileName = window.file.pathBasename(filePath);
-                    const renameInput = document.createElement("input");
-                    renameInput.type = "text";
-                    renameInput.value = fileName; // Display full name, including extension
-                    renameInput.classList.add("rename-input");
-                    renameInput.dataset.oldname = filePath;
-
-                    const newListItem = document.createElement("li");
-                    newListItem.appendChild(renameInput);
-                    keptFilesList.appendChild(newListItem); // Append to kept list
-
-                    // Attach renaming event listeners
-                    renameInput.addEventListener("keypress", async function (event) {
-                        if (event.key === "Enter") {
-                            await handleRename(renameInput);
-                        }
-                    });
-
-                    renameInput.addEventListener("blur", async function () {
-                        await handleRename(renameInput);
-                    });
-                });
-            }
-
-        });
-    }
-
     //Back button functionality
     document.getElementById("backButton").addEventListener("click", () => {
         window.location.href = "./main_page/keep_or_delete.html";
     });
 
     document.getElementById("finalizeButton").addEventListener("click", async () => {
+        // Recheck for deleted files in case any were changed to keet
+        const deletedFiles = fileObjects.filter(f => f.status === "delete");
         //iterate through deleted files array and send to trash
         for (let i = 0; i < deletedFiles.length; i++) {
-            const result = await window.file.deleteFile(deletedFiles[i]);
+            const result = await window.file.deleteFile(deletedFiles[i].path);
             if (!result.success) {
                 await window.file.showMessageBox({
                     type: "error",
                     title: "Error deleting file",
                     message: result.message
                 });
-                console.log(`error deleting "${deletedFiles[i]}"`);
                 break;
             }
         }
         localStorage.clear(); // Clears stored session data
-        let finalPage = localStorage.setItem("finalPage", 'true');
+        localStorage.setItem("finalPage", 'true');
+        localStorage.setItem(Limitkey, preservedLimit);
+        localStorage.setItem(Timekey, preservedTime);
         window.location.href = "./main_page/keep_or_delete.html";
     });
 
     document.getElementById("exitButton").addEventListener("click", async () => {
+        // Recheck for deleted files in case any were changed to keet
+        const deletedFiles = fileObjects.filter(f => f.status === "delete");
+        // Delete files
         for (let i = 0; i < deletedFiles.length; i++) {
-            const result = await window.file.deleteFile(deletedFiles[i]);
+            const result = await window.file.deleteFile(deletedFiles[i].path);
             if (!result.success) {
                 await window.file.showMessageBox({
                     type: "error",
                     title: "Error deleting file",
                     message: result.message
                 });
-                console.log(`error deleting "${deletedFiles[i]}"`);
                 break;
             }
         }
         window.file.quitApp(); // Calls the function to quit the app
         localStorage.clear(); // Clears stored session data
+        localStorage.setItem(Limitkey, preservedLimit);
+        localStorage.setItem(Timekey, preservedTime);
     });
-
+    renderFileLists();
 };
 

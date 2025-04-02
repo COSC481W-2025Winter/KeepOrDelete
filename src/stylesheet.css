@@ -179,6 +179,13 @@ img.btn { /* Keep or Delete buttons */
   font-size: 1rem;
 
   overflow: hidden;
+  width: 500px;
+  height: 300px;
+  margin: 20px auto;
+  /* Centers horizontally */
+  display: block;
+  /* Ensures block-level behavior */
+  position: relative;
 }
 
 #previewContainer > div {
@@ -189,10 +196,16 @@ img.btn { /* Keep or Delete buttons */
 .txtPreview {
   overflow: auto;
   height: inherit;
+  border: 2px solid #bbbbbb;
+  background-color: #e5e5e5;
   font-family: monospace;
   border-radius: 10px;
   text-align: left;
   user-select: none;
+}
+
+.pdfPreview iframe {
+  pointer-events: none;
 }
 
 .txtPreview * {
@@ -305,11 +318,11 @@ img.btn { /* Keep or Delete buttons */
 }
 
 .trash-container {
-  height: 70vh;
-  width: 80%;
-  margin: 20px auto;
-  padding: 20px;
-  overflow: auto;
+  flex: 1;
+  /* css for nothing getting cut off in trash container*/
+  overflow-y: auto;
+  max-height: calc(100% - 40px);
+  padding-bottom: 10px;
 }
 
 .file-info {
@@ -320,19 +333,113 @@ img.btn { /* Keep or Delete buttons */
 }
 
 #renameModal {
-  border: 1px solid #ccc; 
+  border: 1px solid #ccc;
   border-radius: 10px;
-  padding: 10px; 
-  box-shadow: 0 0 10px rgba(0,0,0,0.2); 
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes inputGlow {
-  0% { box-shadow: 0 0 5px rgba(0, 255, 0, 0.5); }
-  50% { box-shadow: 0 0 15px rgba(0, 255, 0, 1); }
-  100% { box-shadow: 0 0 5px rgba(0, 255, 0, 0.5); }
+  0% {
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+  }
+
+  50% {
+    box-shadow: 0 0 15px rgba(0, 255, 0, 1);
+  }
+
+  100% {
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+  }
 }
 
 .glowing {
   animation: inputGlow 0.5s ease-out;
 }
 
+#progress-bar {
+  display: flex;
+  align-items: center;
+  width: 500px;
+  height: 20px;
+  background-color: #ddd;
+  margin: 0 auto;
+  animation: inputGlow 0.5s ease-out;
+}
+
+#progress {
+  width: 0%;
+  height: 100%;
+  background-color: #08c27bfc;
+  transition: width 0.5s ease-out;
+}
+
+@keyframes celebrate {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.complete {
+  animation: celebrate 1s ease-out;
+}
+
+#welcomeScreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+}
+
+/* Hide body only for keep_or_delete.html */
+body.keep-or-delete {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Show content when JS is ready */
+body.keep-or-delete.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+.sort-container {
+  display: flex;
+  justify-content: center;
+  margin: 10px 50px 5px 0;
+  align-items: center;
+}
+
+.sort-label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.sort-dropdown {
+  padding: 6px 10px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: white;
+  cursor: pointer;
+}
+
+.sort-dropdown:hover {
+  border-color: #007bff;
+}
+
+.hidden {
+  display: none !important;
+
+}

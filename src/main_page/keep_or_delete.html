@@ -34,7 +34,7 @@
          <p id="renameWarning"></p>
       </div>
       <div class="popup" id="popup">
-          <span id="popupContent">AI Suggested Name</span>
+         <span id="popupContent">AI Suggested Name</span>
       </div>
       <div class="modal-buttons">
          <button id="closeModal">Cancel</button>
@@ -43,18 +43,29 @@
    </dialog>
 
    <div>
+
+      <div class="sort-container">
+         <label for="sortOrder" class="sort-label">Sort Order:</label>
+         <select id="sortOrder" class="sort-dropdown">
+            <option value="asc">A → Z</option>
+            <option value="desc">Z → A</option>
+         </select>
+      </div>
+
       <button id="inspectButton">Inspect Document</button>
       <button id="renameButton">Rename File</button>  
       <div id="file-card">
          <div id="previewContainer"></div>
-            <div id="card-bar">
-               <p><span id="currentItem"></span></p>
-               <p><span id="currentItemSize"></span></p>
-            </div>
+         <div id="card-bar">
+            <p><span id="currentItem"></span></p>
+            <p><span id="currentItemSize"></span></p>
          </div>
-      
+      </div>
+   
+   
+      <button id="backButton">Change Directory</button>
+      <div id="dataSaved"></div>
    </div>
-
 
    
    <p>Directory to be Sorted: <code><span id="filepath"></span></code></p>
@@ -77,13 +88,23 @@
    <div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
 
    <div>
-      <a href="../trash_page.html" id="trash_button">
-         <img src="trash.jpg" alt="Clickable Image" width="50">
-      </a>
+      <img src="trash.jpg" id="trash_button" alt="Trash Icon">
    </div>
+
+   <dialog id="trash_dialog">
+      <button id="closeTrashModal">Close</button>
+      <div class="trash-container">
+         <h3 id="deletedHeader">No files to be deleted</h3>
+         <ul id="deletedFilesList"></ul>
+         <h3 id="deletedFilesNum"></h3>
+      </div>
+   </dialog>
+
+
 
 
 </body>
 <script src="./keep_or_delete.js"></script>
+
 
 </html>

@@ -1,78 +1,224 @@
+// File data object
+class FileObject {
+    constructor({ name, path, modifiedDate, createdDate, size, status = null }) {
+        this.name = name;
+        this.path = path;
+        this.modifiedDate = new Date(modifiedDate);
+        this.createdDate = new Date(createdDate);
+        this.size = size;
+        this.status = status;
+    }
+}
+
+let fileObjects = []; // Array for FileObject instances
+let currentIndex = 0; // Track file index
+let inspectMode = false; // Inspect mode toggle
+// Variables for swipe tracking
+let startX;
+let currentX;
+let isSwiping;
+let startTime;
+let spaceSaved = 0;
+
+
 window.onload = async function () {
-    let files = JSON.parse(localStorage.getItem("files")) || [];
-    //added this on load as well as when dir selected, sometimes populated without dir
-    files = files.filter(file => {
-        const fileName = file.split("/").pop();
-        return fileName !== ".DS_Store";
-    });
-    console.log("files found: ", files);
-    let currentIndex = 0;
+    // Cache DOM references
     const previewContainer = document.getElementById("previewContainer");
+
     const dirDisplay = document.getElementById("file-card");
+    const dirPathElement = document.getElementById("dirPath");
+    const currentItemElement = document.getElementById("currentItem");
+    const currentItemSizeElement = document.getElementById("currentItemSize");
+    const notificationElement = document.getElementById("notification");
+    const popupContentElement = document.getElementById('popupContent');
+    const popupElement = document.getElementById('popup')
+    const closeModal = document.getElementById("closeModal");
+    const renameModal = document.getElementById("renameModal");
+    const renameContainer = document.getElementById("renameContainer");
+    let renameInputElement = document.getElementById('renameInput');
+    const renameButton = document.getElementById('renameButton');
+    const confirmRenameButton = document.getElementById("confirmRename");
+    const backButton = document.getElementById("backButton");
+    const deleteButton = document.getElementById("deleteButton");
+    const nextButton = document.getElementById("nextButton");
+    const finalPageButton = document.getElementById("finalPageButton");
+    const settingsButton = document.getElementById("settingsButton");
+    const inspectButton = document.getElementById("inspectButton");
+    const trashButton = document.getElementById("trash_button");
+    const tooltip = document.getElementById("tooltip");
+    const saved = document.getElementById("dataSaved");
     let inspectMode = false;
-    let keptFiles = JSON.parse(localStorage.getItem("keptFiles")) || [];
-    let filesToBeDeleted = JSON.parse(localStorage.getItem("deletedFiles")) || [];
     const hasShownTooltip = sessionStorage.getItem("tooltipShown");
-    try {
-        //this stretch of code checks if we are navigating to this page from the final page from
-        //final page after finalize and select new directory, if yes, no directory shown, if no, get dir
-        let finalPage = localStorage.getItem("finalPage") === "true"; //boolean
-        if (finalPage) {
-            document.getElementById("backButton").innerText = "Select a Directory"
-            localStorage.removeItem("files");
-            document.getElementById("dirPath").innerText = "No directory selected";
-            files = []; //files is now empty because files shouldnt carry over from final page
+    const dirPath = await window.file.getFilePath();
+    const sortOrderDropdown = document.getElementById("sortOrder");
+    const welcome = document.getElementById("welcomeScreen");
+
+    if (!dirPath) {
+        // Hide all UI elements except welcomeScreen
+        toggleUIElements(false);
+    } else {
+        // Show main UI and hide welcome screen
+        toggleUIElements(true);
+        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
+        if (hasFiles()) {
+            displayCurrentFile();
         } else {
-            const dirPath = await window.file.getFilePath(); //else, keep the directory
-            document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
-            if (dirPath) {
-                //get the files and populate, this is old code
-                files = await window.file.getFilesInDirectory();
-                localStorage.setItem("files", JSON.stringify(files));
-                //console.log("Filtered file list:", files); these commented out lines were for debugging
-                removedFileTypes = new Set(await window.file.getRemovedFileTypes());
-                //console.log("Initial file list:", files);
-                //console.log("Removed file types:", Array.from(removedFileTypes));
-                //remove ds_store files
-                files = files.filter(file => {
-                    const fileName = file.split("/").pop();
-                    return fileName !== ".DS_Store";
-                });
-                files = files.filter(file => {
-                    const fileType = file.split(".").pop();
-                    return !removedFileTypes.has(fileType);
-                });
-                // Apply additional filters if needed
-                if (keptFiles.length > 0 || filesToBeDeleted.length > 0) {
-                    files = files.filter(file =>
-                        !(keptFiles.includes(file) || filesToBeDeleted.includes(file))
-                    );
-                }
-
-            } else {
-                document.getElementById("backButton").innerText = "Select a Directory"
-            }
-
-            //display files
-            if (files.length > 0) {
-                displayCurrentFile();
-                setTimeout(() => {
-                    resetRenameInput(document.getElementById('renameContainer'));
-                }, 10);
-            } else {
-                document.getElementById("currentItem").innerText = "No files found.";
-            }
+            document.getElementById("currentItem").innerText = "No files found.";
         }
-        //set localstorage to be false
-        localStorage.setItem("finalPage", "false");
-
-
-    } catch (error) {
-        console.error(error);
     }
 
+    // Handle directory selection from the welcome screen
+    document.getElementById("selectDirButton").addEventListener("click", async () => {
+        await selectNewDirectory();
+    });
+
+    function toggleUIElements(visible) {
+        const ids = [
+            "trash_button",
+            "dirDisplay",
+            "previewContainer",
+            "notification",
+            "progress-bar",
+            "tooltip",
+            "fileinfo",
+            "backButton",
+        ];
+
+        ids.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.classList.toggle("hidden", !visible);
+            }
+
+            if (welcome) {
+                welcome.classList.toggle("hidden", visible);
+            }
+        
+            if (visible) resetTooltip();
+        });
+    }
+    // Progress Bar based on files left
+    const progress = document.getElementById("progress");
+    function updateProgress() {
+        const totalFiles = fileObjects.length;
+        const keptFiles = fileObjects.filter(f => f.status === "keep");
+        const filesToBeDeleted = fileObjects.filter(f => f.status === "delete");
+        const completedFiles = keptFiles.length + filesToBeDeleted.length;
+        const percent = totalFiles > 0 ? Math.round((completedFiles / totalFiles) * 100) : 0;
+        progress.style.width = `${percent}%`;
+        progress.textContent = percent + "%";
+
+        // Calculate total space saved
+        const totalSpaceSaved = filesToBeDeleted.reduce((sum, file) => sum + file.size, 0);
+
+        // Adding some glowing and scaling animation cause vibes.
+        if (percent === 100) {
+            progress.classList.add("complete");
+            saved.textContent = "You've saved: " + formatFileSize(totalSpaceSaved) + "!";
+            setTimeout(() => {
+                progress.classList.remove("complete");
+            }, 1000);
+        }
+        // Re-trigger the glowing animation
+        progress.classList.remove("glowing");
+        void progress.offsetWidth;
+        progress.classList.add("glowing");
+    }
+    // Get stored file objects
+    const storedObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
+    //this stretch of code checks if we are navigating to this page from the final page from
+    //final page after finalize and select new directory, if yes, no directory shown, if no, get dir
+    let finalPage = localStorage.getItem("finalPage") === "true"; //boolean
+    let returnFromSettings = localStorage.getItem("returnFromSettings") === "true";
+    if (finalPage) {
+        backButton.innerText = "Select a Directory"
+        localStorage.removeItem("fileObjects"); // Clear old file data
+        dirPathElement.innerText = "No directory selected";
+        localStorage.setItem("finalPage", "false");
+        fileObjects = []; //files is now empty because files shouldnt carry over from final page
+        toggleUIElements(false);
+    } else if (returnFromSettings) {
+        localStorage.setItem("returnFromSettings", "false");
+        toggleUIElements(false);
+    } else {
+        // Convert stored file objects to actual FileObject instances
+        fileObjects = storedObjects.map(f => new FileObject(f));
+        const dirPath = await window.file.getFilePath(); //else, keep the directory
+        if (dirPath) {
+            dirPathElement.innerText = `Selected Directory: \n${dirPath}`;
+        }
+        if (fileObjects.length === 0) {
+            backButton.innerText = "Select Directory"
+        }
+        //display files
+        if (hasFiles()) {
+            displayCurrentFile();
+            setTimeout(() => {
+                resetRenameInput(renameContainer);
+            }, 10);
+        } else {
+            currentItemElement.innerText = "No files found.";
+        }
+    }
+
+    // Select directory and load new files
+    async function selectNewDirectory() {
+        const dirPath = await window.file.selectDirectory();
+        if (!dirPath) {
+            alert("Directory selection was canceled.");
+            return;
+        }
+        showTooltip();
+        dirPathElement.innerText = `Selected Directory: \n${dirPath}`;    
+        toggleUIElements(true);
+        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;    
+        let files = await window.file.getFileData(dirPath);
+        const removedFileTypes = new Set(await window.file.getRemovedFileTypes());
+
+        // Filter out DS_Store and unselected extensions
+        files = files.filter(file => {
+            const fileName = file.name.split("/").pop();
+            const fileType = file.name.split(".").pop();
+            return fileName !== ".DS_Store" && !removedFileTypes.has(fileType);
+        });
+
+        // Convert raw data into FileObject instances
+        fileObjects = files.map(f => new FileObject(f));
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+        currentIndex = 0;
+
+        if (hasFiles()) {
+            backButton.innerText = "Change Directory"
+            displayCurrentFile();
+        } else {
+            currentItemElement.innerText = "No files found.";
+        }
+    }
+
+
+    sortOrderDropdown.addEventListener("change", () => {
+        sortFiles();
+        currentIndex = 0;
+        displayCurrentFile();
+        sortOrderDropdown.blur()
+    });
+
+
+    function sortFiles() {
+        const sortOrder = sortOrderDropdown.value;
+        fileObjects.sort((a, b) => {
+            const nameA = a.name.toLowerCase();
+            const nameB = b.name.toLowerCase();
+            if (nameA < nameB) return sortOrder === "asc" ? -1 : 1;
+            if (nameA > nameB) return sortOrder === "asc" ? 1 : -1;
+            return 0; // Stable sort
+        });
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+    }
+
+
     function showNotification(message) {
-        const notification = document.getElementById('notification');
+        const notification = notificationElement;
         notification.innerText = message;
         notification.style.display = 'block';
 
@@ -83,38 +229,22 @@ window.onload = async function () {
     }
 
     // Change Directory Button
-    document.getElementById("backButton").addEventListener("click", async () => {
-        try {
-            const dirPath = await window.file.selectDirectory();
-            localStorage.clear();
-            if (dirPath) {
-                window.file.setFilePath(dirPath);
-                document.getElementById("filepath").innerText = dirPath;
-            } else {
-                console.log("Directory selection was canceled.");
-            }
-            const currentDir = document.getElementById("filepath").innerText.trim();
-            if (!currentDir || currentDir === "No directory selected") {
-                alert("Please select a directory first.");
-                return;
-            }
-            window.location.reload();
-        } catch (error) {
-            console.error("Error selecting directory:", error);
-        }
+    backButton.addEventListener("click", async () => {
+        await selectNewDirectory();
     });
 
 
     // Delete button press
-    document.getElementById("deleteButton").addEventListener("click", async () => {
+    deleteButton.addEventListener("click", async () => {
         if (!hasFiles()) return;
-        animateSwipe("left");;
+        deleteFile();
+
+        animateSwipe("left");
     });
 
     // Delete function
     async function deleteFile() {
-        // Don't attempt deletion if there are no [more] files.
-        if (files.length === 0) {
+        if (!hasFiles()) {
             await window.file.showMessageBox({
                 type: "error",
                 title: "Error",
@@ -122,45 +252,25 @@ window.onload = async function () {
             });
             return;
         }
-        try {
-            const filePath = files[currentIndex];
-            //now this function just updates are of files and removes file to be deleted, and adds it to the array that
-            //is waiting to be deleted
-            filesToBeDeleted.push(filePath); //add the file to the array that is waiting to be deleted
-            // - bridge but actually exists at line 52 of index.js
-            console.log(filesToBeDeleted[0]);
-            let newArr = [];
-            for (let file of files) {
-                if (file !== filePath) {
-                    newArr.push(file);
-                }
-            }
-            files = newArr; // Update files array
-            localStorage.setItem("files", JSON.stringify(files));
-            localStorage.setItem("deletedFiles", JSON.stringify(filesToBeDeleted));
-            currentIndex = 0;
-            //code below doesnt work
-            // When deleting final file, display second to last file.
-            /*if (currentIndex == files.length) {
-                currentIndex--;
-            } else {
-                currentIndex++;
-            }*/
-            displayCurrentFile();
-        }
-        catch (error) {
-            console.error("Error deleting file:", error);
-            await window.file.showMessageBox({
-                type: "error",
-                title: "Error",
-                message: "Error deleting file: " + error.message
-            });
-        }
+        console.log("Before update:", JSON.stringify(fileObjects[currentIndex]));
+
+        fileObjects[currentIndex].status = "delete";
+
+        console.log("After update:", JSON.stringify(fileObjects[currentIndex]));
+
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+        console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
+
+        currentIndex++;
+        displayCurrentFile();
+        updateProgress();
         resetPreviewPosition();
-    };
+    }
+
 
     // Go through files in directory +1
-    document.getElementById("keepButton").addEventListener("click", async () => {
+
+    nextButton.addEventListener("click", async () => {
         if (!hasFiles()) return;
         animateSwipe("right");
     });
@@ -194,53 +304,25 @@ window.onload = async function () {
     // Next file function (aka Keep)
     async function nextFile() {
         if (!hasFiles()) return;
-        try {
-            const filePath = files[currentIndex];
-
-            keptFiles.push(filePath);
-            console.log(keptFiles[0]);
-            let newArr = [];
-            for (let file of files) {
-                if (file !== filePath) {
-                    newArr.push(file);
-                }
-            }
-            files = newArr; // Update files array
-            localStorage.setItem("files", JSON.stringify(files));
-            localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
-            currentIndex = 0;
-
-            displayCurrentFile();
-            /*currentIndex++;
-            displayCurrentFile();
-            keepCurrentFile(currentIndex - 1);*/
-        } catch {
-            console.error("Error keeping file:", error);
-            await window.file.showMessageBox({
-                type: "error",
-                title: "Error",
-                message: "Error keeping file: " + error.message
-            });
-            resetPreviewPosition();
-            //keepCurrentFile(currentIndex);
-        }
+        fileObjects[currentIndex].status = "keep";
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+        currentIndex++;
+        displayCurrentFile();
+        updateProgress();
     }
 
-    const renameModal = document.getElementById("renameModal");
-    const closeModal = document.getElementById("closeModal");
-    document.getElementById('renameButton').addEventListener('click', async (event) => {
+    renameButton.addEventListener('click', async (event) => {
         if (!hasFiles()) return;
         renameModal.showModal();
-        document.getElementById('popupContent').innerText = "AI Suggested Name"
+        popupContentElement.innerText = "AI Suggested Name"
     });
 
     closeModal.addEventListener("click", () => {
-        const renameContainer = document.getElementById('renameContainer');
         renameModal.close();
         resetRenameInput(renameContainer);
     });
 
-    document.getElementById("confirmRename").addEventListener('click', async (event) => {
+    confirmRenameButton.addEventListener('click', async (event) => {
         if (!hasFiles()) return;
         event.preventDefault();
         event.stopPropagation();
@@ -248,7 +330,7 @@ window.onload = async function () {
     });
 
     // Add event listener for Enter key
-    document.getElementById('renameInput').addEventListener('keypress', async (event) => {
+    renameInputElement.addEventListener('keypress', async (event) => {
         if (!hasFiles()) return;
         if (event.key === "Enter") {
             event.preventDefault();
@@ -258,10 +340,8 @@ window.onload = async function () {
     });
 
     async function handleRename() {
-        //const renameContainer = document.getElementById('renameContainer');
-        const renameInput = document.getElementById('renameInput');
-        const newName = renameInput.value.trim();
-        let currentFile = files[currentIndex];
+        const newName = renameInputElement.value.trim();
+        let currentFile = fileObjects[currentIndex].path;
 
         if (!newName) {
             showNotification('Please enter a new file name.', 'error');
@@ -302,9 +382,10 @@ window.onload = async function () {
             // Step 4: Perform the rename
             const response = await window.file.renameFile(currentFile, newFilePath);
             if (response.success) {
-                document.getElementById("renameModal").close();
+                renameModal.close();
                 showNotification(`File renamed successfully to ${finalName}`, 'success');
-                files[currentIndex] = newFilePath;
+                fileObjects[currentIndex].name = window.file.pathBasename(newFilePath);
+                fileObjects[currentIndex].path = newFilePath;
                 displayCurrentFile();
                 resetRenameInput(renameContainer);
             } else {
@@ -322,34 +403,20 @@ window.onload = async function () {
     function resetRenameInput(container) {
         container.innerHTML = '';  // Clear the old input field
 
-        const newRenameInput = document.createElement('input');
-        newRenameInput.type = 'text';
-        newRenameInput.id = 'renameInput';
-        newRenameInput.placeholder = 'Enter new file name';
+        renameInputElement = document.createElement('input');
+        renameInputElement.type = 'text';
+        renameInputElement.id = 'renameInput';
+        renameInputElement.placeholder = 'Enter new file name';
 
-        container.appendChild(newRenameInput);
+        container.appendChild(renameInputElement);
 
-        // Remove old event listeners before adding new ones
-        newRenameInput.removeEventListener("keypress", renameOnEnter);
-        newRenameInput.addEventListener("keypress", renameOnEnter);
-
-        // Reattach Enter event listener
-        newRenameInput.addEventListener("keypress", async (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                await handleRename();
-            }
-        });
+        // Add event listener
+        renameInputElement.addEventListener("keypress", renameOnEnter);
 
         // Temporary blur to prevent highlighting the input immediately
         setTimeout(() => {
-            newRenameInput.blur();  // Remove highlight after creation
+            renameInputElement.blur();  // Remove highlight after creation
         }, 100);
-
-        // Optionally, refocus the input when the user interacts with it
-        //newRenameInput.addEventListener('focus', () => {
-        //  console.log('Input refocused when user interacts.');
-        //});
     }
 
     function containsIllegalCharacters(name) {
@@ -371,18 +438,16 @@ window.onload = async function () {
 
     // Attach event listeners when renaming input is created
     function attachRenameListeners() {
-        const renameInput = document.getElementById('renameInput');
         // Remove existing event listeners (prevents duplicates)
-        renameInput.removeEventListener("keypress", renameOnEnter);
+        renameInputElement.removeEventListener("keypress", renameOnEnter);
         // Attach Enter key event
-        renameInput.addEventListener("keypress", renameOnEnter);
+        renameInputElement.addEventListener("keypress", renameOnEnter);
     }
 
     async function renameOnEnter(event) {
         if (event.key === "Enter") {
             event.preventDefault();
-            const renameInput = document.getElementById('renameInput');
-            const newName = renameInput.value.trim();
+            const newName = renameInputElement.value.trim();
 
             if (!newName) {
                 showNotification('Please enter a new file name.', 'error');
@@ -406,44 +471,37 @@ window.onload = async function () {
     }
 
     function displayCurrentFile() {
-        if (currentIndex < 0 || currentIndex >= files.length) {
-            document.getElementById("currentItem").innerText = "No files in queue.";
-            document.getElementById("currentItemSize").innerText = "";
-        } else {
-            filePath = files[currentIndex];
-            let fileName = window.file.pathBasename(filePath);
-            document.getElementById("currentItem").innerText = fileName;
-
-            let stats = window.file.getFileSize(filePath);
-            let fileSize = stats.size;
-            let formattedSize = formatFileSize(fileSize);
-            document.getElementById("currentItemSize").innerText = "| File Size: " + formattedSize;
-
-            refreshPreview();
+        while (currentIndex < fileObjects.length && fileObjects[currentIndex].status !== null) {
+            currentIndex++;
+        }
         }
 
+        if (currentIndex >= fileObjects.length) {
+            currentItemElement.innerText = "No files in queue.";
+            currentItemSizeElement.innerText = "";
+            previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
+            return
+        }
+
+        const file = fileObjects[currentIndex];
+        currentItemElement.innerText = "Current File: " + file.name;
+        let formattedSize = formatFileSize(file.size);
+        currentItemSizeElement.innerText = "| File Size: " + formattedSize;
+        refreshPreview(file.path);
         // Reset rename input field
-        resetRenameInput(document.getElementById('renameContainer'));
+        resetRenameInput(renameContainer);
         //reset inspect mode upon file change
         inspectMode = false;
-        document.getElementById("inspectButton").innerText = "Inspect Document";
+        inspectButton.innerText = "Inspect Document";
         // Attach Enter event listener for renaming
         //attachRenameListeners();
     }
 
-    async function refreshPreview() {
-        if (files.length == 0) {
-            previewContainer.innerHTML = "";
-            return;
-        }
-
-        const filename = files[currentIndex];
-
-        const previewHTML = await window.file.generatePreviewHTML(filename);
+    async function refreshPreview(filePath) {
+        const previewHTML = await window.file.generatePreviewHTML(filePath);
         previewContainer.innerHTML = previewHTML || "<p>Preview not available</p>";
-
-
         resetPreviewPosition();
+        updateProgress();
     }
 
 
@@ -456,6 +514,8 @@ window.onload = async function () {
 
     // Swipe animation handler
     function animateSwipe(direction) {
+        let translateX;
+        let rotateDeg;
         if (!hasFiles()) return;
         const icon = document.createElement("div");
         icon.classList.add("swipeIcon");
@@ -510,7 +570,11 @@ window.onload = async function () {
     function moveSwipe(e) {
         if (!isSwiping) return;
         // Get current position
-        currentX = e.clientX || e.touches[0].clientX;
+        if (e.type === "touchmove") {
+            currentX = e.touches[0].clientX;
+        } else {
+            currentX = e.clientX;
+        }
         // Calculate distance moved
         let diffX = currentX - startX;
         // Use distance moved to move the previewContainer
@@ -535,9 +599,8 @@ window.onload = async function () {
     }
 
     //button to go to the final page
-    document.getElementById("finalPageButton").addEventListener("click", () => {
-        localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
-        localStorage.setItem("deletedFiles", JSON.stringify(deletedFiles));
+    finalPageButton.addEventListener("click", () => {
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
         window.location.href = "../final_page.html";
     });
     // Mouse event listeners for swipe
@@ -555,7 +618,7 @@ window.onload = async function () {
         document.addEventListener("touchend", endSwipe);
     });
 
-    document.getElementById("inspectButton").addEventListener("click", () => {
+    inspectButton.addEventListener("click", () => {
         const iframe = document.querySelector("#previewContainer iframe");
         const textPreview = document.querySelector("#previewContainer pre");
         // Toggle inspect mode state
@@ -572,19 +635,17 @@ window.onload = async function () {
         }
 
         // Update button text
-        document.getElementById("inspectButton").innerText = inspectMode ? "Exit Inspect" : "Inspect Document";
+        inspectButton.innerText = inspectMode ? "Exit Inspect" : "Inspect Document";
     });
 
     //button to go to the final page
-    document.getElementById("finalPageButton").addEventListener("click", () => {
-        localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
-        localStorage.setItem("deletedFiles", JSON.stringify(filesToBeDeleted));
+    finalPageButton.addEventListener("click", () => {
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
         window.location.href = "../final_page.html";
     });
 
-    document.getElementById("trash_button").addEventListener("click", () => {
-        localStorage.setItem("keptFiles", JSON.stringify(keptFiles));
-        localStorage.setItem("deletedFiles", JSON.stringify(filesToBeDeleted));
+    trashButton.addEventListener("click", () => {
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
     });
 
     // Arrow key file swiping
@@ -597,169 +658,195 @@ window.onload = async function () {
         }
     });
 
-    document.getElementById('popup').addEventListener("click", () => {
+    popupElement.addEventListener("click", () => {
         if (!hasFiles()) return;
         LLM();
     });
-      function LLM() {
-        popup.style.display = "inline-block";
-        const filename = files[currentIndex];
+    function LLM() {
+        popupElement.style.display = "inline-block";
+        const filename = fileObjects[currentIndex].path;
         // Check for file types using mime 
         //--------------------------------------------------------------------
         const mimeType = window.file.getMimeType(filename);
-        if ( mimeType.startsWith("text/")) {
-                      // Text
-                      const fileContents = window.file.getFileContents(filename);
-                      if (!fileContents || fileContents.length === 0) {
-                          popupContent.textContent = "No file contents found.";
-                          setTimeout(() => {
-                            popupContent.textContent = "Try another file buddy 😭"; 
-                          }, 4000);
-                          return;
-                        } 
-                      popupContent.textContent = "Thinking...";
-                      window.openai
-                        .openaiRequest([
-                          {
-                            role: "system",
-                            content:
-                              "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
-                          },
-                          { role: "user", content: fileContents },
-                        ])
-                        .then((response) => {
-                          const suggestion = response.choices[0].message;
-                          console.log("Renaming Suggestion:", suggestion.content);                                
-                          // Display the popup and suggested name. 
-                          const popupContent = document.getElementById('popupContent');
-      
-                          // Add a click event listener to the popup. Populates the input field wih the suggestion.
-                          const renameInput = document.getElementById('renameInput');
-                          if (renameInput) {
-                              renameInput.value = suggestion.content;
-                          
-                              // Remove previous animation classes
-                              renameInput.classList.remove("glowing", "wiggle");
-                          
-                              // Force reflow to restart animations
-                              void renameInput.offsetWidth;
-                          
-                              // Add animation classes again
-                              renameInput.classList.add("glowing", "wiggle");
-                          
-                              // Remove the classes after the animation completes
-                              setTimeout(() => { 
-                                  renameInput.classList.remove("glowing", "wiggle"); 
-                              }, 500);
-                          }
-                          document.getElementById('popupContent').textContent = "Get new AI Name";
-                        })
-                        .catch((error) => {
-                          console.error("Error sending OpenAI request:", error);
-                        });
+        if (mimeType.startsWith("text/")) {
+            // Text
+            const fileContents = window.file.getFileContents(filename);
+            if (!fileContents || fileContents.length === 0) {
+                popupContentElement.textContent = "No file contents found.";
+                setTimeout(() => {
+                    popupContentElement.textContent = "Try another file buddy 😭";
+                }, 4000);
+                return;
             }
-        // PDF
-        else if(mimeType == "application/pdf"){
-            // Creating a Async function to process all PDF contents before using data.
-            async function pdfAIcall() {
-                  const pdfContent = await window.file.getPDFtext(filename);
-                  console.log("PDF Content:", pdfContent);
-                  popupContent.textContent = "Thinking...";
-                  window.openai
-                  .openaiRequest([
+            popupContentElement.textContent = "Thinking...";
+            window.openai
+                .openaiRequest([
                     {
-                      role: "system",
-                      content:
-                        "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
+                        role: "system",
+                        content:
+                            "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
                     },
-                    { role: "user", content: pdfContent},
-                  ])
-                  .then((response) => {
+                    { role: "user", content: fileContents },
+                ])
+                .then((response) => {
                     const suggestion = response.choices[0].message;
-                    console.log("Renaming Suggestion:", suggestion.content);                                
-                    const popupContent = document.getElementById('popupContent');
-                    const renameInput = document.getElementById('renameInput');
-                    if (renameInput) {
-                        renameInput.value = suggestion.content;
-                        renameInput.classList.remove("glowing", "wiggle");
-                        void renameInput.offsetWidth;
-                        renameInput.classList.add("glowing", "wiggle");
-                        setTimeout(() => { 
-                            renameInput.classList.remove("glowing", "wiggle"); 
+                    console.log("Renaming Suggestion:", suggestion.content);
+
+                    // Add a click event listener to the popup. Populates the input field wih the suggestion.
+                    if (renameInputElement) {
+                        renameInputElement.value = suggestion.content;
+
+                        // Remove previous animation classes
+                        renameInputElement.classList.remove("glowing", "wiggle");
+
+                        // Force reflow to restart animations
+                        void renameInputElement.offsetWidth;
+
+                        // Add animation classes again
+                        renameInputElement.classList.add("glowing", "wiggle");
+
+                        // Remove the classes after the animation completes
+                        setTimeout(() => {
+                            renameInputElement.classList.remove("glowing", "wiggle");
                         }, 500);
                     }
-                    document.getElementById('popupContent').textContent = "Get new AI Name";
-                  })
-                  .catch((error) => {
+                    popupContentElement.textContent = "Get new AI Name";
+                })
+                .catch((error) => {
                     console.error("Error sending OpenAI request:", error);
-                  });
-              }
+                });
+        }
+        // PDF & DOCX files
+        else if (mimeType == "application/pdf" || filename.includes("docx")) {
+            // Creating a Async function to process all PDF contents before using data.
+            async function pdfAIcall() {
+                let pdfPath = filename;
+                if (filename.includes("docx")) {
+                    pdfPath = await window.file.convertDocxToPdf(filename);
+                } else {
+                    // For actual PDF files, extract text directly.
+                    pdfPath = filename;
+                }
+
+                const pdfContent = await window.file.getPDFtext(pdfPath);
+                console.log("PDF Content:", pdfContent);
+                popupContentElement.textContent = "Thinking...";
+                window.openai
+                    .openaiRequest([
+                        {
+                            role: "system",
+                            content:
+                                "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
+                        },
+                        { role: "user", content: pdfContent },
+                    ])
+                    .then((response) => {
+                        const suggestion = response.choices[0].message;
+                        console.log("Renaming Suggestion:", suggestion.content);
+                        if (renameInputElement) {
+                            renameInputElement.value = suggestion.content;
+                            renameInputElement.classList.remove("glowing", "wiggle");
+                            void renameInputElement.offsetWidth;
+                            renameInputElement.classList.add("glowing", "wiggle");
+                            setTimeout(() => {
+                                renameInputElement.classList.remove("glowing", "wiggle");
+                            }, 500);
+                        }
+                        popupContentElement.textContent = "Get new AI Name";
+                    })
+                    .catch((error) => {
+                        console.error("Error sending OpenAI request:", error);
+                    });
+            }
             pdfAIcall();
         }
         // Jpeg or png
         else if (mimeType.startsWith("image/")) {
-          try {
-            const base64Image = window.file.getBase64(filename);
-            popupContent.textContent = "Thinking...";
-    
-            window.openai
-              .openaiRequest([
-                {
-                  role: "system",
-                  content:
-                    "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output."
-                },
-                {
-                  role: "user",
-                  content: [
-                    {
-                      type: "text",
-                      text: "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output.",
-                    },
-                    {
-                      type: "image_url",
-                      image_url: {
-                        url: `data:${mimeType};base64,${base64Image}`,
-                        detail: "low",
-                      },
-                    },
-                  ],
-                },
-              ])
-              .then((response) => {
-                const suggestion = response.choices[0].message;
-                console.log("Renaming Suggestion:", suggestion.content);                               
-                // Display the popup and suggested name. 
-                const popupContent = document.getElementById('popupContent');
 
-                // Add a click event listener to the popup. Populates the input field wih the suggestion.
-                const renameInput = document.getElementById('renameInput');
-                if (renameInput) {
-                    renameInput.value = suggestion.content;
-                    renameInput.classList.remove("glowing", "wiggle");
-                    void renameInput.offsetWidth;
-                    renameInput.classList.add("glowing", "wiggle");
-                    setTimeout(() => { 
-                        renameInput.classList.remove("glowing", "wiggle"); 
-                    }, 500);
-                }
-                document.getElementById('popupContent').textContent = "Get new AI Name";
-              })
-              .catch((error) => {
-                console.error("Error sending OpenAI request:", error);
-                popupContent.textContent = "This image goes against my requirements.";
-              });
-          } catch (error) {
-            console.error("Error reading image file:", error);
-          }
+            const currentTime = Date.now();
+            // Get the image limit and logged time from local storage
+            let imageLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
+            let loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
+
+            //reset the counter if 24 hours have passed
+            if (currentTime - loggedTime > 86400000) {
+                imageLimit = 0;
+                loggedTime = currentTime;
+                localStorage.setItem("imageLimit", imageLimit);
+                localStorage.setItem("loggedTime", loggedTime);
+            }
+
+            // 60000 minute
+            // 86400000 24 hours
+            // If 24 hours haven't passed and the image limit is reached, they cooked 
+            if ((currentTime - loggedTime) <= 86400000 && imageLimit >= 2) {
+                popupContentElement.textContent = "You have reached the limit for the day.";
+                setTimeout(() => {
+                    popupContentElement.textContent = "Try another file thats not an image fam 😭";
+                }, 4000);
+                return;
+            }
+            try {
+                const base64Image = window.file.getBase64(filename);
+                popupContentElement.textContent = "Thinking...";
+
+                window.openai
+                    .openaiRequest([
+                        {
+                            role: "system",
+                            content:
+                                "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output."
+                        },
+                        {
+                            role: "user",
+                            content: [
+                                {
+                                    type: "text",
+                                    text: "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output.",
+                                },
+                                {
+                                    type: "image_url",
+                                    image_url: {
+                                        url: `data:${mimeType};base64,${base64Image}`,
+                                        detail: "low",
+                                    },
+                                },
+                            ],
+                        },
+                    ])
+                    .then((response) => {
+                        const suggestion = response.choices[0].message;
+                        console.log("Renaming Suggestion:", suggestion.content);
+                        imageLimit++;
+                        localStorage.setItem("imageLimit", imageLimit);
+                        // Add a click event listener to the popup. Populates the input field wih the suggestion.
+                        if (renameInputElement) {
+                            renameInputElement.value = suggestion.content;
+                            renameInputElement.classList.remove("glowing", "wiggle");
+                            void renameInputElement.offsetWidth;
+                            renameInputElement.classList.add("glowing", "wiggle");
+                            setTimeout(() => {
+                                renameInputElement.classList.remove("glowing", "wiggle");
+                            }, 500);
+                        }
+                        popupContentElement.textContent = "Get new AI Name";
+                    })
+                    .catch((error) => {
+                        console.error("Error sending OpenAI request:", error);
+                        popupContentElement.textContent = "This image goes against my requirements.";
+                    });
+            } catch (error) {
+                console.error("Error reading image file:", error);
+            }
+
         } else {
             // Handle unsupported file types
             console.log("Unsupported file type:", mimeType);
-            popupContent.textContent = 'File type not supported.';
+            popupContentElement.textContent = 'File type not supported.';
             setTimeout(() => {
-                popupContent.textContent = "Try another file buddy 😭";
-              }, 4000);
-            return; 
+                popupContentElement.textContent = "Try another file buddy 😭";
+            }, 4000);
+            return;
         }
     }    
 
@@ -783,12 +870,61 @@ window.onload = async function () {
         sessionStorage.setItem("tooltipShown", "true");
     }
 
+
+    function showTooltip() {
+        // Checks to see if user is a test agent
+        const isTesting = navigator.userAgent.includes("Playwright");
+
+        // Only runs if user is real
+        if (!isTesting && !hasShownTooltip) {
+            tooltip.classList.add("show");
+
+            // Dismiss tooltip on user input
+            document.addEventListener("mousedown", dismissTooltip);
+            document.addEventListener("keydown", dismissTooltip);
+            document.addEventListener("touchstart", dismissTooltip);
+
+            // WIGGLE IS THE MOST IMPORTANT PART OF THE PROJECT
+            triggerWiggle();
+            setInterval(triggerWiggle, 3000);
+            sessionStorage.setItem("tooltipShown", "true");
+        }
+    }
+
+
     // Dismiss tooltip
     function dismissTooltip() {
-        tooltip.classList.remove("show");
-        tooltip.classList.add("hide");
+        const tooltip = document.getElementById("tooltip");
 
-        setTimeout(() => tooltip.remove(), 400);
+        if (tooltip) {
+            tooltip.classList.remove("show");
+            tooltip.classList.add("hide");
+
+            // Optionally remove after a timeout
+            setTimeout(() => {
+                tooltip.style.display = "none"; // Completely hide
+            }, 400);
+        }
+    }
+
+    function resetTooltip() {
+        const tooltip = document.getElementById("tooltip");
+
+        // Check if the tooltip has already been reset in this session
+        if (sessionStorage.getItem("tooltipReset") === "true") {
+            return; // Skip if already reset
+        }
+
+        if (tooltip) {
+            tooltip.style.display = "block";  // Show the tooltip
+            tooltip.classList.remove("hide");
+            tooltip.classList.add("show");
+
+            // Mark that the tooltip reset has been done in this session
+            sessionStorage.setItem("tooltipReset", "true");
+        } else {
+            console.error("Tooltip element not found.");
+        }
     }
 
     // WIGGLE WIGGLE WIGGLE
@@ -801,15 +937,105 @@ window.onload = async function () {
 
     // Checks if there are files left
     function hasFiles() {
-        if (files.length === 0) {
-            console.warn("No files left.");
-            return false;
-        }
-        return true;
+        return fileObjects.slice(currentIndex).some(f => f.status === null);
     }
 
-    document.getElementById("settingsButton").addEventListener("click", () => {
+    settingsButton.addEventListener("click", () => {
         window.location.href = "../settings.html";
     });
 
+    const trashModal = document.getElementById("trash_dialog"); //these vars have to do with trash page subwindow
+    const openTrashModal = document.getElementById("trash_button");
+    const closeTrashModal = document.getElementById("closeTrashModal");
+    const deletedFilesList = document.getElementById("deletedFilesList");
+    const deletedHeader = document.getElementById("deletedHeader");
+    let filesToBeDeleted = 0;
+    //ensuring all vars exist before entering this block
+    if (openTrashModal && closeTrashModal && trashModal && deletedFilesList) {
+        openTrashModal.addEventListener("click", function () {
+            loadDeletedFiles();
+            trashModal.showModal(); //load modal 
+        });
+        closeTrashModal.addEventListener("click", function () {
+            trashModal.close();
+        });
+        //master function for this subwindow, this is all logic from trash_page.js
+        function loadDeletedFiles() {
+            let deletedFiles = fileObjects.filter(f => f.status === "delete");
+            filesToBeDeleted = deletedFiles.length;
+            if (filesToBeDeleted > 0) {
+                deletedHeader.innerHTML = `<h3 id="deletedHeader">${filesToBeDeleted} files to be deleted</h3>`;
+            }
+            console.log(deletedFiles);
+            if (deletedFiles.length > 0) { //if there is something in deleted files, update
+                deletedFilesList.innerHTML = ""; //empty
+                deletedFiles.forEach(file => {
+                    const fileName = file.name;
+                    const listItem = document.createElement("li");
+                    listItem.innerText = fileName;
+                    const deleteButton = document.createElement("button");
+                    deleteButton.innerText = "Move to keep";
+                    deleteButton.classList.add("deleteUndo");
+                    deleteButton.dataset.file = file.path;
+                    listItem.appendChild(deleteButton);
+                    deletedFilesList.appendChild(listItem);
+                    //listener for keep button for each li
+                    deleteButton.addEventListener("click", function () {
+                        const filePath = deleteButton.dataset.file;
+                        //get fileObjects in local storage and get index of file we are interested in
+                        let targetIndex = fileObjects.findIndex(f => f.path === filePath);
+                        if (targetIndex !== -1) { //if its -1, wasn't found
+                            //console.log("Before update:", fileObjects[targetIndex]); //debugging
+                            filesToBeDeleted--;
+                            fileObjects[targetIndex].status = "keep"; //set to keep
+                            //console.log("After update:", fileObjects[targetIndex]);
+                            //console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
+                            listItem.remove(); //built in remove method
+                            deletedHeader.innerHTML = `<h3 id="deletedHeader">${filesToBeDeleted} files to be deleted</h3>`
+                            if (filesToBeDeleted === 0) {
+                                deletedHeader.innerHTML = `<h3 id="deletedHeader">No files to be deleted</h3>`
+
+                            }
+                        }
+                    });
+
+                });
+            }
+        }
+    } else {
+        console.error("One or more elements not found. Check your HTML IDs.");
+    }
+
+
+
+    // Progress Bar based on files left
+    function updateProgress() {
+        const totalFiles = fileObjects.length;
+        const keptFiles = fileObjects.filter(f => f.status === "keep");
+        const filesToBeDeleted = fileObjects.filter(f => f.status === "delete");
+        const completedFiles = keptFiles.length + filesToBeDeleted.length;
+        const percent = totalFiles > 0 ? Math.round((completedFiles / totalFiles) * 100) : 0;
+        progress.style.width = `${percent}%`;
+        progress.textContent = percent + "%";
+
+        // Calculate total space saved
+        const totalSpaceSaved = filesToBeDeleted.reduce((sum, file) => sum + file.size, 0);
+
+        // Adding some glowing and scaling animation cause vibes.
+        if (percent === 100) {
+            progress.classList.add("complete");
+            saved.textContent = "You've saved: " + formatFileSize(totalSpaceSaved) + "!";
+            setTimeout(() => {
+                progress.classList.remove("complete");
+            }, 1000);
+        }
+        // Re-trigger the glowing animation
+        progress.classList.remove("glowing");
+        void progress.offsetWidth;
+        progress.classList.add("glowing");
+    }
+    // Reveal body after all elements are ready only for keep_or_delete.html
+    if (document.body.classList.contains("keep-or-delete")) {
+        document.body.classList.add("show");
+    }
 };

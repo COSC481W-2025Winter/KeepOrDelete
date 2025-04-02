@@ -26,6 +26,7 @@ test.beforeEach(async () => {
     ]);
     app = await electron.launch({
         args: ["./", "--test-config"],
+        userAgent: "Playwright" 
     });
 });
 
@@ -42,7 +43,7 @@ test("will delete common file types with next button", async ({ page }) => {
     }, testDirectory);
 
     // Click to open file picker, but our override will inject testDirectory
-    await window.locator("#backButton").click();
+    await window.locator("#selectDirButton").click();
     //await window.locator("#goButton").click();
     //await window.waitForURL("**/keep_or_delete.html");
 
@@ -67,7 +68,7 @@ test("will delete common file types with next button", async ({ page }) => {
     await deletedFilesList.waitFor();
     ulText = await deletedFilesList.innerHTML();
     expect(ulText).not.toContain("No deleted files.");
-    await window.locator("#navMainMenu").click();
+    await window.locator("#closeTrashModal").click();
     await window.waitForTimeout(300);
     await window.locator("#finalPageButton").click();
     ul = await window.locator("#keptFilesList");
@@ -96,7 +97,7 @@ test("will delete common file types with swiping", async ({ page }) => {
     }, testDirectory);
 
     // Click to open file picker, but our override will inject testDirectory
-    await window.locator("#backButton").click();
+    await window.locator("#selectDirButton").click();
     //await window.locator("#goButton").click();
     //await window.waitForURL("**/keep_or_delete.html");
 

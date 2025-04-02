@@ -86,4 +86,4 @@ async function convertDocxToPdf(filepath) {
    });
 }
 
-module.exports = { generatePreviewHTML };
+module.exports = { generatePreviewHTML, convertDocxToPdf };

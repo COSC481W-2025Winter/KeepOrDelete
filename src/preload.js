@@ -1,5 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron');
-const { generatePreviewHTML } = require("./preview.js");
+const { generatePreviewHTML, convertDocxToPdf } = require("./preview.js");
 const fs = require("node:fs");
 const mime = require("mime");
 const path = require('path');
@@ -28,11 +28,30 @@ contextBridge.exposeInMainWorld('file', {
    platform: process.platform, 
    getBase64: (filePath) => fs.readFileSync(filePath, "base64"), // convert to base64
    getPDFtext: (filePath) => ipcRenderer.invoke('get-pdf-text', filePath),
+   getFileData: async (directoryPath) => {
+    const files = await fs.promises.readdir(directoryPath);
+    const fileDataPromises = files.map(async filename => {
+      const fullPath = path.join(directoryPath, filename);
+      const stats = await fs.promises.stat(fullPath);
+      if (!stats.isFile()) return null;
+      return {
+        name: filename,
+        path: fullPath,
+        modifiedDate: stats.mtime,
+        createdDate: stats.ctime,
+        size: stats.size,
+        status: null,
+      };
+    });
+    const fileData = await Promise.all(fileDataPromises);
+    return fileData.filter(Boolean);
+  },
+  convertDocxToPdf: (filePath) => convertDocxToPdf(filePath),
 });
 
 contextBridge.exposeInMainWorld('fileFinal', {
-   getKeptFiles: () => JSON.parse(localStorage.getItem("keptFiles")) || [],
-   getDeletedFiles: () => JSON.parse(localStorage.getItem("deletedFiles")) || [],
+   getKeptFiles: () => JSON.parse(localStorage.getItem("keptFiles") || []).filter(f => f.status === "keep"),
+   getDeletedFiles: () => JSON.parse(localStorage.getItem("deletedFiles") || []).filter(f => f.status === "delete"),
    renameFile: (oldPath, newPath) => ipcRenderer.invoke('renameFile', { oldPath, newPath }),
 });
 // Create bridge for OpenAI API call through Lambda via HTTPS
