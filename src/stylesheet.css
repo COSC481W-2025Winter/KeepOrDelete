@@ -4,6 +4,20 @@ body {
   overflow: hidden;
 }
 
+#trash_dialog {
+  position: fixed;
+  top: 0px;
+  bottom: auto;
+  left: auto;
+  right: 20px;
+  z-index: 1000;
+  width: 300px;
+  height: 500px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+}
+
 
 #settingsButton {
   position: fixed;
@@ -37,6 +51,8 @@ body {
   position: absolute;
   top: 10px;
   right: 10px;
+  width: 40px;
+  height: 30px;
 }
 
 /* Headings */
@@ -120,13 +136,13 @@ code {
 }
 
 .txtPreview {
-   border: 2px solid #bbbbbb;
-   background-color: #e5e5e5;
-   overflow: auto;
-   font-family: monospace;
-   border-radius: 10px;
-   text-align: left;
-   user-select: none;
+  border: 2px solid #bbbbbb;
+  background-color: #e5e5e5;
+  overflow: auto;
+  font-family: monospace;
+  border-radius: 10px;
+  text-align: left;
+  user-select: none;
 }
 
 .pdfPreview iframe {
@@ -404,16 +420,24 @@ code {
 }
 
 #renameModal {
-  border: 1px solid #ccc; 
+  border: 1px solid #ccc;
   border-radius: 10px;
-  padding: 10px; 
-  box-shadow: 0 0 10px rgba(0,0,0,0.2); 
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes inputGlow {
-  0% { box-shadow: 0 0 5px rgba(0, 255, 0, 0.5); }
-  50% { box-shadow: 0 0 15px rgba(0, 255, 0, 1); }
-  100% { box-shadow: 0 0 5px rgba(0, 255, 0, 0.5); }
+  0% {
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+  }
+
+  50% {
+    box-shadow: 0 0 15px rgba(0, 255, 0, 1);
+  }
+
+  100% {
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+  }
 }
 
 .glowing {
@@ -438,9 +462,17 @@ code {
 }
 
 @keyframes celebrate {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .complete {

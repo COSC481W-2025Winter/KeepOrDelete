@@ -1,12 +1,12 @@
 // File data object
 class FileObject {
     constructor({ name, path, modifiedDate, createdDate, size, status = null }) {
-      this.name = name;
-      this.path = path;
-      this.modifiedDate = new Date(modifiedDate);
-      this.createdDate = new Date(createdDate);
-      this.size = size;
-      this.status = status;
+        this.name = name;
+        this.path = path;
+        this.modifiedDate = new Date(modifiedDate);
+        this.createdDate = new Date(createdDate);
+        this.size = size;
+        this.status = status;
     }
 }
 
@@ -17,8 +17,9 @@ let inspectMode = false; // Inspect mode toggle
 let startX;
 let currentX;
 let isSwiping;
-let startTime; 
+let startTime;
 let spaceSaved = 0;
+
 
 window.onload = async function () {
     // Cache DOM references
@@ -27,7 +28,7 @@ window.onload = async function () {
     const currentItemElement = document.getElementById("currentItem");
     const currentItemSizeElement = document.getElementById("currentItemSize");
     const notificationElement = document.getElementById("notification");
-    const popupContentElement =  document.getElementById('popupContent');
+    const popupContentElement = document.getElementById('popupContent');
     const popupElement = document.getElementById('popup')
     const closeModal = document.getElementById("closeModal");
     const renameModal = document.getElementById("renameModal");
@@ -112,8 +113,32 @@ window.onload = async function () {
     }
     // Progress Bar based on files left
     const progress = document.getElementById("progress");
-    const saved = document.getElementById("dataSaved");
+    function updateProgress() {
+        const totalFiles = fileObjects.length;
+        const keptFiles = fileObjects.filter(f => f.status === "keep");
+        const filesToBeDeleted = fileObjects.filter(f => f.status === "delete");
+        const completedFiles = keptFiles.length + filesToBeDeleted.length;
+        const percent = totalFiles > 0 ? Math.round((completedFiles / totalFiles) * 100) : 0;
+        progress.style.width = `${percent}%`;
+        progress.textContent = percent + "%";
 
+        // Calculate total space saved
+        const totalSpaceSaved = filesToBeDeleted.reduce((sum, file) => sum + file.size, 0);
+
+        // Adding some glowing and scaling animation cause vibes.
+        if (percent === 100) {
+            progress.classList.add("complete");
+            const saved = document.getElementById("dataSaved");
+            saved.textContent = "You've saved: " + formatFileSize(totalSpaceSaved) + "!";
+            setTimeout(() => {
+                progress.classList.remove("complete");
+            }, 1000);
+        }
+        // Re-trigger the glowing animation
+        progress.classList.remove("glowing");
+        void progress.offsetWidth;
+        progress.classList.add("glowing");
+    }
     // Get stored file objects
     const storedObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
     //this stretch of code checks if we are navigating to this page from the final page from
@@ -137,7 +162,7 @@ window.onload = async function () {
         if (dirPath) {
             dirPathElement.innerText = `Selected Directory: \n${dirPath}`;
         }
-        if(fileObjects.length === 0){
+        if (fileObjects.length === 0) {
             backButton.innerText = "Select Directory"
         }
         //display files
@@ -159,24 +184,24 @@ window.onload = async function () {
             return;
         }
         showTooltip();
-        dirPathElement.innerText = `Selected Directory: \n${dirPath}`;    
+        dirPathElement.innerText = `Selected Directory: \n${dirPath}`;
         showUIElements()
-        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;    
+        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
         let files = await window.file.getFileData(dirPath);
         const removedFileTypes = new Set(await window.file.getRemovedFileTypes());
-    
+
         // Filter out DS_Store and unselected extensions
         files = files.filter(file => {
             const fileName = file.name.split("/").pop();
             const fileType = file.name.split(".").pop();
             return fileName !== ".DS_Store" && !removedFileTypes.has(fileType);
         });
-    
+
         // Convert raw data into FileObject instances
         fileObjects = files.map(f => new FileObject(f));
         localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
         currentIndex = 0;
-    
+
         if (hasFiles()) {
             backButton.innerText = "Change Directory"
             displayCurrentFile();
@@ -184,6 +209,7 @@ window.onload = async function () {
             currentItemElement.innerText = "No files found.";
         }
     }
+
     
     sortOrderDropdown.addEventListener("change", () => {
         sortFiles();
@@ -205,6 +231,7 @@ window.onload = async function () {
         localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
     }
 
+
     function showNotification(message) {
         const notification = notificationElement;
         notification.innerText = message;
@@ -225,12 +252,13 @@ window.onload = async function () {
     // Delete button press
     deleteButton.addEventListener("click", async () => {
         if (!hasFiles()) return;
+        deleteFile();
+
         animateSwipe("left");
     });
 
     // Delete function
     async function deleteFile() {
-        // Don't attempt deletion if there are no [more] files.
         if (!hasFiles()) {
             await window.file.showMessageBox({
                 type: "error",
@@ -239,13 +267,21 @@ window.onload = async function () {
             });
             return;
         }
+        console.log("Before update:", JSON.stringify(fileObjects[currentIndex]));
+
         fileObjects[currentIndex].status = "delete";
-        currentIndex++;
+
+        console.log("After update:", JSON.stringify(fileObjects[currentIndex]));
+
         localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+        console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
+
+        currentIndex++;
         displayCurrentFile();
         updateProgress();
         resetPreviewPosition();
-    };
+    }
+
 
     // Go through files in directory +1
     nextButton.addEventListener("click", async () => {
@@ -433,7 +469,7 @@ window.onload = async function () {
             previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
             return
         }
-         
+
         const file = fileObjects[currentIndex];
         currentItemElement.innerText = "Current File: " + file.name;
         let formattedSize = formatFileSize(file.size);
@@ -612,62 +648,62 @@ window.onload = async function () {
         if (!hasFiles()) return;
         LLM();
     });
-      function LLM() {
+    function LLM() {
         popupElement.style.display = "inline-block";
         const filename = fileObjects[currentIndex].path;
         // Check for file types using mime 
         //--------------------------------------------------------------------
         const mimeType = window.file.getMimeType(filename);
-        if ( mimeType.startsWith("text/")) {
-                      // Text
-                      const fileContents = window.file.getFileContents(filename);
-                      if (!fileContents || fileContents.length === 0) {
-                          popupContentElement.textContent = "No file contents found.";
-                          setTimeout(() => {
-                            popupContentElement.textContent = "Try another file buddy 😭"; 
-                          }, 4000);
-                          return;
-                        } 
-                        popupContentElement.textContent = "Thinking...";
-                      window.openai
-                        .openaiRequest([
-                          {
-                            role: "system",
-                            content:
-                              "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
-                          },
-                          { role: "user", content: fileContents },
-                        ])
-                        .then((response) => {
-                          const suggestion = response.choices[0].message;
-                          console.log("Renaming Suggestion:", suggestion.content);                                
-      
-                          // Add a click event listener to the popup. Populates the input field wih the suggestion.
-                          if (renameInputElement) {
-                            renameInputElement.value = suggestion.content;
-                          
-                              // Remove previous animation classes
-                            renameInputElement.classList.remove("glowing", "wiggle");
-                          
-                              // Force reflow to restart animations
-                            void renameInputElement.offsetWidth;
-                          
-                              // Add animation classes again
-                              renameInputElement.classList.add("glowing", "wiggle");
-                          
-                              // Remove the classes after the animation completes
-                            setTimeout(() => { 
-                                renameInputElement.classList.remove("glowing", "wiggle"); 
-                            }, 500);
-                          }
-                          popupContentElement.textContent = "Get new AI Name";
-                        })
-                        .catch((error) => {
-                          console.error("Error sending OpenAI request:", error);
-                        });
+        if (mimeType.startsWith("text/")) {
+            // Text
+            const fileContents = window.file.getFileContents(filename);
+            if (!fileContents || fileContents.length === 0) {
+                popupContentElement.textContent = "No file contents found.";
+                setTimeout(() => {
+                    popupContentElement.textContent = "Try another file buddy 😭";
+                }, 4000);
+                return;
             }
+            popupContentElement.textContent = "Thinking...";
+            window.openai
+                .openaiRequest([
+                    {
+                        role: "system",
+                        content:
+                            "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
+                    },
+                    { role: "user", content: fileContents },
+                ])
+                .then((response) => {
+                    const suggestion = response.choices[0].message;
+                    console.log("Renaming Suggestion:", suggestion.content);
+
+                    // Add a click event listener to the popup. Populates the input field wih the suggestion.
+                    if (renameInputElement) {
+                        renameInputElement.value = suggestion.content;
+
+                        // Remove previous animation classes
+                        renameInputElement.classList.remove("glowing", "wiggle");
+
+                        // Force reflow to restart animations
+                        void renameInputElement.offsetWidth;
+
+                        // Add animation classes again
+                        renameInputElement.classList.add("glowing", "wiggle");
+
+                        // Remove the classes after the animation completes
+                        setTimeout(() => {
+                            renameInputElement.classList.remove("glowing", "wiggle");
+                        }, 500);
+                    }
+                    popupContentElement.textContent = "Get new AI Name";
+                })
+                .catch((error) => {
+                    console.error("Error sending OpenAI request:", error);
+                });
+        }
         // PDF & DOCX files
-        else if(mimeType == "application/pdf" || filename.includes("docx")) {
+        else if (mimeType == "application/pdf" || filename.includes("docx")) {
             // Creating a Async function to process all PDF contents before using data.
             async function pdfAIcall() {
                 let pdfPath = filename;
@@ -677,41 +713,42 @@ window.onload = async function () {
                     // For actual PDF files, extract text directly.
                     pdfPath = filename;
                 }
-                
+
                 const pdfContent = await window.file.getPDFtext(pdfPath);
-                  console.log("PDF Content:", pdfContent);
-                  popupContentElement.textContent = "Thinking...";
-                  window.openai
-                  .openaiRequest([
-                    {
-                      role: "system",
-                      content:
-                        "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
-                    },
-                    { role: "user", content: pdfContent},
-                  ])
-                  .then((response) => {
-                    const suggestion = response.choices[0].message;
-                    console.log("Renaming Suggestion:", suggestion.content);                                
-                    if (renameInputElement) {
-                        renameInputElement.value = suggestion.content;
-                        renameInputElement.classList.remove("glowing", "wiggle");
-                        void renameInputElement.offsetWidth;
-                        renameInputElement.classList.add("glowing", "wiggle");
-                        setTimeout(() => { 
-                            renameInputElement.classList.remove("glowing", "wiggle"); 
-                        }, 500);
-                    }
-                    popupContentElement.textContent = "Get new AI Name";
-                  })
-                  .catch((error) => {
-                    console.error("Error sending OpenAI request:", error);
-                  });
-              }
+                console.log("PDF Content:", pdfContent);
+                popupContentElement.textContent = "Thinking...";
+                window.openai
+                    .openaiRequest([
+                        {
+                            role: "system",
+                            content:
+                                "You will review the following text and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension.",
+                        },
+                        { role: "user", content: pdfContent },
+                    ])
+                    .then((response) => {
+                        const suggestion = response.choices[0].message;
+                        console.log("Renaming Suggestion:", suggestion.content);
+                        if (renameInputElement) {
+                            renameInputElement.value = suggestion.content;
+                            renameInputElement.classList.remove("glowing", "wiggle");
+                            void renameInputElement.offsetWidth;
+                            renameInputElement.classList.add("glowing", "wiggle");
+                            setTimeout(() => {
+                                renameInputElement.classList.remove("glowing", "wiggle");
+                            }, 500);
+                        }
+                        popupContentElement.textContent = "Get new AI Name";
+                    })
+                    .catch((error) => {
+                        console.error("Error sending OpenAI request:", error);
+                    });
+            }
             pdfAIcall();
         }
         // Jpeg or png
         else if (mimeType.startsWith("image/")) {
+
             const currentTime = Date.now();
             // Get the image limit and logged time from local storage
             let imageLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
@@ -787,38 +824,39 @@ window.onload = async function () {
           } catch (error) {
             console.error("Error reading image file:", error);
           }
+
         } else {
             // Handle unsupported file types
             console.log("Unsupported file type:", mimeType);
             popupContentElement.textContent = 'File type not supported.';
             setTimeout(() => {
                 popupContentElement.textContent = "Try another file buddy 😭";
-              }, 4000);
-            return; 
+            }, 4000);
+            return;
         }
-      }    
+    }
 
-    
-    function showTooltip(){
+
+    function showTooltip() {
         // Checks to see if user is a test agent
         const isTesting = navigator.userAgent.includes("Playwright");
-    
+
         // Only runs if user is real
         if (!isTesting && !hasShownTooltip) {
             tooltip.classList.add("show");
-    
+
             // Dismiss tooltip on user input
             document.addEventListener("mousedown", dismissTooltip);
             document.addEventListener("keydown", dismissTooltip);
             document.addEventListener("touchstart", dismissTooltip);
-    
+
             // WIGGLE IS THE MOST IMPORTANT PART OF THE PROJECT
             triggerWiggle();
             setInterval(triggerWiggle, 3000);
             sessionStorage.setItem("tooltipShown", "true");
         }
     }
-    
+
 
     // Dismiss tooltip
     function dismissTooltip() {
@@ -837,17 +875,17 @@ window.onload = async function () {
 
     function resetTooltip() {
         const tooltip = document.getElementById("tooltip");
-    
+
         // Check if the tooltip has already been reset in this session
         if (sessionStorage.getItem("tooltipReset") === "true") {
             return; // Skip if already reset
         }
-    
+
         if (tooltip) {
             tooltip.style.display = "block";  // Show the tooltip
             tooltip.classList.remove("hide");
             tooltip.classList.add("show");
-    
+
             // Mark that the tooltip reset has been done in this session
             sessionStorage.setItem("tooltipReset", "true");
         } else {
@@ -871,7 +909,69 @@ window.onload = async function () {
     settingsButton.addEventListener("click", () => {
         window.location.href = "../settings.html";
     });
-    
+
+    const trashModal = document.getElementById("trash_dialog"); //these vars have to do with trash page subwindow
+    const openTrashModal = document.getElementById("trash_button");
+    const closeTrashModal = document.getElementById("closeTrashModal");
+    const deletedFilesList = document.getElementById("deletedFilesList");
+    const deletedfilesNum = document.getElementById("deletedFilesNum");
+    let filesToBeDeleted = 0;
+    //ensuring all vars exist before entering this block
+    if (openTrashModal && closeTrashModal && trashModal && deletedFilesList) {
+        openTrashModal.addEventListener("click", function () {
+            loadDeletedFiles();
+            trashModal.showModal(); //load modal 
+        });
+        closeTrashModal.addEventListener("click", function () {
+            trashModal.close();
+        });
+        //master function for this subwindow, this is all logic from trash_page.js
+        function loadDeletedFiles() {
+            deletedFilesList.innerHTML = "<p>No deleted files.</p>"; //start as no deleted files
+            let deletedFiles = fileObjects.filter(f => f.status === "delete");
+            filesToBeDeleted = deletedFiles.length;
+            deletedfilesNum.innerHTML = `<h5>Number of files to be deleted: ${filesToBeDeleted}</h5>`
+            console.log(deletedFiles);
+            if (deletedFiles.length > 0) { //if there is something in deleted files, update
+                deletedFilesList.innerHTML = ""; //empty
+                deletedFiles.forEach(file => {
+                    const fileName = file.name;
+                    const listItem = document.createElement("li");
+                    listItem.innerText = fileName;
+                    const deleteButton = document.createElement("button");
+                    deleteButton.innerText = "Move to keep";
+                    deleteButton.classList.add("deleteUndo");
+                    deleteButton.dataset.file = file.path;
+                    listItem.appendChild(deleteButton);
+                    deletedFilesList.appendChild(listItem);
+                    //listener for keep button for each li
+                    deleteButton.addEventListener("click", function () {
+                        const filePath = deleteButton.dataset.file;
+                        //get fileObjects in local storage and get index of file we are interested in
+                        let targetIndex = fileObjects.findIndex(f => f.path === filePath);
+                        if (targetIndex !== -1) { //if its -1, wasn't found
+                            //console.log("Before update:", fileObjects[targetIndex]); //debugging
+                            filesToBeDeleted--;
+                            fileObjects[targetIndex].status = "keep"; //set to keep
+                            //console.log("After update:", fileObjects[targetIndex]);
+                            //console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
+                            listItem.remove(); //built in remove method
+                            deletedfilesNum.innerHTML = `<h5>Number of files to be deleted: ${filesToBeDeleted}</h5>`;
+                            if (filesToBeDeleted === 0) {
+                                deletedFilesList.innerHTML = "<p>No deleted files.</p>";
+                            }
+                        }
+                    });
+
+                });
+            }
+        }
+    } else {
+        console.error("One or more elements not found. Check your HTML IDs.");
+    }
+
+
+
     // Progress Bar based on files left
     function updateProgress() {
         const totalFiles = fileObjects.length;
@@ -884,7 +984,7 @@ window.onload = async function () {
 
         // Calculate total space saved
         const totalSpaceSaved = filesToBeDeleted.reduce((sum, file) => sum + file.size, 0);
-        
+
         // Adding some glowing and scaling animation cause vibes.
         if (percent === 100) {
             progress.classList.add("complete");
