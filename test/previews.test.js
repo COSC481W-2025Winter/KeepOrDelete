@@ -40,6 +40,7 @@ const noPreviewMsg = /no.*available/i
  *
  * Intended to be called from each test case.
  */
+let firstLaunch = true;
 async function setupWithTestFile(testFile) {
    // Create a new tmp directory with a random name.
    const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name;
@@ -69,14 +70,14 @@ async function setupWithTestFile(testFile) {
          filePaths: [tmpDir], // Inject path
       });
    }, tmpDir);
-   await window.evaluate(() => {
-      //document.getElementById("welcomeScreen").style.display = "block";
-      document.getElementById("backButton").style.display = "block";
-      localStorage.setItem("finalPage", "false");
-      sessionStorage.setItem("tooltipShown", "true");  // Prevent tooltip reappearing
-  });
+
    // Navigate to next page using the override
+   if(firstLaunch){
+      await window.locator("#selectDirButton").click();
+      firstLaunch = false;
+   }
    await window.locator("#backButton").click();
+
    //await window.locator("#goButton").click();
    //await window.waitForURL("**/keep_or_delete.html");
 }
