@@ -211,6 +211,10 @@ code {
   height: auto;
 }
 
+.btnPadding {
+   width: 50px;
+}
+
 #finalizeModalButtons * {
    display: inline-block !important;
 }
