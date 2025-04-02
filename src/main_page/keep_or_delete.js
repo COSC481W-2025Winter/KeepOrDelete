@@ -39,7 +39,9 @@ window.onload = async function () {
     const backButton = document.getElementById("backButton");
     const deleteButton = document.getElementById("deleteButton");
     const nextButton = document.getElementById("nextButton");
+    const finalizeModal = document.getElementById("finalizeModal");
     const finalPageButton = document.getElementById("finalPageButton");
+    const closeFinalPageButton = document.getElementById("closeFinalPageButton");
     const settingsButton = document.getElementById("settingsButton");
     const inspectButton = document.getElementById("inspectButton");
     const trashButton = document.getElementById("trash_button");
@@ -567,11 +569,15 @@ window.onload = async function () {
         }
     }
 
-    //button to go to the final page
     finalPageButton.addEventListener("click", () => {
         localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
-        window.location.href = "../final_page.html";
+        finalizeModal.showModal();
     });
+
+    closeFinalizeModal.addEventListener("click", () => {
+        finalizeModal.close();
+    });
+
     // Mouse event listeners for swipe
     previewContainer.addEventListener("mousedown", (e) => {
         if (!hasFiles()) return;
@@ -605,12 +611,6 @@ window.onload = async function () {
 
         // Update button text
         inspectButton.innerText = inspectMode ? "Exit Inspect" : "Inspect Document";
-    });
-
-    //button to go to the final page
-    finalPageButton.addEventListener("click", () => {
-        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
-        window.location.href = "../final_page.html";
     });
 
     trashButton.addEventListener("click", () => {
