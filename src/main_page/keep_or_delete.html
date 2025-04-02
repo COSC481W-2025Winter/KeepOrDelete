@@ -23,7 +23,7 @@
             <div id="dirPathContainer">
                <p id="dirPath"></p>
             </div>
-         <div id="settingsButton"><object data="../res/gear.svg"></object></div>
+         <div id="settingsButton"><img class="btn" src="../res/gear.svg"></img></div>
       </div>
    </div>
 
@@ -42,7 +42,7 @@
       </div>
    </dialog>
 
-   <div>
+   <div id="main-display">
 
       <div class="sort-container">
          <label for="sortOrder" class="sort-label">Sort Order:</label>
@@ -61,16 +61,10 @@
             <p><span id="currentItemSize"></span></p>
          </div>
       </div>
-   
-   
-      <button id="selectDirButton">Change Directory</button>
-      <div id="dataSaved"></div>
    </div>
-
    
-   <p>Directory to be Sorted: <code><span id="filepath"></span></code></p>
-   
-
+   <button id="selectDirButton">Change Directory</button>
+   <div id="dataSaved"></div>
    <div class="button-container">
 
       <div id="kod-btns-container">
@@ -88,7 +82,7 @@
    <div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
 
    <div>
-      <img src="trash.jpg" id="trash_button" alt="Trash Icon">
+      <img src="trash.jpg" class="btn" id="trash_button" alt="Trash Icon">
    </div>
 
    <dialog id="trash_dialog">
@@ -100,7 +94,10 @@
       </div>
    </dialog>
 
-
+   <div id="progress-bar" class="glowing">
+      <div id="progress"></div>
+   </div>
+   <div id="dataSaved"></div>
 
 
 </body>

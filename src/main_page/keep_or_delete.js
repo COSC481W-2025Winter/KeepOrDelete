@@ -483,7 +483,7 @@ window.onload = async function () {
         }
 
         const file = fileObjects[currentIndex];
-        currentItemElement.innerText = "Current File: " + file.name;
+        currentItemElement.innerText = file.name;
         let formattedSize = formatFileSize(file.size);
         currentItemSizeElement.innerText = "| File Size: " + formattedSize;
         refreshPreview(file.path);

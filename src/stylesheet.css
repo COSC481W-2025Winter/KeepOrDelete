@@ -95,7 +95,7 @@ button {
 #file-card, #empty-queue {
   width: 440px;
   height: var(--card-height);
-  margin: 130px auto 0 auto;
+  margin: 20px auto 0 auto;
 }
 
 #file-card {
@@ -443,3 +443,13 @@ body.keep-or-delete.show {
   display: none !important;
 
 }
+
+#trash_button {
+  height: 50px;
+  width: 30px;
+}
+
+#main-display {
+  padding: auto;
+}
+
