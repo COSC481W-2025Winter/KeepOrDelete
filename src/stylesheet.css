@@ -208,6 +208,11 @@ code {
   justify-content: space-between;
   width: 100%;
   margin-top: 20px;
+  height: auto;
+}
+
+#finalizeModalButtons * {
+   display: inline-block !important;
 }
 
 .kept-files,
