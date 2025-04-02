@@ -955,6 +955,7 @@ window.onload = async function () {
     if (openTrashModal && closeTrashModal && trashModal && deletedFilesList) {
         openTrashModal.addEventListener("click", function () {
             loadDeletedFiles();
+            console.log("test")
             trashModal.showModal(); //load modal 
         });
         closeTrashModal.addEventListener("click", function () {
