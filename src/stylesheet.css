@@ -48,7 +48,7 @@ body {
   margin-right: 20px;
 }
 
-#settingsButton object {
+#settingsButton img {
   width: 2em;
 }
 
@@ -453,8 +453,8 @@ body.keep-or-delete.show {
 }
 
 #trash_button {
-  height: 50px;
-  width: 30px;
+  height: 30px;
+  width: 40px;
   position: relative;
 }
 
@@ -465,6 +465,14 @@ body.keep-or-delete.show {
   align-items: flex-start;
 }
 
+#trash_div {
+  position: absolute;
+  top: 90px;
+  right: 10px; /* Keep it in the top-right of #main-display */
+  width: 40px;
+  height: 30px;
+  z-index: 10; /* Ensure it's above other elements */
+}
 
 #trash_dialog {
   position: fixed;
@@ -480,6 +488,7 @@ body.keep-or-delete.show {
   border-radius: 8px;
   overflow: hidden;
 }
+
 
 
 
