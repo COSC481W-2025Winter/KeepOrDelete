@@ -928,7 +928,6 @@ window.onload = async function () {
         //master function for this subwindow, this is all logic from trash_page.js
         function loadDeletedFiles() {
             deletedFilesList.innerHTML = "<p>No deleted files.</p>"; //start as no deleted files
-            let fileObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
             let deletedFiles = fileObjects.filter(f => f.status === "delete");
             filesToBeDeleted = deletedFiles.length;
             deletedfilesNum.innerHTML = `<h5>Number of files to be deleted: ${filesToBeDeleted}</h5>`
