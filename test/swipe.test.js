@@ -17,7 +17,7 @@ const cleanTestDir = function () {
 }
 
 test.beforeAll(async () => {
-   electronApp = await electron.launch({ args: ["./", "--test-config"], userAgent: "Playwright"});
+   electronApp = await electron.launch({ args: ["./", "--test-config"], userAgent: "Playwright" });
 });
 
 test.beforeEach(async () => {
@@ -60,7 +60,8 @@ const testFileProcessing = async (window, swipeAction) => {
       }
       await window.waitForTimeout(500);
    }
-   await expect(window.locator("#currentItem")).toContainText("No files in queue.")(path, { timeout: 5000 });
+   await expect(window.locator("#currentItem")).toHaveText("No files in queue.", { timeout: 5000 });
+
 };
 
 test("Button press to keep on KeepOrDelete page", async () => {
@@ -87,6 +88,7 @@ test("Button press to keep on KeepOrDelete page", async () => {
 
 test("Touch swipe to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
+   await window.evaluate(() => localStorage.clear());
    await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
 
    // Intercept file selection dialog
@@ -96,9 +98,11 @@ test("Touch swipe to keep on KeepOrDelete page", async () => {
          filePaths: [testDirPath], // Inject test dir path
       });
    }, testDirPath);
+   //await window.waitForSelector("#selectDirButton", { timeout: 5000 });
+   await window.locator("#backButton").click();
 
    // Navigate to next page using the override
-   await window.locator("#backButton").click();
+
    //await window.locator("#goButton").click();
    //await window.waitForURL("**/keep_or_delete.html");
 
