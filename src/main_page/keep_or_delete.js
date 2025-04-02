@@ -954,7 +954,6 @@ window.onload = async function () {
                             //console.log("Before update:", fileObjects[targetIndex]); //debugging
                             filesToBeDeleted--;
                             fileObjects[targetIndex].status = "keep"; //set to keep
-                            localStorage.setItem("fileObjects", JSON.stringify(fileObjects)); //update local storage
                             //console.log("After update:", fileObjects[targetIndex]);
                             //console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
                             listItem.remove(); //built in remove method
