@@ -7,7 +7,7 @@
    <meta http-equiv="Content-Security-Policy" content="default-src 'self';
          script-src 'self';
          connect-src 'self' https://610op4g6ei.execute-api.us-east-1.amazonaws.com;
-         object-src 'none'
+         object-src 'self'
          " />
    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
    <title>KeepOrDelete</title>
@@ -26,10 +26,13 @@
          <button id="backButton">Change directory</button>
       </div>
       <div id="barRight">
-            <div id="dirPathContainer">
-               <p id="dirPath"></p>
+            <div id="dirPathContainer"><p id="dirPath"></p></div>
+            <div id="settingsDiv">
+               <button id="settingsButton">
+                  <img src="../res/gear.svg" alt="Settings">
+               </button>
             </div>
-         <div id="settingsButton"><img class="btn" src="../res/gear.svg"></img></div>
+            
       </div>
    </div>
 
