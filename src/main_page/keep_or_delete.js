@@ -770,7 +770,7 @@ window.onload = async function () {
          localStorage.setItem("finalPage", 'true');
          localStorage.setItem(Limitkey, preservedLimit);
          localStorage.setItem(Timekey, preservedTime);
-         window.location.href = "./main_page/keep_or_delete.html";
+         window.location.href = "keep_or_delete.html";
       });
 
       document.getElementById("exitButton").addEventListener("click", async () => {
@@ -788,10 +788,10 @@ window.onload = async function () {
                break;
             }
          }
-         window.file.quitApp(); // Calls the function to quit the app
          localStorage.clear(); // Clears stored session data
          localStorage.setItem(Limitkey, preservedLimit);
          localStorage.setItem(Timekey, preservedTime);
+         window.file.quitApp(); // Calls the function to quit the app
       });
       renderFileLists();
    });
