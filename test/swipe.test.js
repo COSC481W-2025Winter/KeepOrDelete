@@ -60,7 +60,7 @@ const testFileProcessing = async (window, swipeAction) => {
       }
       await window.waitForTimeout(500);
    }
-   await expect(window.locator("#currentItem")).toContainText("No files in queue.")(path, { timeout: 5000 });
+   await expect(window.locator("#currentItem")).toContainText("No files in queue.");
 };
 
 test("Button press to keep on KeepOrDelete page", async () => {
