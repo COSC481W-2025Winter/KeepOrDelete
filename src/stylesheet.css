@@ -455,11 +455,14 @@ body.keep-or-delete.show {
 #trash_button {
   height: 50px;
   width: 30px;
+  position: relative;
 }
 
 #main-display {
   position: relative;
   padding-top: 100px;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 
@@ -510,4 +513,12 @@ body.keep-or-delete.show {
 #deletedFilesList {
   list-style-type: none;
   padding: 0;
+}
+
+#display-buttons {
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: center; /* Centers vertically (if needed) */
+  gap: 10px; /* Adds spacing between buttons */
+  width: 100%; /* Ensures full width of container */
 }

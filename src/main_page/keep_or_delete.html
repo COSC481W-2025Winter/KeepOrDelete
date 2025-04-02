@@ -49,7 +49,8 @@
    </dialog>
 
    <div id="main-display">
-
+      <div><img src="trash.jpg" class="btn" id="trash_button" alt="Trash Icon"></div>
+      
       <div class="sort-container">
          <label for="sortOrder" class="sort-label">Sort Order:</label>
          <select id="sortOrder" class="sort-dropdown">
@@ -57,9 +58,10 @@
             <option value="desc">Z → A</option>
          </select>
       </div>
-
-      <button id="inspectButton">Inspect Document</button>
-      <button id="renameButton">Rename File</button>  
+      <div id="display-buttons">
+         <button id="inspectButton">Inspect Document</button>
+         <button id="renameButton">Rename File</button>  
+      </div>
       <div id="file-card">
          <div id="previewContainer"></div>
          <div id="card-bar">
@@ -85,10 +87,6 @@
    </div>
 
    <div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
-
-   <div>
-      <img src="trash.jpg" class="btn" id="trash_button" alt="Trash Icon">
-   </div>
 
    <dialog id="trash_dialog">
       <button id="closeTrashModal">Close</button>

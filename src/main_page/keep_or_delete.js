@@ -541,6 +541,9 @@ window.onload = async function () {
         dirDisplay.style.transform = `translateX(${translateX}) rotate(${rotateDeg})`;
         dirDisplay.style.opacity = "0";
         
+        setTimeout(() => {
+            icon.style.opacity = "0"; // Fade out emoji
+        }, 400); // Add slight delay if needed
 
         // File handling will occurr after CSS animation
         dirDisplay.addEventListener("transitionend", function handleTransitionEnd() {
