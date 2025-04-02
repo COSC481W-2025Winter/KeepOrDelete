@@ -193,14 +193,14 @@ window.onload = async function () {
         }
     }
 
-    
+
     sortOrderDropdown.addEventListener("change", () => {
         sortFiles();
         currentIndex = 0;
         displayCurrentFile();
         sortOrderDropdown.blur()
     });
-    
+
 
     function sortFiles() {
         const sortOrder = sortOrderDropdown.value;
@@ -737,76 +737,76 @@ window.onload = async function () {
             let imageLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
             let loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
 
-             //reset the counter if 24 hours have passed
-             if (currentTime - loggedTime > 86400000) {
+            //reset the counter if 24 hours have passed
+            if (currentTime - loggedTime > 86400000) {
                 imageLimit = 0;
                 loggedTime = currentTime;
                 localStorage.setItem("imageLimit", imageLimit);
                 localStorage.setItem("loggedTime", loggedTime);
-              }
+            }
 
             // 60000 minute
             // 86400000 24 hours
             // If 24 hours haven't passed and the image limit is reached, they cooked 
             if ((currentTime - loggedTime) <= 86400000 && imageLimit >= 2) {
-              popupContentElement.textContent = "You have reached the limit for the day.";
-              setTimeout(() => {
-                popupContentElement.textContent = "Try another file thats not an image fam 😭"; 
-              }, 4000);
-              return;
+                popupContentElement.textContent = "You have reached the limit for the day.";
+                setTimeout(() => {
+                    popupContentElement.textContent = "Try another file thats not an image fam 😭";
+                }, 4000);
+                return;
             }
-          try {
-            const base64Image = window.file.getBase64(filename);
-            popupContentElement.textContent = "Thinking...";
-    
-            window.openai
-              .openaiRequest([
-                {
-                  role: "system",
-                  content:
-                    "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output."
-                },
-                {
-                  role: "user",
-                  content: [
-                    {
-                      type: "text",
-                      text: "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output.",
-                    },
-                    {
-                      type: "image_url",
-                      image_url: {
-                        url: `data:${mimeType};base64,${base64Image}`,
-                        detail: "low",
-                      },
-                    },
-                  ],
-                },
-              ])
-              .then((response) => {
-                const suggestion = response.choices[0].message;
-                console.log("Renaming Suggestion:", suggestion.content);  
-                imageLimit++;
-                localStorage.setItem("imageLimit", imageLimit);                       
-                // Add a click event listener to the popup. Populates the input field wih the suggestion.
-                if (renameInputElement) {
-                    renameInputElement.value = suggestion.content;
-                    renameInputElement.classList.remove("glowing", "wiggle");
-                    void renameInputElement.offsetWidth;
-                    renameInputElement.classList.add("glowing", "wiggle");
-                    setTimeout(() => { 
-                        renameInputElement.classList.remove("glowing", "wiggle"); 
-                    }, 500);
-                }
-                popupContentElement.textContent = "Get new AI Name";
-              })
-              .catch((error) => {
-                console.error("Error sending OpenAI request:", error);
-                popupContentElement.textContent = "This image goes against my requirements.";
-              });
-          } catch (error) {
-            console.error("Error reading image file:", error);
-          }
+            try {
+                const base64Image = window.file.getBase64(filename);
+                popupContentElement.textContent = "Thinking...";
+
+                window.openai
+                    .openaiRequest([
+                        {
+                            role: "system",
+                            content:
+                                "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output."
+                        },
+                        {
+                            role: "user",
+                            content: [
+                                {
+                                    type: "text",
+                                    text: "You will review the following image and give a proper file name suggestion for it. The file name should be as short as possible. Do not include the file extension. Do not include explanation. File name only as the output.",
+                                },
+                                {
+                                    type: "image_url",
+                                    image_url: {
+                                        url: `data:${mimeType};base64,${base64Image}`,
+                                        detail: "low",
+                                    },
+                                },
+                            ],
+                        },
+                    ])
+                    .then((response) => {
+                        const suggestion = response.choices[0].message;
+                        console.log("Renaming Suggestion:", suggestion.content);
+                        imageLimit++;
+                        localStorage.setItem("imageLimit", imageLimit);
+                        // Add a click event listener to the popup. Populates the input field wih the suggestion.
+                        if (renameInputElement) {
+                            renameInputElement.value = suggestion.content;
+                            renameInputElement.classList.remove("glowing", "wiggle");
+                            void renameInputElement.offsetWidth;
+                            renameInputElement.classList.add("glowing", "wiggle");
+                            setTimeout(() => {
+                                renameInputElement.classList.remove("glowing", "wiggle");
+                            }, 500);
+                        }
+                        popupContentElement.textContent = "Get new AI Name";
+                    })
+                    .catch((error) => {
+                        console.error("Error sending OpenAI request:", error);
+                        popupContentElement.textContent = "This image goes against my requirements.";
+                    });
+            } catch (error) {
+                console.error("Error reading image file:", error);
+            }
 
         } else {
             // Handle unsupported file types
@@ -897,7 +897,7 @@ window.onload = async function () {
     const openTrashModal = document.getElementById("trash_button");
     const closeTrashModal = document.getElementById("closeTrashModal");
     const deletedFilesList = document.getElementById("deletedFilesList");
-    const deletedfilesNum = document.getElementById("deletedFilesNum");
+    const deletedHeader = document.getElementById("deletedHeader");
     let filesToBeDeleted = 0;
     //ensuring all vars exist before entering this block
     if (openTrashModal && closeTrashModal && trashModal && deletedFilesList) {
@@ -910,10 +910,11 @@ window.onload = async function () {
         });
         //master function for this subwindow, this is all logic from trash_page.js
         function loadDeletedFiles() {
-            deletedFilesList.innerHTML = "<p>No deleted files.</p>"; //start as no deleted files
             let deletedFiles = fileObjects.filter(f => f.status === "delete");
             filesToBeDeleted = deletedFiles.length;
-            deletedfilesNum.innerHTML = `<h5>Number of files to be deleted: ${filesToBeDeleted}</h5>`
+            if (filesToBeDeleted > 0) {
+                deletedHeader.innerHTML = `<h3 id="deletedHeader">${filesToBeDeleted} files to be deleted</h3>`;
+            }
             console.log(deletedFiles);
             if (deletedFiles.length > 0) { //if there is something in deleted files, update
                 deletedFilesList.innerHTML = ""; //empty
@@ -939,9 +940,10 @@ window.onload = async function () {
                             //console.log("After update:", fileObjects[targetIndex]);
                             //console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
                             listItem.remove(); //built in remove method
-                            deletedfilesNum.innerHTML = `<h5>Number of files to be deleted: ${filesToBeDeleted}</h5>`;
+                            deletedHeader.innerHTML = `<h3 id="deletedHeader">${filesToBeDeleted} files to be deleted</h3>`
                             if (filesToBeDeleted === 0) {
-                                deletedFilesList.innerHTML = "<p>No deleted files.</p>";
+                                deletedHeader.innerHTML = `<h3 id="deletedHeader">No files to be deleted</h3>`
+
                             }
                         }
                     });
