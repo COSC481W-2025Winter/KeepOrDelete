@@ -44,6 +44,7 @@ window.onload = async function () {
     const inspectButton = document.getElementById("inspectButton");
     const trashButton = document.getElementById("trash_button");
     const tooltip = document.getElementById("tooltip");
+    const saved = document.getElementById("dataSaved");
     let inspectMode = false;
     const hasShownTooltip = sessionStorage.getItem("tooltipShown");
     const dirPath = await window.file.getFilePath();
@@ -111,7 +112,6 @@ window.onload = async function () {
         // Adding some glowing and scaling animation cause vibes.
         if (percent === 100) {
             progress.classList.add("complete");
-            const saved = document.getElementById("dataSaved");
             saved.textContent = "You've saved: " + formatFileSize(totalSpaceSaved) + "!";
             setTimeout(() => {
                 progress.classList.remove("complete");

@@ -53,6 +53,7 @@ test('Sort dropdown sorts files alphabetically A→Z and Z→A', async () => {
         return text.replace('Current File: ', '').trim();
     };
 
+    await expect(window.locator('#currentItem')).toHaveText(/Current File: .+/);
     // Default should be A→Z
     let fileName = await getCurrentFileName();
     expect(fileName.toLowerCase()).toBe('a.txt');

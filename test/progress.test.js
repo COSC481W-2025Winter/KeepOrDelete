@@ -54,18 +54,21 @@ test("Progress bar updates correctly based on file statuses", async () => {
   await window.locator("#selectDirButton").click();
 
   await window.locator("#nextButton").click();
+  await window.waitForTimeout(1000);
   await window.locator("#deleteButton").click();
-
-  // Go through half the files
+  await window.waitForTimeout(1000);
+    // Go through half the files
   const progressLocator = window.locator("#progress");
   const dataSavedLocator = window.locator("#dataSaved");
   await expect(progressLocator).toContainText("50%");
   await expect(dataSavedLocator).not.toContainText("You've saved:");
 
   await window.locator("#nextButton").click();
+  await window.waitForTimeout(1000);
   await window.locator("#deleteButton").click();
 
   // since all files are processed, the progress should be 100%.
   await expect(progressLocator).toContainText("100%");
   await expect(dataSavedLocator).toContainText("You've saved:");
+  await window.evaluate(() => localStorage.clear());
 });
