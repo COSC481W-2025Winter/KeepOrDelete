@@ -59,7 +59,7 @@ window.onload = async function () {
     } else {
         // Show main UI and hide welcome screen
         toggleUIElements(true);
-        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
+        document.getElementById("dirPath").innerText = dirPath;
         if (hasFiles()) {
             displayCurrentFile();
         } else {
@@ -146,7 +146,7 @@ window.onload = async function () {
         fileObjects = storedObjects.map(f => new FileObject(f));
         const dirPath = await window.file.getFilePath(); //else, keep the directory
         if (dirPath) {
-            dirPathElement.innerText = `Selected Directory: \n${dirPath}`;
+            dirPathElement.innerText = dirPath;
         }
         if (fileObjects.length === 0) {
             backButton.innerText = "Select Directory"
@@ -169,10 +169,9 @@ window.onload = async function () {
             alert("Directory selection was canceled.");
             return;
         }
-        showTooltip();
-        dirPathElement.innerText = `Selected Directory: \n${dirPath}`;    
+        showTooltip();   
         toggleUIElements(true);
-        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;    
+        document.getElementById("dirPath").innerText = dirPath;    
         let files = await window.file.getFileData(dirPath);
         const removedFileTypes = new Set(await window.file.getRemovedFileTypes());
 
@@ -238,7 +237,7 @@ window.onload = async function () {
     // Delete button press
     deleteButton.addEventListener("click", async () => {
         if (!hasFiles()) return;
-        deleteFile();
+        //deleteFile();
 
         animateSwipe("left");
     });
