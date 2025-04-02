@@ -12,7 +12,7 @@ const testFiles = [
     path.join(testDirectory, 'c.txt'),
 ];
 
-test.beforeAll(async () => {
+test.beforeEach(async () => {
     electronApp = await electron.launch({ args: ['./', '--test-config'], userAgent: 'Playwright' });
 
     await fs.mkdir(testDirectory, { recursive: true });
@@ -23,7 +23,7 @@ test.beforeAll(async () => {
     await window.evaluate(() => localStorage.clear());  
 });
 
-test.afterAll(async () => {
+test.afterEach(async () => {
     await electronApp.close();
     try {
         await fs.rm(testDirectory, { recursive: true, force: true });
