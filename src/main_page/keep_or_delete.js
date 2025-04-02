@@ -948,7 +948,6 @@ window.onload = async function () {
                     deleteButton.addEventListener("click", function () {
                         const filePath = deleteButton.dataset.file;
                         //get fileObjects in local storage and get index of file we are interested in
-                        let fileObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
                         let targetIndex = fileObjects.findIndex(f => f.path === filePath);
                         if (targetIndex !== -1) { //if its -1, wasn't found
                             //console.log("Before update:", fileObjects[targetIndex]); //debugging
