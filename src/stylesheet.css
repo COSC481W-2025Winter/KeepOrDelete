@@ -16,15 +16,14 @@ body {
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
+  overflow: hidden;
 }
 
 
 #settingsButton {
   position: fixed;
   bottom: 0px;
-  /* Adjust as needed */
   right: 0px;
-  /* Adjust as needed */
   padding: 10px 20px;
   font-size: 16px;
   background-color: #007bff;
@@ -32,6 +31,7 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+
 }
 
 
@@ -125,8 +125,10 @@ code {
   font-size: 1rem;
   width: 500px;
   height: 300px;
-  margin: 20px auto;  /* Centers horizontally */
-  display: block;  /* Ensures block-level behavior */
+  margin: 20px auto;
+  /* Centers horizontally */
+  display: block;
+  /* Ensures block-level behavior */
   position: relative;
 }
 
@@ -405,11 +407,11 @@ code {
 }
 
 .trash-container {
-  height: 70vh;
-  width: 80%;
-  margin: 20px auto;
-  padding: 20px;
-  overflow: auto;
+  flex: 1;
+  /* css for nothing getting cut off in trash container*/
+  overflow-y: auto;
+  max-height: calc(100% - 40px);
+  padding-bottom: 10px;
 }
 
 .file-info {
