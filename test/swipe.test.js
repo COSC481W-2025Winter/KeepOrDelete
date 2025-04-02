@@ -66,7 +66,6 @@ const testFileProcessing = async (window, swipeAction) => {
 test("Button press to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
    await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
-   await window.evaluate(() => localStorage.clear());
    // Intercept file selection dialog
    await electronApp.evaluate(({ dialog }, testDirPath) => {
       dialog.showOpenDialog = async () => ({
