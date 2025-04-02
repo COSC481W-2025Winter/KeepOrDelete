@@ -12,7 +12,7 @@ const testFiles = [
     path.join(testDirectory, 'c.txt'),
 ];
 
-test.beforeEach(async () => {
+test.beforeAll(async () => {
     electronApp = await electron.launch({ args: ['./', '--test-config'], userAgent: 'Playwright' });
 
     await fs.mkdir(testDirectory, { recursive: true });
@@ -23,7 +23,7 @@ test.beforeEach(async () => {
     await window.evaluate(() => localStorage.clear());  
 });
 
-test.afterEach(async () => {
+test.afterAll(async () => {
     await electronApp.close();
     try {
         await fs.rm(testDirectory, { recursive: true, force: true });
@@ -53,6 +53,7 @@ test('Sort dropdown sorts files alphabetically A→Z and Z→A', async () => {
         return text.replace('Current File: ', '').trim();
     };
 
+    await expect(window.locator('#currentItem')).toHaveText(/Current File: .+/);
     // Default should be A→Z
     let fileName = await getCurrentFileName();
     expect(fileName.toLowerCase()).toBe('a.txt');
