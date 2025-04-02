@@ -19,19 +19,21 @@
       <h2>Welcome to KeepOrDelete!</h2>
       <p>Select a directory to get started.</p>
       <button id="selectDirButton">Select Directory</button>
-  </div>
+   </div>
    <h1>KeepOrDelete</h1>
    <div id="dirDisplay">
       <p id="dirPath"></p>
       <button id="inspectButton">Inspect Document</button>
       <button id="renameButton">Rename File</button>
+
       <div class="sort-container">
          <label for="sortOrder" class="sort-label">Sort Order:</label>
          <select id="sortOrder" class="sort-dropdown">
             <option value="asc">A → Z</option>
             <option value="desc">Z → A</option>
          </select>
-      </div>      
+      </div>
+
       <div id="previewContainer"></div>
    </div>
 
@@ -42,18 +44,18 @@
          <p id="renameWarning"></p>
       </div>
       <div class="popup" id="popup">
-          <span id="popupContent">AI Suggested Name</span>
+         <span id="popupContent">AI Suggested Name</span>
       </div>
       <div class="modal-buttons">
          <button id="closeModal">Cancel</button>
          <button id="confirmRename">Confirm</button>
       </div>
    </dialog>
-    
+
    <div id="progress-bar" class="glowing">
       <div id="progress"></div>
    </div>
-   <div id="dataSaved"></div> 
+   <div id="dataSaved"></div>
    <button id="backButton">Change Directory</button>
 
    <div id="fileinfo" class="file-info">
@@ -70,13 +72,24 @@
    <div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
 
    <div>
-      <a href="../trash_page.html" id="trash_button">
-         <img src="trash.jpg" alt="Clickable Image" width="50">
-      </a>
+      <img src="trash.jpg" id="trash_button" alt="Trash Icon">
    </div>
+
+   <dialog id="trash_dialog">
+      <button id="closeTrashModal">Close</button>
+      <h3>Current files to be deleted</h3>
+      <div class="trash-container">
+         <h5>Deleted Files</h5>
+         <ul id="deletedFilesList"></ul>
+         <h3 id="deletedFilesNum"></h3>
+      </div>
+   </dialog>
+
+
 
 
 </body>
 <script src="./keep_or_delete.js"></script>
+
 
 </html>

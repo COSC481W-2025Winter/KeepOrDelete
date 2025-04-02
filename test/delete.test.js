@@ -68,7 +68,7 @@ test("will delete common file types with next button", async ({ page }) => {
     await deletedFilesList.waitFor();
     ulText = await deletedFilesList.innerHTML();
     expect(ulText).not.toContain("No deleted files.");
-    await window.locator("#navMainMenu").click();
+    await window.locator("#closeTrashModal").click();
     await window.waitForTimeout(300);
     await window.locator("#finalPageButton").click();
     ul = await window.locator("#keptFilesList");
