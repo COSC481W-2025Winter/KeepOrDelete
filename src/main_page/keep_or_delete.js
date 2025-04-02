@@ -956,12 +956,10 @@ window.onload = async function () {
                             //console.log("After update:", fileObjects[targetIndex]);
                             //console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
                             listItem.remove(); //built in remove method
-                            //NEED TIMEOUT AND RELOAD TO UPDATE LOCALSTORAGE!
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 500);
-                            loadDeletedFiles();
-                            trashModal.showModal();
+                            deletedfilesNum.innerHTML = `<h5>Number of files to be deleted: ${filesToBeDeleted}</h5>`;
+                            if (filesToBeDeleted === 0) {
+                                deletedFilesList.innerHTML = "<p>No deleted files.</p>";
+                            }
                         }
                     });
 
