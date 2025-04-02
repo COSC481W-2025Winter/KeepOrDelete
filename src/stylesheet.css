@@ -19,7 +19,7 @@ body {
 }
 
 #bar {
-  position: absolute;
+  position: fixed;
   height: 80px;
   left: 0px;
   right: 0px;
@@ -358,20 +358,28 @@ img.btn { /* Keep or Delete buttons */
 }
 
 #progress-bar {
-  display: flex;
-  align-items: center;
-  width: 500px;
-  height: 20px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%; /* Full width */
+  height: 20px; /* Adjust height as needed */
   background-color: #ddd;
-  margin: 0 auto;
   animation: inputGlow 0.5s ease-out;
+  z-index: 100; /* Ensure it's above other elements */
 }
+
 
 #progress {
   width: 0%;
   height: 100%;
   background-color: #08c27bfc;
   transition: width 0.5s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  position: relative;
 }
 
 @keyframes celebrate {
@@ -450,6 +458,56 @@ body.keep-or-delete.show {
 }
 
 #main-display {
-  padding: auto;
+  position: relative;
+  padding-top: 100px;
 }
 
+
+#trash_dialog {
+  position: fixed;
+  top: 0px;
+  bottom: auto;
+  left: auto;
+  right: 20px;
+  z-index: 1000;
+  width: 300px;
+  height: 500px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+
+
+
+
+
+.file-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 80%;
+  margin: auto;
+}
+
+/* Kept files (left side) */
+.kept-files {
+  flex: 1;
+  text-align: left;
+  max-width: 45%;
+}
+
+/* Deleted files (right side) */
+.deleted-files {
+  flex: 1;
+  text-align: left;
+  max-width: 45%;
+}
+
+/* Remove bullet points */
+#keptFilesList,
+#deletedFilesList {
+  list-style-type: none;
+  padding: 0;
+}

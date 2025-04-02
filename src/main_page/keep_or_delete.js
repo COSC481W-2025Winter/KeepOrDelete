@@ -82,6 +82,7 @@ window.onload = async function () {
             "tooltip",
             "fileinfo",
             "backButton",
+            "bottom-buttons"
         ];
 
         ids.forEach(id => {
