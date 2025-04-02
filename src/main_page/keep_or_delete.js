@@ -515,14 +515,14 @@ window.onload = async function () {
         window.location.href = "../final_page.html";
     });
     // Mouse event listeners for swipe
-    previewContainer.addEventListener("mousedown", (e) => {
+    dirDisplay.addEventListener("mousedown", (e) => {
         if (!hasFiles()) return;
         startSwipe(e);
         document.addEventListener("mousemove", moveSwipe);
         document.addEventListener("mouseup", endSwipe);
     });
     // Touch event listeners for swipe
-    previewContainer.addEventListener("touchstart", (e) => {
+    dirDisplay.addEventListener("touchstart", (e) => {
         if (!hasFiles()) return;
         startSwipe(e);
         document.addEventListener("touchmove", moveSwipe);
