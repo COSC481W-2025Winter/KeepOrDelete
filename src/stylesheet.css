@@ -19,6 +19,11 @@ body {
   overflow: hidden;
 }
 
+#finalizeModal {
+   width: 87%;
+   height: 87%;
+   border-radius: 8px;
+}
 
 #settingsButton {
   position: fixed;
@@ -177,10 +182,11 @@ code {
 
 .videoPreview,
 .videoPreview video {
-  width: auto !important;
   /* Match width of controls with width of video. */
-  max-width: 100%;
+  width: auto !important;
   /* Remain within bounds of the preview container. */
+  max-width: 100%;
+  pointer-events: none;
 }
 
 .final-page {
@@ -202,6 +208,15 @@ code {
   justify-content: space-between;
   width: 100%;
   margin-top: 20px;
+  height: auto;
+}
+
+.btnPadding {
+   width: 50px;
+}
+
+#finalizeModalButtons * {
+   display: inline-block !important;
 }
 
 .kept-files,
@@ -252,6 +267,7 @@ code {
 
 /* Remove bullet points */
 #keptFilesList,
+#finalizedDeletedFilesList,
 #deletedFilesList {
   list-style-type: none;
   padding: 0;

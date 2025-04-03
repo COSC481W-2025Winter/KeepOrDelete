@@ -84,7 +84,34 @@
       </div>
    </dialog>
 
+   <dialog id="finalizeModal">
+      <div class="final-page">
+         <div class="final-container">
+            <h1>Final Step: Review Your Files</h1>
+            <div class="file-container">
+               <div class="kept-files">
+                  <h2>Kept Files</h2>
+                  <div id="finalizeNotification">
+                     <p id="renameWarning"></p>
+                  </div>
+                  <div id="keptFilesList"></div>
+               </div>
 
+               <div class="deleted-files">
+                  <h2>Deleted Files</h2>
+                  <div id="finalizedDeletedFilesList"></div>
+               </div>
+            </div>
+
+            <div id="finalizeModalButtons">
+               <button id="closeFinalizeModal">Close</button>
+               <div class="btnPadding"></div>
+               <button id="finalizeButton">Finalize & Select New Directory</button>
+               <button id="exitButton">Finalize & Exit</button>
+            </div>
+         </div>
+      </div>
+   </dialog>
 
 
 </body>
