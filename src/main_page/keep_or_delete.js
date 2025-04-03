@@ -746,11 +746,6 @@ window.onload = async function () {
          }, 3000);
       }
 
-      //Back button functionality
-      document.getElementById("backButton").addEventListener("click", () => {
-         window.location.href = "./main_page/keep_or_delete.html";
-      });
-
       document.getElementById("finalizeButton").addEventListener("click", async () => {
          // Recheck for deleted files in case any were changed to keet
          const deletedFiles = fileObjects.filter(f => f.status === "delete");
