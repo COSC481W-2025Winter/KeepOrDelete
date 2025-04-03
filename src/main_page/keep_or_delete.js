@@ -91,7 +91,7 @@ window.onload = async function () {
             if (welcome) {
                 welcome.classList.toggle("hidden", visible);
             }
-        
+
             if (visible) resetTooltip();
         });
     }
@@ -167,9 +167,9 @@ window.onload = async function () {
             return;
         }
         showTooltip();
-        dirPathElement.innerText = `Selected Directory: \n${dirPath}`;    
+        dirPathElement.innerText = `Selected Directory: \n${dirPath}`;
         toggleUIElements(true);
-        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;    
+        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
         let files = await window.file.getFileData(dirPath);
         const removedFileTypes = new Set(await window.file.getRemovedFileTypes());
 
@@ -193,7 +193,7 @@ window.onload = async function () {
         }
     }
 
-
+    //update to extract the name of the option selected and invoke that sort method that correlates
     sortOrderDropdown.addEventListener("change", () => {
         sortFiles();
         currentIndex = 0;
@@ -201,8 +201,8 @@ window.onload = async function () {
         sortOrderDropdown.blur()
     });
 
-
-    function sortFiles() {
+    //function for name
+    function sortFilesByName() {
         const sortOrder = sortOrderDropdown.value;
         fileObjects.sort((a, b) => {
             const nameA = a.name.toLowerCase();
@@ -213,7 +213,10 @@ window.onload = async function () {
         });
         localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
     }
+    //function for size
+    function sortFilesBySize() {
 
+    }
 
     function showNotification(message) {
         const notification = notificationElement;
