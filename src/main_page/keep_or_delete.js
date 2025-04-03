@@ -736,7 +736,7 @@ window.onload = async function () {
       }
 
       function showNotification(message) {
-         const notification = document.getElementById('notification');
+         const notification = document.getElementById('finalizeNotification');
          notification.innerText = message;
          notification.style.display = 'block';
 
