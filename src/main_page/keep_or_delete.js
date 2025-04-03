@@ -61,6 +61,7 @@ window.onload = async function () {
         if (hasFiles()) {
             displayCurrentFile();
         } else {
+            updateProgress();
             document.getElementById("currentItem").innerText = "No files found.";
         }
     }
@@ -949,10 +950,11 @@ window.onload = async function () {
     // Progress Bar based on files left
     function updateProgress() {
         const totalFiles = fileObjects.length;
-        const keptFiles = fileObjects.filter(f => f.status === "keep");
-        const filesToBeDeleted = fileObjects.filter(f => f.status === "delete");
-        const completedFiles = keptFiles.length + filesToBeDeleted.length;
-        const percent = totalFiles > 0 ? Math.round((completedFiles / totalFiles) * 100) : 0;
+        let percent;
+            const keptFiles = fileObjects.filter(f => f.status === "keep");
+            const filesToBeDeleted = fileObjects.filter(f => f.status === "delete");
+            const completedFiles = keptFiles.length + filesToBeDeleted.length;
+            percent = Math.round((completedFiles / totalFiles) * 100);
         progress.style.width = `${percent}%`;
         progress.textContent = percent + "%";
 
@@ -971,6 +973,18 @@ window.onload = async function () {
         progress.classList.remove("glowing");
         void progress.offsetWidth;
         progress.classList.add("glowing");
+
+        if (totalFiles === 0) {
+            // When there are no files, assume all work is done (100%)
+            percent = 100;
+            progress.classList.add("complete");
+            progress.style.width = `${percent}%`;
+            progress.textContent = percent + "%";
+            setTimeout(() => {
+                progress.classList.remove("complete");
+            }, 1000);
+            return;
+        }
     }
     // Reveal body after all elements are ready only for keep_or_delete.html
     if (document.body.classList.contains("keep-or-delete")) {
