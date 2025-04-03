@@ -285,7 +285,19 @@ window.onload = async function () {
     renameButton.addEventListener('click', async (event) => {
         if (!hasFiles()) return;
         renameModal.showModal();
-        popupContentElement.innerText = "AI Suggested Name"
+        const filename = fileObjects[currentIndex].name;
+        // If file is an image, show time left automatically
+        const mimeType = window.file.getMimeType(filename);
+        if(mimeType.startsWith("image/")){
+            if(LimitDisplay()){
+                const loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
+                const timeLeft = convertMillisecondsToTimeLeft(86400000 - (Date.now() - loggedTime));
+                popupContentElement.textContent = timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " left until I can suggest a name for images.";
+            }
+        }
+        else{
+            popupContentElement.innerText = "AI: Try me!"
+        } 
     });
 
     closeModal.addEventListener("click", () => {
@@ -678,7 +690,7 @@ window.onload = async function () {
                             renameInputElement.classList.remove("glowing", "wiggle");
                         }, 500);
                     }
-                    popupContentElement.textContent = "Get new AI Name";
+                    popupContentElement.textContent = "Try Again!";
                 })
                 .catch((error) => {
                     console.error("Error sending OpenAI request:", error);
@@ -721,7 +733,7 @@ window.onload = async function () {
                                 renameInputElement.classList.remove("glowing", "wiggle");
                             }, 500);
                         }
-                        popupContentElement.textContent = "Get new AI Name";
+                        popupContentElement.textContent = "Try Again!";
                     })
                     .catch((error) => {
                         console.error("Error sending OpenAI request:", error);
@@ -800,7 +812,7 @@ window.onload = async function () {
                                 renameInputElement.classList.remove("glowing", "wiggle");
                             }, 500);
                         }
-                        popupContentElement.textContent = "Get new AI Name";
+                        popupContentElement.textContent = "Try Again!";
                     })
                     .catch((error) => {
                         console.error("Error sending OpenAI request:", error);
@@ -1004,4 +1016,20 @@ window.onload = async function () {
             seconds: seconds
         };
     }
+    
+
+        function LimitDisplay() {
+            
+            const currentTime = Date.now();
+            // Get the image limit and logged time from local storage
+            let imageLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
+            let loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
+            
+            // Check if the limit has been reached
+            if ((currentTime - loggedTime) <= 86400000 && imageLimit >= 2) {
+                return true;
+            }
+            return false;  
+        }
+
 };
