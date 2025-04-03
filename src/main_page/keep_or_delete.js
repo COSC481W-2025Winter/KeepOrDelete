@@ -663,7 +663,7 @@ window.onload = async function () {
                             renameInputElement.classList.remove("glowing", "wiggle");
                         }, 500);
                     }
-                    popupContentElement.textContent = "Try Again!";
+                    popupContentElement.textContent = "Another suggestion?";
                 })
                 .catch((error) => {
                     console.error("Error sending OpenAI request:", error);
@@ -706,10 +706,11 @@ window.onload = async function () {
                                 renameInputElement.classList.remove("glowing", "wiggle");
                             }, 500);
                         }
-                        popupContentElement.textContent = "Try Again!";
+                        popupContentElement.textContent = "Another suggestion?";
                     })
                     .catch((error) => {
                         console.error("Error sending OpenAI request:", error);
+                        popupContentElement.textContent = "There was an error reading the contents. Please try again.";
                     });
             }
             pdfAIcall();
@@ -786,7 +787,7 @@ window.onload = async function () {
                                 renameInputElement.classList.remove("glowing", "wiggle");
                             }, 500);
                         }
-                        popupContentElement.textContent = "Try Again!";
+                        popupContentElement.textContent = "Another suggestion?";
                     })
                     .catch((error) => {
                         console.error("Error sending OpenAI request:", error);
