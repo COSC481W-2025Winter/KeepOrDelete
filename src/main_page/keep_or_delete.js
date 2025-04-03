@@ -95,33 +95,6 @@ window.onload = async function () {
             if (visible) resetTooltip();
         });
     }
-    // Progress Bar based on files left
-    const progress = document.getElementById("progress");
-    function updateProgress() {
-        const totalFiles = fileObjects.length;
-        const keptFiles = fileObjects.filter(f => f.status === "keep");
-        const filesToBeDeleted = fileObjects.filter(f => f.status === "delete");
-        const completedFiles = keptFiles.length + filesToBeDeleted.length;
-        const percent = totalFiles > 0 ? Math.round((completedFiles / totalFiles) * 100) : 0;
-        progress.style.width = `${percent}%`;
-        progress.textContent = percent + "%";
-
-        // Calculate total space saved
-        const totalSpaceSaved = filesToBeDeleted.reduce((sum, file) => sum + file.size, 0);
-
-        // Adding some glowing and scaling animation cause vibes.
-        if (percent === 100) {
-            progress.classList.add("complete");
-            saved.textContent = "You've saved: " + formatFileSize(totalSpaceSaved) + "!";
-            setTimeout(() => {
-                progress.classList.remove("complete");
-            }, 1000);
-        }
-        // Re-trigger the glowing animation
-        progress.classList.remove("glowing");
-        void progress.offsetWidth;
-        progress.classList.add("glowing");
-    }
     // Get stored file objects
     const storedObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
     //this stretch of code checks if we are navigating to this page from the final page from
