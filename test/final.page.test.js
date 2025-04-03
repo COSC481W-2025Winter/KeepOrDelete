@@ -68,7 +68,8 @@ test("Kept files should appear in the final kept files list and allow renaming",
 
     // Click finalize button to navigate to final page
     await window.locator("#finalPageButton").click();
-    await window.waitForURL("**/final_page.html");
+    // Wait for finalize modal to load
+    await window.locator("#finalizeNotification");
 
     const fileObjectsFinalPage = await window.evaluate(() => {
         return JSON.parse(localStorage.getItem("fileObjects")) || [];
@@ -81,7 +82,7 @@ test("Kept files should appear in the final kept files list and allow renaming",
     expect(deletedFinal.length).toBe(0);
 
     // Ensure UI displays "No Deleted Files"
-    const deletedText = await window.locator("#deletedFilesList").innerText();
+    const deletedText = await window.locator("#finalizedDeletedFilesList").innerText();
     //console.log("Deleted Files UI Text:", deletedFilesText);
     expect(deletedText.toLowerCase()).toContain("no deleted files");
 
