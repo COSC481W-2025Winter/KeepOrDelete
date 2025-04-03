@@ -291,7 +291,7 @@ window.onload = async function () {
         if(mimeType.startsWith("image/")){
             if(LimitDisplay()){
                 const loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
-                const timeLeft = convertMillisecondsToTimeLeft(86400000 - (Date.now() - loggedTime));
+                const timeLeft = convertMillisecondsToTimeLeft(14400000 - (Date.now() - loggedTime));
                 popupContentElement.textContent = timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " left until I can suggest a name for images.";
             }
         }
@@ -750,7 +750,7 @@ window.onload = async function () {
             let loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
 
             //reset the counter if 24 hours have passed
-            if (currentTime - loggedTime > 86400000) {
+            if (currentTime - loggedTime > 14400000) {
                 imageLimit = 0;
                 loggedTime = currentTime;
                 localStorage.setItem("imageLimit", imageLimit);
@@ -759,9 +759,10 @@ window.onload = async function () {
 
             // 60000 minute
             // 86400000 24 hours
-            // If 24 hours haven't passed and the image limit is reached, they cooked 
-            if ((currentTime - loggedTime) <= 86400000 && imageLimit >= 2) {
-                const timeLeft = convertMillisecondsToTimeLeft(86400000 - (currentTime - loggedTime));
+            // 14400000 4 hours
+            // If 4 hours haven't passed and the image limit is reached, they cooked 
+            if ((currentTime - loggedTime) <= 14400000 && imageLimit >= 2) {
+                const timeLeft = convertMillisecondsToTimeLeft(14400000 - (currentTime - loggedTime));
                 console.log(timeLeft);
                 popupContentElement.textContent = "Your renaming limit for image files has been reached.";
                 setTimeout(() => {
@@ -1016,8 +1017,6 @@ window.onload = async function () {
             seconds: seconds
         };
     }
-    
-
         function LimitDisplay() {
             
             const currentTime = Date.now();
@@ -1026,7 +1025,7 @@ window.onload = async function () {
             let loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
             
             // Check if the limit has been reached
-            if ((currentTime - loggedTime) <= 86400000 && imageLimit >= 2) {
+            if ((currentTime - loggedTime) <= 14400000 && imageLimit >= 2) {
                 return true;
             }
             return false;  
