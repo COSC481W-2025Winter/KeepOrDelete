@@ -417,13 +417,6 @@ window.onload = async function () {
         }
     }
 
-    function formatFileSize(bytes) {
-        if (bytes < 1024) return `${bytes} B`;
-        else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
-        else if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-        else return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
-    }
-
     function displayCurrentFile() {
         while (currentIndex < fileObjects.length && (fileObjects[currentIndex].status !== null || removedFileTypes.includes(fileObjects[currentIndex].ext))) {
             currentIndex++;
@@ -438,7 +431,7 @@ window.onload = async function () {
         console.log(fileObjects[currentIndex].ext)
         const file = fileObjects[currentIndex];
         currentItemElement.innerText = "Current File: " + file.name;
-        let formattedSize = formatFileSize(file.size);
+        let formattedSize = window.file.formatFileSize(file.size);
         currentItemSizeElement.innerText = "| File Size: " + formattedSize;
         refreshPreview(file.path);
         // Reset rename input field
@@ -1170,7 +1163,7 @@ window.onload = async function () {
         // Adding some glowing and scaling animation cause vibes.
         if (percent === 100) {
             progress.classList.add("complete");
-            saved.textContent = "You've saved: " + formatFileSize(totalSpaceSaved) + "!";
+            saved.textContent = "You've saved: " + window.file.formatFileSize(totalSpaceSaved) + "!";
             setTimeout(() => {
                 progress.classList.remove("complete");
             }, 1000);

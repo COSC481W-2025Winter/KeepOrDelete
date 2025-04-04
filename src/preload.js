@@ -9,6 +9,12 @@ contextBridge.exposeInMainWorld('file', {
    getFilePath: () => ipcRenderer.invoke('getFilePath'),
    getFileSize: (path) => fs.statSync(path),
    getFileContents: (path) => fs.readFileSync(path).toString(),
+   formatFileSize: (bytes) => {
+      if (bytes < 1024) return `${bytes} B`;
+      else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+      else if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+      else return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+   },
    getMimeType: (path) => mime.getType(path),
    setFilePath: (filePath) => ipcRenderer.send('setFilePath', filePath),
    getTimeStamp: () => new Date().toTimeString(),
