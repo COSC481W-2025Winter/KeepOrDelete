@@ -1,18 +1,13 @@
 import * as fileObject from "../fileObjects.js"
 import * as currentIndex from "../currentIndex.js"
-
-// Variables for swipe tracking
-let startX;
-let currentX;
-let isSwiping;
-let startTime;
+import * as swipe from "../swipe.js"
+import * as progress from "../progress.js"
+import * as rename from "../rename.js"
 
 window.onload = async function() {
    // Cache DOM references
-   const previewContainer = document.getElementById("previewContainer");
    const dirPathElement = document.getElementById("dirPath");
    const currentItemElement = document.getElementById("currentItem");
-   const currentItemSizeElement = document.getElementById("currentItemSize");
    const notificationElement = document.getElementById("notification");
    const popupContentElement = document.getElementById('popupContent');
    const popupElement = document.getElementById('popup')
@@ -32,7 +27,6 @@ window.onload = async function() {
    const trashButton = document.getElementById("trash_button");
    const tooltip = document.getElementById("tooltip");
    const saved = document.getElementById("dataSaved");
-   let inspectMode = false;
    const hasShownTooltip = sessionStorage.getItem("tooltipShown");
    const dirPath = await window.file.getFilePath();
    const sortOrderDropdown = document.getElementById("sortOrder");
@@ -46,10 +40,10 @@ window.onload = async function() {
       // Show main UI and hide welcome screen
       toggleUIElements(true);
       document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
-      if (hasFiles()) {
-         displayCurrentFile();
+      if (!fileObject.isEmpty()) {
+         swipe.displayCurrentFile();
       } else {
-         updateProgress();
+         progress.updateProgress();
          document.getElementById("currentItem").innerText = "No files found.";
       }
    }
@@ -104,12 +98,9 @@ window.onload = async function() {
       }
       if (fileObject.isEmpty()) {
          backButton.innerText = "Select Directory"
-      }
-      //display files
-      if (hasFiles()) {
-         displayCurrentFile();
+         swipe.displayCurrentFile();
          setTimeout(() => {
-            resetRenameInput(renameContainer);
+            rename.resetRenameInput(renameContainer);
          }, 10);
       } else {
          currentItemElement.innerText = "No files found.";
@@ -138,9 +129,9 @@ window.onload = async function() {
       fileObject.setFromFiles(files);
       currentIndex.reset();
 
-      if (hasFiles()) {
+      if (!fileObject.isEmpty()) {
          backButton.innerText = "Change Directory"
-         displayCurrentFile();
+         swipe.displayCurrentFile();
       } else {
          currentItemElement.innerText = "No files found.";
       }
@@ -150,7 +141,7 @@ window.onload = async function() {
    sortOrderDropdown.addEventListener("change", () => {
       sortFiles();
       currentIndex.reset();
-      displayCurrentFile();
+      swipe.displayCurrentFile();
       sortOrderDropdown.blur()
    });
 
@@ -184,62 +175,27 @@ window.onload = async function() {
       await selectNewDirectory();
    });
 
-
    // Delete button press
    deleteButton.addEventListener("click", async () => {
-      if (!hasFiles()) return;
-      deleteFile();
+      if (fileObject.isEmpty()) return;
 
-      animateSwipe("left");
+      swipe.markForDeletion();
+
+      swipe.animateSwipe("left");
    });
-
-   // Delete function
-   async function deleteFile() {
-      if (!hasFiles()) {
-         await window.file.showMessageBox({
-            type: "error",
-            title: "Error",
-            message: "No file(s) to delete."
-         });
-         return;
-      }
-
-      const index = currentIndex.get();
-
-      console.log("Before update:", JSON.stringify(fileObject.get(index)));
-
-      fileObject.setStatus(index, "delete");
-
-      console.log("After update:", JSON.stringify(fileObject.get(index)));
-
-      localStorage.setItem("fileObjects", JSON.stringify(fileObject.getAll()));
-      console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
-
-      currentIndex.increment();
-      displayCurrentFile();
-      updateProgress();
-      resetPreviewPosition();
-   }
-
 
    // Go through files in directory +1
    nextButton.addEventListener("click", async () => {
-      if (!hasFiles()) return;
-      animateSwipe("right");
+      if (fileObject.isEmpty()) return;
+
+      swipe.animateSwipe("right");
    });
 
-   // Next file function (aka Keep)
-   async function nextFile() {
-      if (!hasFiles()) return;
-      fileObject.setStatus(currentIndex.get(), "keep");
-      currentIndex.increment();
-      displayCurrentFile();
-      updateProgress();
-   }
-
    renameButton.addEventListener('click', async (_event) => {
-      if (!hasFiles()) return;
+      if (fileObject.isEmpty()) return;
+
       renameModal.showModal();
+
       const filename = fileObject.get(currentIndex.get()).name;
       // If file is an image, show time left automatically
       const mimeType = window.file.getMimeType(filename);
@@ -257,270 +213,26 @@ window.onload = async function() {
 
    closeModal.addEventListener("click", () => {
       renameModal.close();
-      resetRenameInput(renameContainer);
+      rename.resetRenameInput(renameContainer);
    });
 
    confirmRenameButton.addEventListener('click', async (event) => {
-      if (!hasFiles()) return;
+      if (fileObject.isEmpty()) return;
       event.preventDefault();
       event.stopPropagation();
-      await handleRename();
+      await rename.handleRename();
    });
 
    // Add event listener for Enter key
    renameInputElement.addEventListener('keypress', async (event) => {
-      if (!hasFiles()) return;
+      if (fileObject.isEmpty()) return;
+
       if (event.key === "Enter") {
          event.preventDefault();
          event.stopPropagation();
-         await handleRename();
+         await rename.handleRename();
       }
    });
-
-   async function handleRename() {
-      const newName = renameInputElement.value.trim();
-      let currentFile = fileObject.get(currentIndex.get()).path;
-
-      if (!newName) {
-         showNotification('Please enter a new file name.', 'error');
-         resetRenameInput(renameContainer);
-         return;
-      }
-
-      // Check for illegal characters and warn the user
-      if (containsIllegalCharacters(newName)) {
-         showNotification('⚠️ File name contains illegal characters.', 'error');
-         resetRenameInput(renameContainer);
-         return;  // Prevent further action if invalid
-      }
-
-      // Ensure the new name has the correct file extension
-      const originalExtension = currentFile.substring(currentFile.lastIndexOf('.'));
-      const finalName = newName.includes('.') ? newName : `${newName}${originalExtension}`;
-
-      const directoryPath = window.file.pathDirname(currentFile);
-      const newFilePath = window.file.pathJoin(directoryPath, finalName);
-
-      try {
-         // Step 1: Get all file paths in the directory
-         const allFilePaths = await window.file.getFilesInDirectory();
-
-         // Step 2: Extract file names using path.basename
-         const allFileNames = allFilePaths.map(filePath => window.file.pathBasename(filePath));
-
-         // Step 3: Check if the new name already exists (excluding the current file)
-         if (allFileNames.includes(finalName) && currentFile !== newFilePath) {
-            showNotification(`A file named "${finalName}" already exists.`, 'error');
-            resetRenameInput(renameContainer);
-            return;  // **This return ensures we don't continue to the renaming operation**
-         }
-
-         console.log('Renaming:', currentFile, 'to', newFilePath);
-
-         // Step 4: Perform the rename
-         const response = await window.file.renameFile(currentFile, newFilePath);
-         if (response.success) {
-            renameModal.close();
-            showNotification(`File renamed successfully to ${finalName}`, 'success');
-            fileObject.get(currentIndex.get()).name = window.file.pathBasename(newFilePath);
-            fileObject.get(currentIndex.get()).path = newFilePath;
-            displayCurrentFile();
-            resetRenameInput(renameContainer);
-         } else {
-            showNotification(response.message || 'Failed to rename the file.', 'error');
-            resetRenameInput(renameContainer);
-         }
-      } catch (error) {
-         console.error('Error renaming file:', error);
-         showNotification(`An error occurred: ${error.message}`, 'error');
-         resetRenameInput(renameContainer);
-      }
-   }
-
-
-   function resetRenameInput(container) {
-      container.innerHTML = '';  // Clear the old input field
-
-      renameInputElement = document.createElement('input');
-      renameInputElement.type = 'text';
-      renameInputElement.id = 'renameInput';
-      renameInputElement.placeholder = 'Enter new file name';
-
-      container.appendChild(renameInputElement);
-
-      // Add event listener
-      renameInputElement.addEventListener("keypress", renameOnEnter);
-
-      // Temporary blur to prevent highlighting the input immediately
-      setTimeout(() => {
-         renameInputElement.blur();  // Remove highlight after creation
-      }, 100);
-   }
-
-   function containsIllegalCharacters(name) {
-      const illegalWindows = /[/\\:*?"<>|]/;
-      const illegalMacLinux = /\//;
-      const illegalMac = /:/;
-
-      const platform = window.file.platform; // Get platform from preload.js
-
-      const isWindows = platform === 'win32';
-      const isMac = platform === 'darwin';
-
-      if (isWindows && illegalWindows.test(name)) return true;
-      if (isMac && (illegalMacLinux.test(name) || illegalMac.test(name))) return true;
-      if (!isWindows && !isMac && illegalMacLinux.test(name)) return true;
-
-      return false;
-   }
-
-   async function renameOnEnter(event) {
-      if (event.key === "Enter") {
-         event.preventDefault();
-         const newName = renameInputElement.value.trim();
-
-         if (!newName) {
-            showNotification('Please enter a new file name.', 'error');
-            return;
-         }
-
-         if (containsIllegalCharacters(newName)) {
-            showNotification('⚠️ File name contains illegal characters.', 'error');
-            return;
-         }
-
-         await handleRename();
-      }
-   }
-
-   function displayCurrentFile() {
-      const fileObjects = fileObject.getAll();
-      const index = currentIndex.get();
-
-      while (index < fileObjects.length && (fileObjects[index].status !== null || removedFileTypes.includes(fileObjects[index].ext))) {
-         index.increment();
-      }
-
-      if (index >= fileObjects.length) {
-         currentItemElement.innerText = "No files in queue.";
-         currentItemSizeElement.innerText = "";
-         previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
-         return
-      }
-      console.log(fileObjects[index].ext)
-      const file = fileObjects[index];
-      currentItemElement.innerText = "Current File: " + file.name;
-      let formattedSize = window.file.formatFileSize(file.size);
-      currentItemSizeElement.innerText = "| File Size: " + formattedSize;
-      refreshPreview(file.path);
-      // Reset rename input field
-      resetRenameInput(renameContainer);
-      //reset inspect mode upon file change
-      inspectMode = false;
-      inspectButton.innerText = "Inspect Document";
-      // Attach Enter event listener for renaming
-      //attachRenameListeners();
-   }
-
-   async function refreshPreview(filePath) {
-      const previewHTML = await window.file.generatePreviewHTML(filePath);
-      previewContainer.innerHTML = previewHTML || "<p>Preview not available</p>";
-      resetPreviewPosition();
-      updateProgress();
-   }
-
-
-   // Resets preview container position post swipe
-   function resetPreviewPosition() {
-      previewContainer.style.transition = "transform 0.2s ease-out";
-      previewContainer.style.transform = "translateX(0px) rotate(0deg)";
-      previewContainer.style.opacity = "1";
-   }
-
-   // Swipe animation handler
-   function animateSwipe(direction) {
-      let translateX;
-      let rotateDeg;
-      if (!hasFiles()) return;
-      const icon = document.createElement("div");
-      icon.classList.add("swipeIcon");
-      // Keep Icon
-      if (direction === "left") {
-         icon.innerHTML = "🗑️";
-         icon.style.color = "red";
-         translateX = "-120%";
-         rotateDeg = "-20deg";
-         // Delete Icon
-      } else {
-         icon.innerHTML = "✅";
-         icon.style.color = "green";
-         translateX = "120%";
-         rotateDeg = "20deg";
-
-      }
-      previewContainer.appendChild(icon);
-      icon.classList.add("show");
-
-      // Swipe animation
-      previewContainer.style.transition = "transform 0.25s ease-out, opacity 0.25s ease-out";
-      previewContainer.style.transform = `translateX(${translateX}) rotate(${rotateDeg})`;
-      previewContainer.style.opacity = "0";
-
-      // File handling will occurr after CSS animation
-      previewContainer.addEventListener("transitionend", function handleTransitionEnd() {
-         if (direction === "right") nextFile();
-            else deleteFile();
-         if (!hasFiles()) {
-            previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
-            icon.remove();
-         };
-         previewContainer.removeEventListener("transitionend", handleTransitionEnd);
-      });
-   }
-
-   // Detects when swipe is started
-   function startSwipe(e) {
-      // Prevent swiping in Inspect Mode
-      if (inspectMode) return;
-      // Starting position
-      startX = e.clientX || e.touches[0].clientX;
-      currentX = startX;
-      // Track swiping state
-      isSwiping = true;
-      startTime = new Date().getTime();
-   }
-
-   // Tracks swipe movement
-   function moveSwipe(e) {
-      if (!isSwiping) return;
-      // Get current position
-      if (e.type === "touchmove") {
-         currentX = e.touches[0].clientX;
-      } else {
-         currentX = e.clientX;
-      }
-      // Calculate distance moved
-      let diffX = currentX - startX;
-      // Use distance moved to move the previewContainer
-      previewContainer.style.transform = `translateX(${diffX}px) rotate(${diffX / 15}deg)`;
-   }
-
-   function endSwipe(_e) {
-      if (!isSwiping || inspectMode) return;
-      isSwiping = false;
-      // Get final distance swiped
-      let diffX = currentX - startX;
-      // Swipe duration
-      let timeTaken = new Date().getTime() - startTime;
-      // Swipe speed
-      let velocity = Math.abs(diffX) / timeTaken;
-      // Starts animation based on speed of swipe or distance swiped
-      if (Math.abs(diffX) > 50 || velocity > 0.6) {
-         animateSwipe(diffX > 0 ? "right" : "left");
-      } else {
-         resetPreviewPosition();
-      }
-   }
 
    finalPageButton.addEventListener("click", () => {
       finalizeModal.showModal();
@@ -570,13 +282,13 @@ window.onload = async function() {
 
          renameInput.addEventListener("keypress", async function(event) {
             if (event.key === "Enter") {
-               await handleRename(renameInput, file);
+               await rename.handleRename(renameInput, file);
                renderFileLists();
             }
          });
 
          renameInput.addEventListener("blur", async function() {
-            await handleRename(renameInput, file);
+            await rename.handleRename(renameInput, file);
             renderFileLists();
          });
       }
@@ -598,105 +310,6 @@ window.onload = async function() {
             // Re-render lists
             renderFileLists();
          });
-      }
-
-      async function handleRename(renameInput, fileObj) {
-         let newName = renameInput.value.trim();
-         const oldFilePath = renameInput.dataset.oldname;  // Ensure oldFilePath is correctly defined
-         if (!oldFilePath) return; // Prevent errors if filePath is undefined
-
-         const directoryPath = window.file.pathDirname(oldFilePath);
-         const currentFileName = window.file.pathBasename(oldFilePath);  // Get current file name
-
-         if (!newName || newName === currentFileName) return; // No change, no rename needed
-
-         // Check for illegal characters
-         if (containsIllegalCharacters(newName)) {
-            showNotification('⚠️ Invalid characters in file name.', 'error');
-            renameInput.value = currentFileName; // Reset input
-            return;
-         }
-
-         // Ensure correct file extension
-         const originalExtension = currentFileName.includes('.') ? currentFileName.split('.').pop() : '';
-         const newExtension = newName.includes('.') ? newName.split('.').pop() : '';
-
-         if (originalExtension && originalExtension !== newExtension) {
-            newName = `${newName}.${originalExtension}`;
-         }
-
-         const newFilePath = window.file.pathJoin(directoryPath, newName);
-
-         try {
-            const allFilePaths = await window.file.getFilesInDirectory();
-
-            // Exclude the current file from duplicate check
-            const isDuplicate = allFilePaths.some(filePath =>
-               filePath !== oldFilePath && window.file.pathBasename(filePath) === newName
-            );
-
-            if (isDuplicate) {
-               await window.file.showMessageBox({
-                  type: "error",
-                  title: "Error",
-                  message: `A different file named "${newName}" already exists.`
-               });
-               renameInput.value = currentFileName; // Reset input
-               renameInput.blur();
-               return;
-            }
-
-            // Perform rename
-            const response = await window.file.renameFile(oldFilePath, newFilePath);
-            if (response.success) {
-               fileObj.name = newName;
-               fileObj.path = newFilePath;
-               renameInput.dataset.oldname = newFilePath;
-               renameInput.blur();
-               localStorage.setItem("fileObjects", JSON.stringify(fileObject.getAll()));
-            } else {
-               await window.file.showMessageBox({
-                  type: "error",
-                  title: "Error",
-                  message: "Failed to rename file."
-               });
-            }
-         } catch (error) {
-            console.error("Error renaming file:", error);
-            await window.file.showMessageBox({
-               type: "error",
-               title: "Error",
-               message: "An error occurred: " + error.message
-            });
-         }
-      }
-
-      function containsIllegalCharacters(name) {
-         const illegalWindows = /[/\\:*?"<>|]/;
-         const illegalMacLinux = /\//;
-         const illegalMac = /:/;
-
-         const platform = window.file.platform; // Get platform from preload.js
-
-         const isWindows = platform === 'win32';
-         const isMac = platform === 'darwin';
-
-         if (isWindows && illegalWindows.test(name)) return true;
-         if (isMac && (illegalMacLinux.test(name) || illegalMac.test(name))) return true;
-         if (!isWindows && !isMac && illegalMacLinux.test(name)) return true;
-
-         return false;
-      }
-
-      function showNotification(message) {
-         const notification = document.getElementById('finalizeNotification');
-         notification.innerText = message;
-         notification.style.display = 'block';
-
-         // Hide the message after 3 seconds
-         setTimeout(() => {
-            notification.style.display = 'none';
-         }, 3000);
       }
 
       document.getElementById("finalizeButton").addEventListener("click", async () => {
@@ -748,26 +361,13 @@ window.onload = async function() {
       finalizeModal.close();
    });
 
-   // Mouse event listeners for swipe
-   previewContainer.addEventListener("mousedown", (e) => {
-      if (!hasFiles()) return;
-      startSwipe(e);
-      document.addEventListener("mousemove", moveSwipe);
-      document.addEventListener("mouseup", endSwipe);
-   });
-   // Touch event listeners for swipe
-   previewContainer.addEventListener("touchstart", (e) => {
-      if (!hasFiles()) return;
-      startSwipe(e);
-      document.addEventListener("touchmove", moveSwipe);
-      document.addEventListener("touchend", endSwipe);
-   });
-
    inspectButton.addEventListener("click", () => {
       const iframe = document.querySelector("#previewContainer iframe");
       const textPreview = document.querySelector("#previewContainer pre");
       // Toggle inspect mode state
-      inspectMode = !inspectMode;
+      swipe.toggleInspectMode();
+
+      const inspectMode = swipe.getInspectMode();
 
       if (iframe) {
          // Toggle pointer-events for PDF(allows pdf interaction)
@@ -789,16 +389,17 @@ window.onload = async function() {
 
    // Arrow key file swiping
    document.addEventListener("keydown", async (e) => {
-      if (!hasFiles()) return;
+      if (fileObject.isEmpty()) return;
+
       if (e.key === "ArrowRight") {
-         animateSwipe("right");
+         swipe.animateSwipe("right");
       } else if (e.key === "ArrowLeft") {
-         animateSwipe("left");
+         swipe.animateSwipe("left");
       }
    });
 
    popupElement.addEventListener("click", () => {
-      if (!hasFiles()) return;
+      if (fileObject.isEmpty()) return;
       LLM();
    });
    function LLM() {
@@ -1058,10 +659,6 @@ window.onload = async function() {
       }
    }
 
-   // Checks if there are files left
-   function hasFiles() {
-      return fileObject.getAll().slice(currentIndex.get()).some(f => f.status === null);
-   }
    const trashModal = document.getElementById("trash_dialog"); //these vars have to do with trash page subwindow
    const openTrashModal = document.getElementById("trash_button");
    const closeTrashModal = document.getElementById("closeTrashModal");
@@ -1121,44 +718,6 @@ window.onload = async function() {
       console.error("One or more elements not found. Check your HTML IDs.");
    }
 
-   // Progress Bar based on files left
-   function updateProgress() {
-      const activeFiles = fileObject.getAll().filter(f => !removedFileTypes.includes(f.ext));
-      const completedFiles = activeFiles.filter(f => f.status !== null);
-
-      let percent;
-      percent = Math.round((completedFiles.length / activeFiles.length) * 100);
-      progress.style.width = `${percent}%`;
-      progress.textContent = percent + "%";
-
-      // Calculate total space saved
-      const totalSpaceSaved = fileObject.getAll().filter(f => f.status === "delete").reduce((sum, file) => sum + file.size, 0);
-
-      // Adding some glowing and scaling animation cause vibes.
-      if (percent === 100) {
-         progress.classList.add("complete");
-         saved.textContent = "You've saved: " + window.file.formatFileSize(totalSpaceSaved) + "!";
-         setTimeout(() => {
-            progress.classList.remove("complete");
-         }, 1000);
-      }
-      // Re-trigger the glowing animation
-      progress.classList.remove("glowing");
-      void progress.offsetWidth;
-      progress.classList.add("glowing");
-
-      if (fileObject.isEmpty()) {
-         // When there are no files, assume all work is done (100%)
-         percent = 100;
-         progress.classList.add("complete");
-         progress.style.width = `${percent}%`;
-         progress.textContent = percent + "%";
-         setTimeout(() => {
-            progress.classList.remove("complete");
-         }, 1000);
-         return;
-      }
-   }
    // Reveal body after all elements are ready only for keep_or_delete.html
    if (document.body.classList.contains("keep-or-delete")) {
       document.body.classList.add("show");
