@@ -3,7 +3,8 @@ import * as currentIndex from "../currentIndex.js"
 import * as swipe from "../swipe.js"
 import * as progress from "../progress.js"
 import * as rename from "../rename.js"
-import * as tooltip from "../tooltip.js"
+import * as ui from "../ui.js"
+import * as userAction from "../userAction.js"
 
 window.onload = async function() {
    // Cache DOM references
@@ -17,23 +18,19 @@ window.onload = async function() {
    let renameInputElement = document.getElementById('renameInput');
    const confirmRenameButton = document.getElementById("confirmRename");
    const backButton = document.getElementById("backButton");
-   const deleteButton = document.getElementById("deleteButton");
-   const nextButton = document.getElementById("nextButton");
    const finalizeModal = document.getElementById("finalizeModal");
    const finalPageButton = document.getElementById("finalPageButton");
    const closeFinalizeModal = document.getElementById("closeFinalizeModal");
    const inspectButton = document.getElementById("inspectButton");
    const trashButton = document.getElementById("trash_button");
-   const saved = document.getElementById("dataSaved");
    const dirPath = await window.file.getFilePath();
-   const welcome = document.getElementById("welcomeScreen");
 
    if (!dirPath) {
       // Hide all UI elements except welcomeScreen
-      toggleUIElements(false);
+      ui.toggleUIElements(false);
    } else {
       // Show main UI and hide welcome screen
-      toggleUIElements(true);
+      ui.toggleUIElements(true);
       document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
       if (!fileObject.isEmpty()) {
          swipe.displayCurrentFile();
@@ -45,34 +42,9 @@ window.onload = async function() {
 
    // Handle directory selection from the welcome screen
    document.getElementById("selectDirButton").addEventListener("click", async () => {
-      await selectNewDirectory();
+      await userAction.selectNewDirectory();
    });
 
-   function toggleUIElements(visible) {
-      const ids = [
-         "trash_button",
-         "dirDisplay",
-         "previewContainer",
-         "notification",
-         "progress-bar",
-         "tooltip",
-         "fileinfo",
-         "backButton",
-      ];
-
-      ids.forEach(id => {
-         const element = document.getElementById(id);
-         if (element) {
-            element.classList.toggle("hidden", !visible);
-         }
-
-         if (welcome) {
-            welcome.classList.toggle("hidden", visible);
-         }
-
-         if (visible) tooltip.reset();
-      });
-   }
    //this stretch of code checks if we are navigating to this page from the final page from
    //final page after finalize and select new directory, if yes, no directory shown, if no, get dir
    let finalPage = localStorage.getItem("finalPage") === "true"; //boolean
@@ -82,10 +54,10 @@ window.onload = async function() {
       dirPathElement.innerText = "No directory selected";
       localStorage.setItem("finalPage", "false");
       fileObject.reset(); //files is now empty because files shouldnt carry over from final page
-      toggleUIElements(false);
+      ui.toggleUIElements(false);
    } else if (returnFromSettings) {
       localStorage.setItem("returnFromSettings", "false");
-      toggleUIElements(false);
+      ui.toggleUIElements(false);
    } else {
       const dirPath = await window.file.getFilePath(); //else, keep the directory
       if (dirPath) {
@@ -101,57 +73,6 @@ window.onload = async function() {
          currentItemElement.innerText = "No files found.";
       }
    }
-
-   // Select directory and load new files
-   async function selectNewDirectory() {
-      const dirPath = await window.file.selectDirectory();
-      if (!dirPath) {
-         alert("Directory selection was canceled.");
-         return;
-      }
-      tooltip.show();
-      dirPathElement.innerText = `Selected Directory: \n${dirPath}`;
-      saved.innerText = '';
-      toggleUIElements(true);
-      let files = await window.file.getFileData(dirPath);
-      // Filter out DS_Store
-      files = files.filter(file => {
-         const fileName = file.name.split("/").pop();
-         return fileName !== ".DS_Store";
-      });
-
-      // Convert raw data into FileObject instances
-      fileObject.setFromFiles(files);
-      currentIndex.reset();
-
-      if (!fileObject.isEmpty()) {
-         backButton.innerText = "Change Directory"
-         swipe.displayCurrentFile();
-      } else {
-         currentItemElement.innerText = "No files found.";
-      }
-   }
-
-   // Change Directory Button
-   backButton.addEventListener("click", async () => {
-      await selectNewDirectory();
-   });
-
-   // Delete button press
-   deleteButton.addEventListener("click", async () => {
-      if (fileObject.isEmpty()) return;
-
-      await swipe.markForDeletion();
-
-      swipe.animateSwipe("left");
-   });
-
-   // Go through files in directory +1
-   nextButton.addEventListener("click", async () => {
-      if (fileObject.isEmpty()) return;
-
-      swipe.animateSwipe("right");
-   });
 
    closeModal.addEventListener("click", () => {
       renameModal.close();
