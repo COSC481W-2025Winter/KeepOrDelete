@@ -1,6 +1,6 @@
 import * as fileObject from "../fileObjects.js"
+import * as currentIndex from "../currentIndex.js"
 
-let currentIndex = 0; // Track file index
 // Variables for swipe tracking
 let startX;
 let currentX;
@@ -136,7 +136,7 @@ window.onload = async function() {
 
       // Convert raw data into FileObject instances
       fileObject.setFromFiles(files);
-      currentIndex = 0;
+      currentIndex.reset();
 
       if (hasFiles()) {
          backButton.innerText = "Change Directory"
@@ -149,7 +149,7 @@ window.onload = async function() {
 
    sortOrderDropdown.addEventListener("change", () => {
       sortFiles();
-      currentIndex = 0;
+      currentIndex.reset();
       displayCurrentFile();
       sortOrderDropdown.blur()
    });
@@ -203,16 +203,19 @@ window.onload = async function() {
          });
          return;
       }
-      console.log("Before update:", JSON.stringify(fileObject.get(currentIndex)));
 
-      fileObject.setStatus(currentIndex, "delete");
+      const index = currentIndex.get();
 
-      console.log("After update:", JSON.stringify(fileObject.get(currentIndex)));
+      console.log("Before update:", JSON.stringify(fileObject.get(index)));
+
+      fileObject.setStatus(index, "delete");
+
+      console.log("After update:", JSON.stringify(fileObject.get(index)));
 
       localStorage.setItem("fileObjects", JSON.stringify(fileObject.getAll()));
       console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
 
-      currentIndex++;
+      currentIndex.increment();
       displayCurrentFile();
       updateProgress();
       resetPreviewPosition();
@@ -228,8 +231,8 @@ window.onload = async function() {
    // Next file function (aka Keep)
    async function nextFile() {
       if (!hasFiles()) return;
-      fileObject.setStatus(currentIndex, "keep");
-      currentIndex++;
+      fileObject.setStatus(currentIndex.get(), "keep");
+      currentIndex.increment();
       displayCurrentFile();
       updateProgress();
    }
@@ -237,7 +240,7 @@ window.onload = async function() {
    renameButton.addEventListener('click', async (_event) => {
       if (!hasFiles()) return;
       renameModal.showModal();
-      const filename = fileObject.get(currentIndex).name;
+      const filename = fileObject.get(currentIndex.get()).name;
       // If file is an image, show time left automatically
       const mimeType = window.file.getMimeType(filename);
       if (mimeType.startsWith("image/")) {
@@ -276,7 +279,7 @@ window.onload = async function() {
 
    async function handleRename() {
       const newName = renameInputElement.value.trim();
-      let currentFile = fileObject.get(currentIndex).path;
+      let currentFile = fileObject.get(currentIndex.get()).path;
 
       if (!newName) {
          showNotification('Please enter a new file name.', 'error');
@@ -319,8 +322,8 @@ window.onload = async function() {
          if (response.success) {
             renameModal.close();
             showNotification(`File renamed successfully to ${finalName}`, 'success');
-            fileObject.get(currentIndex).name = window.file.pathBasename(newFilePath);
-            fileObject.get(currentIndex).path = newFilePath;
+            fileObject.get(currentIndex.get()).name = window.file.pathBasename(newFilePath);
+            fileObject.get(currentIndex.get()).path = newFilePath;
             displayCurrentFile();
             resetRenameInput(renameContainer);
          } else {
@@ -392,18 +395,20 @@ window.onload = async function() {
 
    function displayCurrentFile() {
       const fileObjects = fileObject.getAll();
-      while (currentIndex < fileObjects.length && (fileObjects[currentIndex].status !== null || removedFileTypes.includes(fileObjects[currentIndex].ext))) {
-         currentIndex++;
+      const index = currentIndex.get();
+
+      while (index < fileObjects.length && (fileObjects[index].status !== null || removedFileTypes.includes(fileObjects[index].ext))) {
+         index.increment();
       }
 
-      if (currentIndex >= fileObjects.length) {
+      if (index >= fileObjects.length) {
          currentItemElement.innerText = "No files in queue.";
          currentItemSizeElement.innerText = "";
          previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
          return
       }
-      console.log(fileObjects[currentIndex].ext)
-      const file = fileObjects[currentIndex];
+      console.log(fileObjects[index].ext)
+      const file = fileObjects[index];
       currentItemElement.innerText = "Current File: " + file.name;
       let formattedSize = window.file.formatFileSize(file.size);
       currentItemSizeElement.innerText = "| File Size: " + formattedSize;
@@ -797,7 +802,7 @@ window.onload = async function() {
       LLM();
    });
    function LLM() {
-      const filename = fileObject.get(currentIndex).path;
+      const filename = fileObject.get(currentIndex.get()).path;
       // Check for file types using mime 
       //--------------------------------------------------------------------
       const mimeType = window.file.getMimeType(filename);
@@ -1055,7 +1060,7 @@ window.onload = async function() {
 
    // Checks if there are files left
    function hasFiles() {
-      return fileObject.getAll().slice(currentIndex).some(f => f.status === null);
+      return fileObject.getAll().slice(currentIndex.get()).some(f => f.status === null);
    }
    const trashModal = document.getElementById("trash_dialog"); //these vars have to do with trash page subwindow
    const openTrashModal = document.getElementById("trash_button");
