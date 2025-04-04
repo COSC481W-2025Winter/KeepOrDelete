@@ -63,6 +63,7 @@ window.onload = async function () {
         if (hasFiles()) {
             displayCurrentFile();
         } else {
+            updateProgress();
             document.getElementById("currentItem").innerText = "No files found.";
         }
     }
@@ -96,33 +97,6 @@ window.onload = async function () {
         
             if (visible) resetTooltip();
         });
-    }
-    // Progress Bar based on files left
-    const progress = document.getElementById("progress");
-    function updateProgress() {
-        const totalFiles = fileObjects.length;
-        const keptFiles = fileObjects.filter(f => f.status === "keep");
-        const filesToBeDeleted = fileObjects.filter(f => f.status === "delete");
-        const completedFiles = keptFiles.length + filesToBeDeleted.length;
-        const percent = totalFiles > 0 ? Math.round((completedFiles / totalFiles) * 100) : 0;
-        progress.style.width = `${percent}%`;
-        progress.textContent = percent + "%";
-
-        // Calculate total space saved
-        const totalSpaceSaved = filesToBeDeleted.reduce((sum, file) => sum + file.size, 0);
-
-        // Adding some glowing and scaling animation cause vibes.
-        if (percent === 100) {
-            progress.classList.add("complete");
-            saved.textContent = "You've saved: " + formatFileSize(totalSpaceSaved) + "!";
-            setTimeout(() => {
-                progress.classList.remove("complete");
-            }, 1000);
-        }
-        // Re-trigger the glowing animation
-        progress.classList.remove("glowing");
-        void progress.offsetWidth;
-        progress.classList.add("glowing");
     }
     // Get stored file objects
     const storedObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
@@ -287,7 +261,19 @@ window.onload = async function () {
     renameButton.addEventListener('click', async (event) => {
         if (!hasFiles()) return;
         renameModal.showModal();
-        popupContentElement.innerText = "AI Suggested Name"
+        const filename = fileObjects[currentIndex].name;
+        // If file is an image, show time left automatically
+        const mimeType = window.file.getMimeType(filename);
+        if(mimeType.startsWith("image/")){
+            if(LimitDisplay()){
+                const loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
+                const timeLeft = convertMillisecondsToTimeLeft(14400000 - (Date.now() - loggedTime));
+                popupContentElement.textContent = timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " left until I can suggest a name for images.";
+            }
+        }
+        else{
+            popupContentElement.innerText = "AI: Try me!"
+        } 
     });
 
     closeModal.addEventListener("click", () => {
@@ -849,7 +835,6 @@ window.onload = async function () {
         LLM();
     });
     function LLM() {
-        popupElement.style.display = "inline-block";
         const filename = fileObjects[currentIndex].path;
         // Check for file types using mime 
         //--------------------------------------------------------------------
@@ -860,7 +845,7 @@ window.onload = async function () {
             if (!fileContents || fileContents.length === 0) {
                 popupContentElement.textContent = "No file contents found.";
                 setTimeout(() => {
-                    popupContentElement.textContent = "Try another file buddy 😭";
+                    popupContentElement.textContent = "Please choose a file with contents.";
                 }, 4000);
                 return;
             }
@@ -896,10 +881,11 @@ window.onload = async function () {
                             renameInputElement.classList.remove("glowing", "wiggle");
                         }, 500);
                     }
-                    popupContentElement.textContent = "Get new AI Name";
+                    popupContentElement.textContent = "Another suggestion?";
                 })
                 .catch((error) => {
                     console.error("Error sending OpenAI request:", error);
+                    popupContentElement.textContent = "There was an error reading the contents. Please try again.";
                 });
         }
         // PDF & DOCX files
@@ -938,10 +924,11 @@ window.onload = async function () {
                                 renameInputElement.classList.remove("glowing", "wiggle");
                             }, 500);
                         }
-                        popupContentElement.textContent = "Get new AI Name";
+                        popupContentElement.textContent = "Another suggestion?";
                     })
                     .catch((error) => {
                         console.error("Error sending OpenAI request:", error);
+                        popupContentElement.textContent = "There was an error reading the contents. Please try again.";
                     });
             }
             pdfAIcall();
@@ -955,7 +942,7 @@ window.onload = async function () {
             let loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
 
             //reset the counter if 24 hours have passed
-            if (currentTime - loggedTime > 86400000) {
+            if (currentTime - loggedTime > 14400000) {
                 imageLimit = 0;
                 loggedTime = currentTime;
                 localStorage.setItem("imageLimit", imageLimit);
@@ -964,11 +951,14 @@ window.onload = async function () {
 
             // 60000 minute
             // 86400000 24 hours
-            // If 24 hours haven't passed and the image limit is reached, they cooked 
-            if ((currentTime - loggedTime) <= 86400000 && imageLimit >= 2) {
-                popupContentElement.textContent = "You have reached the limit for the day.";
+            // 14400000 4 hours
+            // If 4 hours haven't passed and the image limit is reached, they cooked 
+            if ((currentTime - loggedTime) <= 14400000 && imageLimit >= 2) {
+                const timeLeft = convertMillisecondsToTimeLeft(14400000 - (currentTime - loggedTime));
+                console.log(timeLeft);
+                popupContentElement.textContent = "Your renaming limit for image files has been reached.";
                 setTimeout(() => {
-                    popupContentElement.textContent = "Try another file thats not an image fam 😭";
+                    popupContentElement.textContent = "You have " + timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " left.";
                 }, 4000);
                 return;
             }
@@ -1015,7 +1005,7 @@ window.onload = async function () {
                                 renameInputElement.classList.remove("glowing", "wiggle");
                             }, 500);
                         }
-                        popupContentElement.textContent = "Get new AI Name";
+                        popupContentElement.textContent = "Another suggestion?";
                     })
                     .catch((error) => {
                         console.error("Error sending OpenAI request:", error);
@@ -1030,7 +1020,7 @@ window.onload = async function () {
             console.log("Unsupported file type:", mimeType);
             popupContentElement.textContent = 'File type not supported.';
             setTimeout(() => {
-                popupContentElement.textContent = "Try another file buddy 😭";
+                popupContentElement.textContent = "I only support pdf, docx, jpeg, png, and txt files.";
             }, 4000);
             return;
         }
@@ -1177,10 +1167,11 @@ window.onload = async function () {
     // Progress Bar based on files left
     function updateProgress() {
         const totalFiles = fileObjects.length;
-        const keptFiles = fileObjects.filter(f => f.status === "keep");
-        const filesToBeDeleted = fileObjects.filter(f => f.status === "delete");
-        const completedFiles = keptFiles.length + filesToBeDeleted.length;
-        const percent = totalFiles > 0 ? Math.round((completedFiles / totalFiles) * 100) : 0;
+        let percent;
+            const keptFiles = fileObjects.filter(f => f.status === "keep");
+            const filesToBeDeleted = fileObjects.filter(f => f.status === "delete");
+            const completedFiles = keptFiles.length + filesToBeDeleted.length;
+            percent = Math.round((completedFiles / totalFiles) * 100);
         progress.style.width = `${percent}%`;
         progress.textContent = percent + "%";
 
@@ -1199,9 +1190,50 @@ window.onload = async function () {
         progress.classList.remove("glowing");
         void progress.offsetWidth;
         progress.classList.add("glowing");
+
+        if (totalFiles === 0) {
+            // When there are no files, assume all work is done (100%)
+            percent = 100;
+            progress.classList.add("complete");
+            progress.style.width = `${percent}%`;
+            progress.textContent = percent + "%";
+            setTimeout(() => {
+                progress.classList.remove("complete");
+            }, 1000);
+            return;
+        }
     }
     // Reveal body after all elements are ready only for keep_or_delete.html
     if (document.body.classList.contains("keep-or-delete")) {
         document.body.classList.add("show");
     }
+    function convertMillisecondsToTimeLeft(milliseconds) {
+        var seconds = Math.floor(milliseconds / 1000);
+        var minutes = Math.floor(seconds / 60);
+        var hours = Math.floor(minutes / 60);
+    
+        hours %= 24;
+        minutes %= 60;
+        seconds %= 60;
+    
+        return {
+            hours: hours,
+            minutes: minutes,
+            seconds: seconds
+        };
+    }
+        function LimitDisplay() {
+            
+            const currentTime = Date.now();
+            // Get the image limit and logged time from local storage
+            let imageLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
+            let loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
+            
+            // Check if the limit has been reached
+            if ((currentTime - loggedTime) <= 14400000 && imageLimit >= 2) {
+                return true;
+            }
+            return false;  
+        }
+
 };
