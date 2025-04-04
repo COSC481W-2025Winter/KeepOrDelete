@@ -1,14 +1,7 @@
 import * as fileObject from "./fileObjects.js"
-import * as currentIndex from "./currentIndex.js"
-import * as progress from "./progress.js"
-import * as settings from "./settings.js"
-import * as rename from "./rename.js"
+import * as userAction from "./userAction.js"
 
-const currentItemElement = document.getElementById("currentItem");
-const currentItemSizeElement = document.getElementById("currentItemSize");
-   const renameContainer = document.getElementById("renameContainer");
 const previewContainer = document.getElementById("previewContainer");
-const inspectButton = document.getElementById("inspectButton");
 
 let inspectMode = false;
 
@@ -38,60 +31,10 @@ previewContainer.addEventListener("touchstart", (e) => {
 });
 
 /// Resets preview container position post swipe
-function resetPreviewPosition() {
+export function resetPreviewPosition() {
    previewContainer.style.transition = "transform 0.2s ease-out";
    previewContainer.style.transform = "translateX(0px) rotate(0deg)";
    previewContainer.style.opacity = "1";
-}
-
-async function refreshPreview(filePath) {
-   const previewHTML = await window.file.generatePreviewHTML(filePath);
-   previewContainer.innerHTML = previewHTML || "<p>Preview not available</p>";
-   resetPreviewPosition();
-   progress.updateProgress();
-}
-
-// Next file function (aka Keep)
-async function nextFile() {
-   if (fileObject.isEmpty()) return;
-
-   fileObject.setStatus(currentIndex.get(), "keep");
-   currentIndex.increment();
-   await displayCurrentFile();
-   progress.updateProgress();
-   resetPreviewPosition();
-}
-
-export async function displayCurrentFile() {
-   const fileObjects = fileObject.getAll();
-   const removedFileTypes = await settings.removedFileTypes();
-   let index = currentIndex.get();
-
-   while (index < fileObjects.length && (fileObjects[index].status !== null || removedFileTypes.includes(fileObjects[index].ext))) {
-      currentIndex.increment();
-      index = currentIndex.get();
-   }
-
-   if (index >= fileObjects.length) {
-      currentItemElement.innerText = "No files in queue.";
-      currentItemSizeElement.innerText = "";
-      previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
-      return
-   }
-
-   console.log(fileObjects[index].ext)
-   const file = fileObjects[index];
-   currentItemElement.innerText = "Current File: " + file.name;
-   let formattedSize = window.file.formatFileSize(file.size);
-   currentItemSizeElement.innerText = "| File Size: " + formattedSize;
-   refreshPreview(file.path);
-   // Reset rename input field
-   rename.resetRenameInput(renameContainer);
-   //reset inspect mode upon file change
-   inspectMode = false;
-   inspectButton.innerText = "Inspect Document";
-   // Attach Enter event listener for renaming
-   //attachRenameListeners();
 }
 
 // Swipe animation handler
@@ -129,14 +72,16 @@ export function animateSwipe(direction) {
 
    // File handling will occurr after CSS animation
    previewContainer.addEventListener("transitionend", async function handleTransitionEnd() {
-      if (direction === "right") await nextFile();
-         else await markForDeletion();
+      // Prevent another instance of this async function from running. SO sketchy.
+      previewContainer.removeEventListener("transitionend", handleTransitionEnd);
+
+      if (direction === "right") await userAction.markForKeep();
+         else await userAction.markForDelete();
 
       if (fileObject.isEmpty()) {
          previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
          icon.remove();
       };
-      previewContainer.removeEventListener("transitionend", handleTransitionEnd);
    });
 }
 
@@ -194,33 +139,4 @@ export function setInspectMode(b) {
 
 export function toggleInspectMode() {
    inspectMode = !inspectMode;
-}
-
-// Delete function
-export async function markForDeletion() {
-   if (fileObject.isEmpty()) {
-      await window.file.showMessageBox({
-         type: "error",
-         title: "Error",
-         message: "No file(s) to delete."
-      });
-      return;
-   }
-
-   const index = currentIndex.get();
-
-   console.log("Before update:", JSON.stringify(fileObject.get(index)));
-
-   fileObject.setStatus(index, "delete");
-
-   console.log("After update:", JSON.stringify(fileObject.get(index)));
-
-   localStorage.setItem("fileObjects", JSON.stringify(fileObject.getAll()));
-
-   console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
-
-   currentIndex.increment();
-   await displayCurrentFile();
-   progress.updateProgress();
-   resetPreviewPosition();
 }

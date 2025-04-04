@@ -4,12 +4,9 @@ import * as swipe from "../swipe.js"
 import * as progress from "../progress.js"
 import * as rename from "../rename.js"
 import * as ui from "../ui.js"
-import * as userAction from "../userAction.js"
 
 window.onload = async function() {
    // Cache DOM references
-   const dirPathElement = document.getElementById("dirPath");
-   const currentItemElement = document.getElementById("currentItem");
    const popupContentElement = document.getElementById('popupContent');
    const popupElement = document.getElementById('popup')
    const closeModal = document.getElementById("closeModal");
@@ -17,7 +14,6 @@ window.onload = async function() {
    const renameContainer = document.getElementById("renameContainer");
    let renameInputElement = document.getElementById('renameInput');
    const confirmRenameButton = document.getElementById("confirmRename");
-   const backButton = document.getElementById("backButton");
    const finalizeModal = document.getElementById("finalizeModal");
    const finalPageButton = document.getElementById("finalPageButton");
    const closeFinalizeModal = document.getElementById("closeFinalizeModal");
@@ -37,40 +33,6 @@ window.onload = async function() {
       } else {
          progress.updateProgress();
          document.getElementById("currentItem").innerText = "No files found.";
-      }
-   }
-
-   // Handle directory selection from the welcome screen
-   document.getElementById("selectDirButton").addEventListener("click", async () => {
-      await userAction.selectNewDirectory();
-   });
-
-   //this stretch of code checks if we are navigating to this page from the final page from
-   //final page after finalize and select new directory, if yes, no directory shown, if no, get dir
-   let finalPage = localStorage.getItem("finalPage") === "true"; //boolean
-   let returnFromSettings = localStorage.getItem("returnFromSettings") === "true";
-   if (finalPage) {
-      backButton.innerText = "Select a Directory"
-      dirPathElement.innerText = "No directory selected";
-      localStorage.setItem("finalPage", "false");
-      fileObject.reset(); //files is now empty because files shouldnt carry over from final page
-      ui.toggleUIElements(false);
-   } else if (returnFromSettings) {
-      localStorage.setItem("returnFromSettings", "false");
-      ui.toggleUIElements(false);
-   } else {
-      const dirPath = await window.file.getFilePath(); //else, keep the directory
-      if (dirPath) {
-         dirPathElement.innerText = `Selected Directory: \n${dirPath}`;
-      }
-      if (fileObject.isEmpty()) {
-         backButton.innerText = "Select Directory"
-         swipe.displayCurrentFile();
-         setTimeout(() => {
-            rename.resetRenameInput(renameContainer);
-         }, 10);
-      } else {
-         currentItemElement.innerText = "No files found.";
       }
    }
 
@@ -248,17 +210,6 @@ window.onload = async function() {
 
    trashButton.addEventListener("click", () => {
       localStorage.setItem("fileObjects", JSON.stringify(fileObject.getAll()));
-   });
-
-   // Arrow key file swiping
-   document.addEventListener("keydown", async (e) => {
-      if (fileObject.isEmpty()) return;
-
-      if (e.key === "ArrowRight") {
-         swipe.animateSwipe("right");
-      } else if (e.key === "ArrowLeft") {
-         swipe.animateSwipe("left");
-      }
    });
 
    popupElement.addEventListener("click", () => {
@@ -456,7 +407,6 @@ window.onload = async function() {
          return;
       }
    }
-
 
    // Reveal body after all elements are ready only for keep_or_delete.html
    if (document.body.classList.contains("keep-or-delete")) {
