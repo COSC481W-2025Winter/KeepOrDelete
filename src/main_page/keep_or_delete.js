@@ -1,12 +1,13 @@
 // File data object
 class FileObject {
-    constructor({ name, path, modifiedDate, createdDate, size, status = null }) {
+    constructor({ name, path, modifiedDate, createdDate, size, status = null, ext}) {
         this.name = name;
         this.path = path;
         this.modifiedDate = new Date(modifiedDate);
         this.createdDate = new Date(createdDate);
         this.size = size;
         this.status = status;
+        this.ext = ext;
     }
 }
 
@@ -40,9 +41,11 @@ window.onload = async function () {
     const deleteButton = document.getElementById("deleteButton");
     const nextButton = document.getElementById("nextButton");
     const finalizeModal = document.getElementById("finalizeModal");
+    const settingsModal = document.getElementById("settingsModal");
     const finalPageButton = document.getElementById("finalPageButton");
     const closeFinalizeModal = document.getElementById("closeFinalizeModal");
     const settingsButton = document.getElementById("settingsButton");
+    const backButtonSettings = document.getElementById("backButtonSettings");
     const inspectButton = document.getElementById("inspectButton");
     const trashButton = document.getElementById("trash_button");
     const tooltip = document.getElementById("tooltip");
@@ -52,6 +55,7 @@ window.onload = async function () {
     const dirPath = await window.file.getFilePath();
     const sortOrderDropdown = document.getElementById("sortOrder");
     const welcome = document.getElementById("welcomeScreen");
+    let removedFileTypes = new Set(await window.file.getRemovedFileTypes());
 
     if (!dirPath) {
         // Hide all UI elements except welcomeScreen
@@ -94,19 +98,16 @@ window.onload = async function () {
             if (welcome) {
                 welcome.classList.toggle("hidden", visible);
             }
-        
+
             if (visible) resetTooltip();
         });
     }
-    // Get stored file objects
-    const storedObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
     //this stretch of code checks if we are navigating to this page from the final page from
     //final page after finalize and select new directory, if yes, no directory shown, if no, get dir
     let finalPage = localStorage.getItem("finalPage") === "true"; //boolean
     let returnFromSettings = localStorage.getItem("returnFromSettings") === "true";
     if (finalPage) {
         backButton.innerText = "Select a Directory"
-        localStorage.removeItem("fileObjects"); // Clear old file data
         dirPathElement.innerText = "No directory selected";
         localStorage.setItem("finalPage", "false");
         fileObjects = []; //files is now empty because files shouldnt carry over from final page
@@ -115,8 +116,6 @@ window.onload = async function () {
         localStorage.setItem("returnFromSettings", "false");
         toggleUIElements(false);
     } else {
-        // Convert stored file objects to actual FileObject instances
-        fileObjects = storedObjects.map(f => new FileObject(f));
         const dirPath = await window.file.getFilePath(); //else, keep the directory
         if (dirPath) {
             dirPathElement.innerText = `Selected Directory: \n${dirPath}`;
@@ -143,22 +142,18 @@ window.onload = async function () {
             return;
         }
         showTooltip();
-        dirPathElement.innerText = `Selected Directory: \n${dirPath}`;    
+        dirPathElement.innerText = `Selected Directory: \n${dirPath}`;
+        saved.innerText = '';
         toggleUIElements(true);
-        document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;    
         let files = await window.file.getFileData(dirPath);
-        const removedFileTypes = new Set(await window.file.getRemovedFileTypes());
-
-        // Filter out DS_Store and unselected extensions
+        // Filter out DS_Store
         files = files.filter(file => {
             const fileName = file.name.split("/").pop();
-            const fileType = file.name.split(".").pop();
-            return fileName !== ".DS_Store" && !removedFileTypes.has(fileType);
+            return fileName !== ".DS_Store";
         });
 
         // Convert raw data into FileObject instances
         fileObjects = files.map(f => new FileObject(f));
-        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
         currentIndex = 0;
 
         if (hasFiles()) {
@@ -264,16 +259,16 @@ window.onload = async function () {
         const filename = fileObjects[currentIndex].name;
         // If file is an image, show time left automatically
         const mimeType = window.file.getMimeType(filename);
-        if(mimeType.startsWith("image/")){
-            if(LimitDisplay()){
+        if (mimeType.startsWith("image/")) {
+            if (LimitDisplay()) {
                 const loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
                 const timeLeft = convertMillisecondsToTimeLeft(14400000 - (Date.now() - loggedTime));
                 popupContentElement.textContent = timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " left until I can suggest a name for images.";
             }
         }
-        else{
+        else {
             popupContentElement.innerText = "AI: Try me!"
-        } 
+        }
     });
 
     closeModal.addEventListener("click", () => {
@@ -430,7 +425,7 @@ window.onload = async function () {
     }
 
     function displayCurrentFile() {
-        while (currentIndex < fileObjects.length && fileObjects[currentIndex].status !== null) {
+        while (currentIndex < fileObjects.length && (fileObjects[currentIndex].status !== null || removedFileTypes.includes(fileObjects[currentIndex].ext))) {
             currentIndex++;
         }
 
@@ -440,7 +435,7 @@ window.onload = async function () {
             previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
             return
         }
-
+        console.log(fileObjects[currentIndex].ext)
         const file = fileObjects[currentIndex];
         currentItemElement.innerText = "Current File: " + file.name;
         let formattedSize = formatFileSize(file.size);
@@ -533,7 +528,7 @@ window.onload = async function () {
             currentX = e.clientX;
         }
         // Calculate distance moved
-        // let diffX = currentX - startX;
+        let diffX = currentX - startX;
         // Use distance moved to move the previewContainer
         previewContainer.style.transform = `translateX(${diffX}px) rotate(${diffX / 15}deg)`;
     }
@@ -555,227 +550,227 @@ window.onload = async function () {
         }
     }
 
-   finalPageButton.addEventListener("click", () => {
-      finalizeModal.showModal();
+    finalPageButton.addEventListener("click", () => {
+        finalizeModal.showModal();
 
-      // Get references to the kept and deleted files 
-      const keptFilesList = document.getElementById("keptFilesList");
-      const deletedFilesList = document.getElementById("finalizedDeletedFilesList");
+        // Get references to the kept and deleted files 
+        const keptFilesList = document.getElementById("keptFilesList");
+        const deletedFilesList = document.getElementById("finalizedDeletedFilesList");
 
-      // Get references to the image limit and logged time to preserve after refresh
-      const Limitkey = "imageLimit";
-      const Timekey = "loggedTime";
-      const preservedLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
-      const preservedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
+        // Get references to the image limit and logged time to preserve after refresh
+        const Limitkey = "imageLimit";
+        const Timekey = "loggedTime";
+        const preservedLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
+        const preservedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
 
-      // Render the file lists based on the stored file objects
-      function renderFileLists() {
-         keptFilesList.innerHTML = "";
-         deletedFilesList.innerHTML = "";
+        // Render the file lists based on the stored file objects
+        function renderFileLists() {
+            keptFilesList.innerHTML = "";
+            deletedFilesList.innerHTML = "";
 
-         const keptFiles = fileObjects.filter(f => f.status === "keep");
-         const deletedFiles = fileObjects.filter(f => f.status === "delete");
+            const keptFiles = fileObjects.filter(f => f.status === "keep");
+            const deletedFiles = fileObjects.filter(f => f.status === "delete");
 
-         if (keptFiles.length === 0) {
-            keptFilesList.innerHTML = "<p>No kept files.</p>";
-         } else {
-            keptFiles.forEach(file => renderKeptFile(file));
-         }
-
-         if (deletedFiles.length === 0) {
-            deletedFilesList.innerHTML = "<p>No deleted files.</p>";
-         } else {
-            deletedFiles.forEach(file => renderDeletedFile(file));
-         }
-      }
-
-      // Display the kept files 
-      function renderKeptFile(file) {
-         const renameInput = document.createElement("input");
-         renameInput.type = "text";
-         renameInput.value = file.name;
-         renameInput.classList.add("rename-input");
-         renameInput.dataset.oldname = file.path;
-
-         const listItem = document.createElement("li");
-         listItem.appendChild(renameInput);
-         keptFilesList.appendChild(listItem);
-
-         renameInput.addEventListener("keypress", async function (event) {
-            if (event.key === "Enter") {
-               await handleRename(renameInput, file);
-               renderFileLists();
-            }
-         });
-
-         renameInput.addEventListener("blur", async function () {
-            await handleRename(renameInput, file);
-            renderFileLists();
-         });
-      }
-
-      // Display the deleted files 
-      function renderDeletedFile(file) {
-         const listItem = document.createElement("li");
-         listItem.innerText = file.name;
-         const deleteButton = document.createElement("button");
-         deleteButton.innerText = "Move to keep";
-         deleteButton.classList.add("deleteUndo");
-         deleteButton.dataset.path = file.path;
-         listItem.appendChild(deleteButton);
-         deletedFilesList.appendChild(listItem);
-
-         deleteButton.addEventListener("click", () => {
-            // Update file status to keep
-            file.status = "keep";
-            // Re-render lists
-            renderFileLists();
-         });
-      }
-
-      async function handleRename(renameInput, fileObj) {
-         let newName = renameInput.value.trim();
-         const oldFilePath = renameInput.dataset.oldname;  // Ensure oldFilePath is correctly defined
-         if (!oldFilePath) return; // Prevent errors if filePath is undefined
-
-         const directoryPath = window.file.pathDirname(oldFilePath);
-         const currentFileName = window.file.pathBasename(oldFilePath);  // Get current file name
-
-         if (!newName || newName === currentFileName) return; // No change, no rename needed
-
-         // Check for illegal characters
-         if (containsIllegalCharacters(newName)) {
-            showNotification('⚠️ Invalid characters in file name.', 'error');
-            renameInput.value = currentFileName; // Reset input
-            return;
-         }
-
-         // Ensure correct file extension
-         const originalExtension = currentFileName.includes('.') ? currentFileName.split('.').pop() : '';
-         const newExtension = newName.includes('.') ? newName.split('.').pop() : '';
-
-         if (originalExtension && originalExtension !== newExtension) {
-            newName = `${newName}.${originalExtension}`;
-         }
-
-         const newFilePath = window.file.pathJoin(directoryPath, newName);
-
-         try {
-            const allFilePaths = await window.file.getFilesInDirectory();
-
-            // Exclude the current file from duplicate check
-            const isDuplicate = allFilePaths.some(filePath =>
-               filePath !== oldFilePath && window.file.pathBasename(filePath) === newName
-            );
-
-            if (isDuplicate) {
-               await window.file.showMessageBox({
-                  type: "error",
-                  title: "Error",
-                  message: `A different file named "${newName}" already exists.`
-               });
-               renameInput.value = currentFileName; // Reset input
-               renameInput.blur();
-               return;
-            }
-
-            // Perform rename
-            const response = await window.file.renameFile(oldFilePath, newFilePath);
-            if (response.success) {
-               fileObj.name = newName;
-               fileObj.path = newFilePath;
-               renameInput.dataset.oldname= newFilePath;
-               renameInput.blur();
-               localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+            if (keptFiles.length === 0) {
+                keptFilesList.innerHTML = "<p>No kept files.</p>";
             } else {
-               await window.file.showMessageBox({
-                  type: "error",
-                  title: "Error",
-                  message: "Failed to rename file."
-               });
+                keptFiles.forEach(file => renderKeptFile(file));
             }
-         } catch (error) {
-            console.error("Error renaming file:", error);
-            await window.file.showMessageBox({
-               type: "error",
-               title: "Error",
-               message: "An error occurred: " + error.message
+
+            if (deletedFiles.length === 0) {
+                deletedFilesList.innerHTML = "<p>No deleted files.</p>";
+            } else {
+                deletedFiles.forEach(file => renderDeletedFile(file));
+            }
+        }
+
+        // Display the kept files 
+        function renderKeptFile(file) {
+            const renameInput = document.createElement("input");
+            renameInput.type = "text";
+            renameInput.value = file.name;
+            renameInput.classList.add("rename-input");
+            renameInput.dataset.oldname = file.path;
+
+            const listItem = document.createElement("li");
+            listItem.appendChild(renameInput);
+            keptFilesList.appendChild(listItem);
+
+            renameInput.addEventListener("keypress", async function (event) {
+                if (event.key === "Enter") {
+                    await handleRename(renameInput, file);
+                    renderFileLists();
+                }
             });
-         }
-      }
 
-      function containsIllegalCharacters(name) {
-         const illegalWindows = /[\/\\:*?"<>|]/;
-         const illegalMacLinux = /\//;
-         const illegalMac = /:/;
+            renameInput.addEventListener("blur", async function () {
+                await handleRename(renameInput, file);
+                renderFileLists();
+            });
+        }
 
-         const platform = window.file.platform; // Get platform from preload.js
+        // Display the deleted files 
+        function renderDeletedFile(file) {
+            const listItem = document.createElement("li");
+            listItem.innerText = file.name;
+            const deleteButton = document.createElement("button");
+            deleteButton.innerText = "Move to keep";
+            deleteButton.classList.add("deleteUndo");
+            deleteButton.dataset.path = file.path;
+            listItem.appendChild(deleteButton);
+            deletedFilesList.appendChild(listItem);
 
-         const isWindows = platform === 'win32';
-         const isMac = platform === 'darwin';
+            deleteButton.addEventListener("click", () => {
+                // Update file status to keep
+                file.status = "keep";
+                // Re-render lists
+                renderFileLists();
+            });
+        }
 
-         if (isWindows && illegalWindows.test(name)) return true;
-         if (isMac && (illegalMacLinux.test(name) || illegalMac.test(name))) return true;
-         if (!isWindows && !isMac && illegalMacLinux.test(name)) return true;
+        async function handleRename(renameInput, fileObj) {
+            let newName = renameInput.value.trim();
+            const oldFilePath = renameInput.dataset.oldname;  // Ensure oldFilePath is correctly defined
+            if (!oldFilePath) return; // Prevent errors if filePath is undefined
 
-         return false;
-      }
+            const directoryPath = window.file.pathDirname(oldFilePath);
+            const currentFileName = window.file.pathBasename(oldFilePath);  // Get current file name
 
-      function showNotification(message) {
-         const notification = document.getElementById('finalizeNotification');
-         notification.innerText = message;
-         notification.style.display = 'block';
+            if (!newName || newName === currentFileName) return; // No change, no rename needed
 
-         // Hide the message after 3 seconds
-         setTimeout(() => {
-            notification.style.display = 'none';
-         }, 3000);
-      }
-
-      document.getElementById("finalizeButton").addEventListener("click", async () => {
-         // Recheck for deleted files in case any were changed to keet
-         const deletedFiles = fileObjects.filter(f => f.status === "delete");
-         //iterate through deleted files array and send to trash
-         for (let i = 0; i < deletedFiles.length; i++) {
-            const result = await window.file.deleteFile(deletedFiles[i].path);
-            if (!result.success) {
-               await window.file.showMessageBox({
-                  type: "error",
-                  title: "Error deleting file",
-                  message: result.message
-               });
-               break;
+            // Check for illegal characters
+            if (containsIllegalCharacters(newName)) {
+                showNotification('⚠️ Invalid characters in file name.', 'error');
+                renameInput.value = currentFileName; // Reset input
+                return;
             }
-         }
-         localStorage.clear(); // Clears stored session data
-         localStorage.setItem("finalPage", 'true');
-         localStorage.setItem(Limitkey, preservedLimit);
-         localStorage.setItem(Timekey, preservedTime);
-         window.location.href = "keep_or_delete.html";
-      });
 
-      document.getElementById("exitButton").addEventListener("click", async () => {
-         // Recheck for deleted files in case any were changed to keet
-         const deletedFiles = fileObjects.filter(f => f.status === "delete");
-         // Delete files
-         for (let i = 0; i < deletedFiles.length; i++) {
-            const result = await window.file.deleteFile(deletedFiles[i].path);
-            if (!result.success) {
-               await window.file.showMessageBox({
-                  type: "error",
-                  title: "Error deleting file",
-                  message: result.message
-               });
-               break;
+            // Ensure correct file extension
+            const originalExtension = currentFileName.includes('.') ? currentFileName.split('.').pop() : '';
+            const newExtension = newName.includes('.') ? newName.split('.').pop() : '';
+
+            if (originalExtension && originalExtension !== newExtension) {
+                newName = `${newName}.${originalExtension}`;
             }
-         }
-         localStorage.clear(); // Clears stored session data
-         localStorage.setItem(Limitkey, preservedLimit);
-         localStorage.setItem(Timekey, preservedTime);
-         window.file.quitApp(); // Calls the function to quit the app
-      });
-      renderFileLists();
-   });
+
+            const newFilePath = window.file.pathJoin(directoryPath, newName);
+
+            try {
+                const allFilePaths = await window.file.getFilesInDirectory();
+
+                // Exclude the current file from duplicate check
+                const isDuplicate = allFilePaths.some(filePath =>
+                    filePath !== oldFilePath && window.file.pathBasename(filePath) === newName
+                );
+
+                if (isDuplicate) {
+                    await window.file.showMessageBox({
+                        type: "error",
+                        title: "Error",
+                        message: `A different file named "${newName}" already exists.`
+                    });
+                    renameInput.value = currentFileName; // Reset input
+                    renameInput.blur();
+                    return;
+                }
+
+                // Perform rename
+                const response = await window.file.renameFile(oldFilePath, newFilePath);
+                if (response.success) {
+                    fileObj.name = newName;
+                    fileObj.path = newFilePath;
+                    renameInput.dataset.oldname = newFilePath;
+                    renameInput.blur();
+                    localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+                } else {
+                    await window.file.showMessageBox({
+                        type: "error",
+                        title: "Error",
+                        message: "Failed to rename file."
+                    });
+                }
+            } catch (error) {
+                console.error("Error renaming file:", error);
+                await window.file.showMessageBox({
+                    type: "error",
+                    title: "Error",
+                    message: "An error occurred: " + error.message
+                });
+            }
+        }
+
+        function containsIllegalCharacters(name) {
+            const illegalWindows = /[\/\\:*?"<>|]/;
+            const illegalMacLinux = /\//;
+            const illegalMac = /:/;
+
+            const platform = window.file.platform; // Get platform from preload.js
+
+            const isWindows = platform === 'win32';
+            const isMac = platform === 'darwin';
+
+            if (isWindows && illegalWindows.test(name)) return true;
+            if (isMac && (illegalMacLinux.test(name) || illegalMac.test(name))) return true;
+            if (!isWindows && !isMac && illegalMacLinux.test(name)) return true;
+
+            return false;
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('finalizeNotification');
+            notification.innerText = message;
+            notification.style.display = 'block';
+
+            // Hide the message after 3 seconds
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        document.getElementById("finalizeButton").addEventListener("click", async () => {
+            // Recheck for deleted files in case any were changed to keet
+            const deletedFiles = fileObjects.filter(f => f.status === "delete");
+            //iterate through deleted files array and send to trash
+            for (let i = 0; i < deletedFiles.length; i++) {
+                const result = await window.file.deleteFile(deletedFiles[i].path);
+                if (!result.success) {
+                    await window.file.showMessageBox({
+                        type: "error",
+                        title: "Error deleting file",
+                        message: result.message
+                    });
+                    break;
+                }
+            }
+            localStorage.clear(); // Clears stored session data
+            localStorage.setItem("finalPage", 'true');
+            localStorage.setItem(Limitkey, preservedLimit);
+            localStorage.setItem(Timekey, preservedTime);
+            window.location.href = "keep_or_delete.html";
+        });
+
+        document.getElementById("exitButton").addEventListener("click", async () => {
+            // Recheck for deleted files in case any were changed to keet
+            const deletedFiles = fileObjects.filter(f => f.status === "delete");
+            // Delete files
+            for (let i = 0; i < deletedFiles.length; i++) {
+                const result = await window.file.deleteFile(deletedFiles[i].path);
+                if (!result.success) {
+                    await window.file.showMessageBox({
+                        type: "error",
+                        title: "Error deleting file",
+                        message: result.message
+                    });
+                    break;
+                }
+            }
+            localStorage.clear(); // Clears stored session data
+            localStorage.setItem(Limitkey, preservedLimit);
+            localStorage.setItem(Timekey, preservedTime);
+            window.file.quitApp(); // Calls the function to quit the app
+        });
+        renderFileLists();
+    });
 
     closeFinalizeModal.addEventListener("click", () => {
         finalizeModal.close();
@@ -1095,11 +1090,6 @@ window.onload = async function () {
     function hasFiles() {
         return fileObjects.slice(currentIndex).some(f => f.status === null);
     }
-
-    settingsButton.addEventListener("click", () => {
-        window.location.href = "../settings.html";
-    });
-
     const trashModal = document.getElementById("trash_dialog"); //these vars have to do with trash page subwindow
     const openTrashModal = document.getElementById("trash_button");
     const closeTrashModal = document.getElementById("closeTrashModal");
@@ -1166,17 +1156,16 @@ window.onload = async function () {
 
     // Progress Bar based on files left
     function updateProgress() {
-        const totalFiles = fileObjects.length;
+        const activeFiles = fileObjects.filter(f => !removedFileTypes.includes(f.ext));
+        const completedFiles = activeFiles.filter(f => f.status !== null);
+
         let percent;
-            const keptFiles = fileObjects.filter(f => f.status === "keep");
-            const filesToBeDeleted = fileObjects.filter(f => f.status === "delete");
-            const completedFiles = keptFiles.length + filesToBeDeleted.length;
-            percent = Math.round((completedFiles / totalFiles) * 100);
+        percent = Math.round((completedFiles.length / activeFiles.length) * 100);
         progress.style.width = `${percent}%`;
         progress.textContent = percent + "%";
 
         // Calculate total space saved
-        const totalSpaceSaved = filesToBeDeleted.reduce((sum, file) => sum + file.size, 0);
+        const totalSpaceSaved = fileObjects.filter(f => f.status === "delete").reduce((sum, file) => sum + file.size, 0);
 
         // Adding some glowing and scaling animation cause vibes.
         if (percent === 100) {
@@ -1191,7 +1180,7 @@ window.onload = async function () {
         void progress.offsetWidth;
         progress.classList.add("glowing");
 
-        if (totalFiles === 0) {
+        if (fileObjects.length === 0) {
             // When there are no files, assume all work is done (100%)
             percent = 100;
             progress.classList.add("complete");
@@ -1211,29 +1200,84 @@ window.onload = async function () {
         var seconds = Math.floor(milliseconds / 1000);
         var minutes = Math.floor(seconds / 60);
         var hours = Math.floor(minutes / 60);
-    
+
         hours %= 24;
         minutes %= 60;
         seconds %= 60;
-    
+
         return {
             hours: hours,
             minutes: minutes,
             seconds: seconds
         };
     }
-        function LimitDisplay() {
-            
-            const currentTime = Date.now();
-            // Get the image limit and logged time from local storage
-            let imageLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
-            let loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
-            
-            // Check if the limit has been reached
-            if ((currentTime - loggedTime) <= 14400000 && imageLimit >= 2) {
-                return true;
-            }
-            return false;  
+    function LimitDisplay() {
+
+        const currentTime = Date.now();
+        // Get the image limit and logged time from local storage
+        let imageLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
+        let loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
+
+        // Check if the limit has been reached
+        if ((currentTime - loggedTime) <= 14400000 && imageLimit >= 2) {
+            return true;
         }
+        return false;
+    }
+
+    settingsButton.addEventListener("click", () => {
+        settingsModal.showModal();
+    });
+
+    // Back button functionality
+    backButtonSettings.addEventListener("click", async () => {
+
+        if (fileObjects.length === 0) {
+            localStorage.setItem("returnFromSettings", "true"); // Trigger welcome screen
+        }
+        removedFileTypes = await window.file.getRemovedFileTypes();
+        currentIndex = 0;
+        displayCurrentFile();
+        updateProgress();
+        console.log(removedFileTypes)
+        settingsModal.close();
+    });
+
+    // Function to handle checkbox changes
+    function handleCheckboxChange(event) {
+        const fileType = event.target.value;
+        if (!event.target.checked) {
+            console.log(`Unchecked: ${fileType}`);
+            window.file.removeFileType(fileType);
+        } else {
+            console.log(`Checked: ${fileType}`);
+            window.file.addFileType(fileType);
+        }
+    }
+
+    // Function to set checkbox states based on removedFileTypes
+    async function setCheckboxStates() {
+        try {
+            removedFileTypes = await window.file.getRemovedFileTypes();
+            console.log('Removed file types:', removedFileTypes);  // Log to check the values
+
+            // For each checkbox, check if the file type exists in removedFileTypes and set it accordingly
+            document.querySelectorAll(".settings input[type='checkbox']").forEach((checkbox) => {
+                const fileType = checkbox.value;
+                checkbox.checked = !removedFileTypes.includes(fileType);
+            });
+        } catch (error) {
+            console.error("Error setting checkbox states:", error);
+        }
+    }
+
+
+    // Initialize checkbox states when the page loads
+    setCheckboxStates();
+
+    // Select all checkboxes and add event listeners
+    document.querySelectorAll(".settings input[type='checkbox']").forEach((checkbox) => {
+        checkbox.addEventListener("change", handleCheckboxChange);
+    });
 
 };

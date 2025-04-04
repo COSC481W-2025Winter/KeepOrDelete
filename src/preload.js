@@ -33,6 +33,8 @@ contextBridge.exposeInMainWorld('file', {
     const fileDataPromises = files.map(async filename => {
       const fullPath = path.join(directoryPath, filename);
       const stats = await fs.promises.stat(fullPath);
+      const ext = path.extname(filename);
+
       if (!stats.isFile()) return null;
       return {
         name: filename,
@@ -41,6 +43,7 @@ contextBridge.exposeInMainWorld('file', {
         createdDate: stats.ctime,
         size: stats.size,
         status: null,
+        ext: ext ? ext.slice(1).toLowerCase() : '' // Track file extension
       };
     });
     const fileData = await Promise.all(fileDataPromises);
