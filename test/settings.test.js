@@ -39,7 +39,7 @@ test('Settings page: toggle txt checkbox and check config update', async () => {
   log(`New state: ${newState}`);
   expect(newState).toBe(false); // Since we start as checked, clicking should uncheck it.
 
-  await window.click("#backButton")
+  await window.click("#backButtonSettings")
   await window.click("#settingsButton")
 
   // Settings page is populated by reading the configuration file.
