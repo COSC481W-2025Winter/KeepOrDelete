@@ -1,17 +1,5 @@
-// File data object
-class FileObject {
-   constructor({ name, path, modifiedDate, createdDate, size, status = null, ext }) {
-      this.name = name;
-      this.path = path;
-      this.modifiedDate = new Date(modifiedDate);
-      this.createdDate = new Date(createdDate);
-      this.size = size;
-      this.status = status;
-      this.ext = ext;
-   }
-}
+import * as fileObject from "../fileObjects.js"
 
-let fileObjects = []; // Array for FileObject instances
 let currentIndex = 0; // Track file index
 // Variables for swipe tracking
 let startX;
@@ -106,7 +94,7 @@ window.onload = async function() {
       backButton.innerText = "Select a Directory"
       dirPathElement.innerText = "No directory selected";
       localStorage.setItem("finalPage", "false");
-      fileObjects = []; //files is now empty because files shouldnt carry over from final page
+      fileObject.reset(); //files is now empty because files shouldnt carry over from final page
       toggleUIElements(false);
    } else if (returnFromSettings) {
       localStorage.setItem("returnFromSettings", "false");
@@ -116,7 +104,7 @@ window.onload = async function() {
       if (dirPath) {
          dirPathElement.innerText = `Selected Directory: \n${dirPath}`;
       }
-      if (fileObjects.length === 0) {
+      if (fileObject.isEmpty()) {
          backButton.innerText = "Select Directory"
       }
       //display files
@@ -149,7 +137,7 @@ window.onload = async function() {
       });
 
       // Convert raw data into FileObject instances
-      fileObjects = files.map(f => new FileObject(f));
+      fileObject.setFromFiles(files);
       currentIndex = 0;
 
       if (hasFiles()) {
@@ -217,13 +205,13 @@ window.onload = async function() {
          });
          return;
       }
-      console.log("Before update:", JSON.stringify(fileObjects[currentIndex]));
+      console.log("Before update:", JSON.stringify(fileObject.get(currentIndex)));
 
-      fileObjects[currentIndex].status = "delete";
+      fileObject.setStatus(currentIndex, "delete");
 
-      console.log("After update:", JSON.stringify(fileObjects[currentIndex]));
+      console.log("After update:", JSON.stringify(fileObject.get(currentIndex)));
 
-      localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+      localStorage.setItem("fileObjects", JSON.stringify(fileObject.getAll()));
       console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
 
       currentIndex++;
@@ -242,8 +230,7 @@ window.onload = async function() {
    // Next file function (aka Keep)
    async function nextFile() {
       if (!hasFiles()) return;
-      fileObjects[currentIndex].status = "keep";
-      localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+      fileObject.setStatus(currentIndex, "keep");
       currentIndex++;
       displayCurrentFile();
       updateProgress();
@@ -252,7 +239,7 @@ window.onload = async function() {
    renameButton.addEventListener('click', async (_event) => {
       if (!hasFiles()) return;
       renameModal.showModal();
-      const filename = fileObjects[currentIndex].name;
+      const filename = fileObject.get(currentIndex).name;
       // If file is an image, show time left automatically
       const mimeType = window.file.getMimeType(filename);
       if (mimeType.startsWith("image/")) {
@@ -291,7 +278,7 @@ window.onload = async function() {
 
    async function handleRename() {
       const newName = renameInputElement.value.trim();
-      let currentFile = fileObjects[currentIndex].path;
+      let currentFile = fileObject.get(currentIndex).path;
 
       if (!newName) {
          showNotification('Please enter a new file name.', 'error');
@@ -334,8 +321,8 @@ window.onload = async function() {
          if (response.success) {
             renameModal.close();
             showNotification(`File renamed successfully to ${finalName}`, 'success');
-            fileObjects[currentIndex].name = window.file.pathBasename(newFilePath);
-            fileObjects[currentIndex].path = newFilePath;
+            fileObject.get(currentIndex).name = window.file.pathBasename(newFilePath);
+            fileObject.get(currentIndex).path = newFilePath;
             displayCurrentFile();
             resetRenameInput(renameContainer);
          } else {
@@ -406,6 +393,7 @@ window.onload = async function() {
    }
 
    function displayCurrentFile() {
+      const fileObjects = fileObject.getAll();
       while (currentIndex < fileObjects.length && (fileObjects[currentIndex].status !== null || removedFileTypes.includes(fileObjects[currentIndex].ext))) {
          currentIndex++;
       }
@@ -549,8 +537,8 @@ window.onload = async function() {
          keptFilesList.innerHTML = "";
          deletedFilesList.innerHTML = "";
 
-         const keptFiles = fileObjects.filter(f => f.status === "keep");
-         const deletedFiles = fileObjects.filter(f => f.status === "delete");
+         const keptFiles = fileObject.getAll().filter(f => f.status === "keep");
+         const deletedFiles = fileObject.getAll().filter(f => f.status === "delete");
 
          if (keptFiles.length === 0) {
             keptFilesList.innerHTML = "<p>No kept files.</p>";
@@ -662,7 +650,7 @@ window.onload = async function() {
                fileObj.path = newFilePath;
                renameInput.dataset.oldname = newFilePath;
                renameInput.blur();
-               localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+               localStorage.setItem("fileObjects", JSON.stringify(fileObject.getAll()));
             } else {
                await window.file.showMessageBox({
                   type: "error",
@@ -710,7 +698,7 @@ window.onload = async function() {
 
       document.getElementById("finalizeButton").addEventListener("click", async () => {
          // Recheck for deleted files in case any were changed to keet
-         const deletedFiles = fileObjects.filter(f => f.status === "delete");
+         const deletedFiles = fileObject.getAll().filter(f => f.status === "delete");
          //iterate through deleted files array and send to trash
          for (let i = 0; i < deletedFiles.length; i++) {
             const result = await window.file.deleteFile(deletedFiles[i].path);
@@ -732,7 +720,7 @@ window.onload = async function() {
 
       document.getElementById("exitButton").addEventListener("click", async () => {
          // Recheck for deleted files in case any were changed to keet
-         const deletedFiles = fileObjects.filter(f => f.status === "delete");
+         const deletedFiles = fileObject.getAll().filter(f => f.status === "delete");
          // Delete files
          for (let i = 0; i < deletedFiles.length; i++) {
             const result = await window.file.deleteFile(deletedFiles[i].path);
@@ -793,7 +781,7 @@ window.onload = async function() {
    });
 
    trashButton.addEventListener("click", () => {
-      localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+      localStorage.setItem("fileObjects", JSON.stringify(fileObject.getAll()));
    });
 
    // Arrow key file swiping
@@ -811,7 +799,7 @@ window.onload = async function() {
       LLM();
    });
    function LLM() {
-      const filename = fileObjects[currentIndex].path;
+      const filename = fileObject.get(currentIndex).path;
       // Check for file types using mime 
       //--------------------------------------------------------------------
       const mimeType = window.file.getMimeType(filename);
@@ -1069,7 +1057,7 @@ window.onload = async function() {
 
    // Checks if there are files left
    function hasFiles() {
-      return fileObjects.slice(currentIndex).some(f => f.status === null);
+      return fileObject.getAll().slice(currentIndex).some(f => f.status === null);
    }
    const trashModal = document.getElementById("trash_dialog"); //these vars have to do with trash page subwindow
    const openTrashModal = document.getElementById("trash_button");
@@ -1088,7 +1076,7 @@ window.onload = async function() {
       });
       //master function for this subwindow, this is all logic from trash_page.js
       function loadDeletedFiles() {
-         let deletedFiles = fileObjects.filter(f => f.status === "delete");
+         let deletedFiles = fileObject.getAll().filter(f => f.status === "delete");
          filesToBeDeleted = deletedFiles.length;
          if (filesToBeDeleted > 0) {
             deletedHeader.innerHTML = `<h3 id="deletedHeader">${filesToBeDeleted} files to be deleted</h3>`;
@@ -1110,13 +1098,10 @@ window.onload = async function() {
                deleteButton.addEventListener("click", function() {
                   const filePath = deleteButton.dataset.file;
                   //get fileObjects in local storage and get index of file we are interested in
-                  let targetIndex = fileObjects.findIndex(f => f.path === filePath);
+                  let targetIndex = fileObject.getAll().findIndex(f => f.path === filePath);
                   if (targetIndex !== -1) { //if its -1, wasn't found
-                     //console.log("Before update:", fileObjects[targetIndex]); //debugging
                      filesToBeDeleted--;
-                     fileObjects[targetIndex].status = "keep"; //set to keep
-                     //console.log("After update:", fileObjects[targetIndex]);
-                     //console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
+                     fileObject.setStatus(targetIndex, "keep"); //set to keep
                      listItem.remove(); //built in remove method
                      deletedHeader.innerHTML = `<h3 id="deletedHeader">${filesToBeDeleted} files to be deleted</h3>`
                      if (filesToBeDeleted === 0) {
@@ -1135,7 +1120,7 @@ window.onload = async function() {
 
    // Progress Bar based on files left
    function updateProgress() {
-      const activeFiles = fileObjects.filter(f => !removedFileTypes.includes(f.ext));
+      const activeFiles = fileObject.getAll().filter(f => !removedFileTypes.includes(f.ext));
       const completedFiles = activeFiles.filter(f => f.status !== null);
 
       let percent;
@@ -1144,7 +1129,7 @@ window.onload = async function() {
       progress.textContent = percent + "%";
 
       // Calculate total space saved
-      const totalSpaceSaved = fileObjects.filter(f => f.status === "delete").reduce((sum, file) => sum + file.size, 0);
+      const totalSpaceSaved = fileObject.getAll().filter(f => f.status === "delete").reduce((sum, file) => sum + file.size, 0);
 
       // Adding some glowing and scaling animation cause vibes.
       if (percent === 100) {
@@ -1159,7 +1144,7 @@ window.onload = async function() {
       void progress.offsetWidth;
       progress.classList.add("glowing");
 
-      if (fileObjects.length === 0) {
+      if (fileObject.isEmpty()) {
          // When there are no files, assume all work is done (100%)
          percent = 100;
          progress.classList.add("complete");
@@ -1189,20 +1174,6 @@ window.onload = async function() {
       }
       return false;
    }
-
-   // Back button functionality
-   backButtonSettings.addEventListener("click", async () => {
-
-      if (fileObjects.length === 0) {
-         localStorage.setItem("returnFromSettings", "true"); // Trigger welcome screen
-      }
-      removedFileTypes = await window.file.getRemovedFileTypes();
-      currentIndex = 0;
-      displayCurrentFile();
-      updateProgress();
-      console.log(removedFileTypes)
-      settingsModal.close();
-   });
 
    // Function to handle checkbox changes
    function handleCheckboxChange(event) {
