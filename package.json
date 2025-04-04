@@ -44,6 +44,8 @@
     "call-bind-apply-helpers": "1.0.0",
     "dotenv": "^16.4.7",
     "electron-squirrel-startup": "^1.0.1",
+    "eslint": "^9.24.0",
+    "globals": "^16.0.0",
     "html-to-pdfmake": "^2.5.23",
     "jsdom": "^26.0.0",
     "mammoth": "^1.9.0",
