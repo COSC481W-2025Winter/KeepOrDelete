@@ -1,4 +1,7 @@
 import * as fileObject from "./fileObjects.js"
+import * as currentIndex from "./currentIndex.js"
+import * as swipe from "./swipe.js"
+import * as progress from "./progress.js"
 
 const settingsButton = document.getElementById("settingsButton");
 const settingsModal = document.getElementById("settingsModal");
@@ -19,9 +22,9 @@ backButtonSettings.addEventListener("click", async () => {
       localStorage.setItem("returnFromSettings", "true"); // Trigger welcome screen
    }
    const removedFileTypes = await window.file.getRemovedFileTypes();
-   currentIndex = 0;
-   displayCurrentFile();
-   updateProgress();
+   currentIndex.reset();
+   swipe.displayCurrentFile();
+   progress.updateProgress();
    console.log(removedFileTypes)
    settingsModal.close();
 });

@@ -57,17 +57,19 @@ async function nextFile() {
 
    fileObject.setStatus(currentIndex.get(), "keep");
    currentIndex.increment();
-   displayCurrentFile();
+   await displayCurrentFile();
    progress.updateProgress();
+   resetPreviewPosition();
 }
 
 export async function displayCurrentFile() {
    const fileObjects = fileObject.getAll();
-   const index = currentIndex.get();
    const removedFileTypes = await settings.removedFileTypes();
+   let index = currentIndex.get();
 
    while (index < fileObjects.length && (fileObjects[index].status !== null || removedFileTypes.includes(fileObjects[index].ext))) {
-      index.increment();
+      currentIndex.increment();
+      index = currentIndex.get();
    }
 
    if (index >= fileObjects.length) {
@@ -76,6 +78,7 @@ export async function displayCurrentFile() {
       previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
       return
    }
+
    console.log(fileObjects[index].ext)
    const file = fileObjects[index];
    currentItemElement.innerText = "Current File: " + file.name;
@@ -93,6 +96,7 @@ export async function displayCurrentFile() {
 
 // Swipe animation handler
 export function animateSwipe(direction) {
+   console.log(fileObject.getAll());
    if (fileObject.isEmpty()) return;
 
    let translateX;
@@ -124,9 +128,10 @@ export function animateSwipe(direction) {
    previewContainer.style.opacity = "0";
 
    // File handling will occurr after CSS animation
-   previewContainer.addEventListener("transitionend", function handleTransitionEnd() {
-      if (direction === "right") nextFile();
-         else markForDeletion();
+   previewContainer.addEventListener("transitionend", async function handleTransitionEnd() {
+      if (direction === "right") await nextFile();
+         else await markForDeletion();
+
       if (fileObject.isEmpty()) {
          previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
          icon.remove();
@@ -215,7 +220,7 @@ export async function markForDeletion() {
    console.log("Updated localStorage:", localStorage.getItem("fileObjects"));
 
    currentIndex.increment();
-   displayCurrentFile();
+   await displayCurrentFile();
    progress.updateProgress();
    resetPreviewPosition();
 }

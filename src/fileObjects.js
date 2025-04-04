@@ -1,3 +1,5 @@
+import * as currentIndex from "./currentIndex.js"
+
 class FileObject {
    constructor({ name, path, modifiedDate, createdDate, size, status = null, ext }) {
       this.name = name;
@@ -35,11 +37,22 @@ export function setStatus(i, status) {
 
 /// Returns `true` if `fileObjects` is empty. Returns `false` otherwise.
 export function isEmpty() {
-   return fileObjects.length === 0;
+   return !fileObjects.slice(currentIndex.get()).some(fo => fo.status === null);
 }
 
 /// Given an array of filepaths, resets `fileObjects` as an array of
 // `FileObject` instances created from the filepaths.
 export function setFromFiles(files) {
    fileObjects = files.map(f => new FileObject(f));
+}
+
+/// Sorts `fileObjects` by the specified order ("asc" | "desc")
+export function sortBy(order) {
+   fileObjects.sort((a, b) => {
+      const nameA = a.name.toLowerCase();
+      const nameB = b.name.toLowerCase();
+      if (nameA < nameB) return order === "asc" ? -1 : 1;
+      if (nameA > nameB) return order === "asc" ? 1 : -1;
+      return 0; // Stable sort
+   });
 }

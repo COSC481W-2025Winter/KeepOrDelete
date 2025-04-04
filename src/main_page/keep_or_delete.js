@@ -29,7 +29,6 @@ window.onload = async function() {
    const saved = document.getElementById("dataSaved");
    const hasShownTooltip = sessionStorage.getItem("tooltipShown");
    const dirPath = await window.file.getFilePath();
-   const sortOrderDropdown = document.getElementById("sortOrder");
    const welcome = document.getElementById("welcomeScreen");
    let removedFileTypes = new Set(await window.file.getRemovedFileTypes());
 
@@ -138,27 +137,6 @@ window.onload = async function() {
    }
 
 
-   sortOrderDropdown.addEventListener("change", () => {
-      sortFiles();
-      currentIndex.reset();
-      swipe.displayCurrentFile();
-      sortOrderDropdown.blur()
-   });
-
-
-   function sortFiles() {
-      const sortOrder = sortOrderDropdown.value;
-      fileObjects.sort((a, b) => {
-         const nameA = a.name.toLowerCase();
-         const nameB = b.name.toLowerCase();
-         if (nameA < nameB) return sortOrder === "asc" ? -1 : 1;
-         if (nameA > nameB) return sortOrder === "asc" ? 1 : -1;
-         return 0; // Stable sort
-      });
-      localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
-   }
-
-
    function showNotification(message) {
       const notification = notificationElement;
       notification.innerText = message;
@@ -179,7 +157,7 @@ window.onload = async function() {
    deleteButton.addEventListener("click", async () => {
       if (fileObject.isEmpty()) return;
 
-      swipe.markForDeletion();
+      await swipe.markForDeletion();
 
       swipe.animateSwipe("left");
    });
