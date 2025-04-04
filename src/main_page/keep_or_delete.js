@@ -262,7 +262,7 @@ window.onload = async function () {
         if (mimeType.startsWith("image/")) {
             if (LimitDisplay()) {
                 const loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
-                const timeLeft = convertMillisecondsToTimeLeft(14400000 - (Date.now() - loggedTime));
+                const timeLeft = window.file.convertMillisecondsToTimeLeft(14400000 - (Date.now() - loggedTime));
                 popupContentElement.textContent = timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " left until I can suggest a name for images.";
             }
         }
@@ -942,7 +942,7 @@ window.onload = async function () {
             // 14400000 4 hours
             // If 4 hours haven't passed and the image limit is reached, they cooked 
             if ((currentTime - loggedTime) <= 14400000 && imageLimit >= 2) {
-                const timeLeft = convertMillisecondsToTimeLeft(14400000 - (currentTime - loggedTime));
+                const timeLeft = window.file.convertMillisecondsToTimeLeft(14400000 - (currentTime - loggedTime));
                 console.log(timeLeft);
                 popupContentElement.textContent = "Your renaming limit for image files has been reached.";
                 setTimeout(() => {
@@ -1189,21 +1189,7 @@ window.onload = async function () {
     if (document.body.classList.contains("keep-or-delete")) {
         document.body.classList.add("show");
     }
-    function convertMillisecondsToTimeLeft(milliseconds) {
-        var seconds = Math.floor(milliseconds / 1000);
-        var minutes = Math.floor(seconds / 60);
-        var hours = Math.floor(minutes / 60);
 
-        hours %= 24;
-        minutes %= 60;
-        seconds %= 60;
-
-        return {
-            hours: hours,
-            minutes: minutes,
-            seconds: seconds
-        };
-    }
     function LimitDisplay() {
 
         const currentTime = Date.now();

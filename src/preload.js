@@ -15,6 +15,21 @@ contextBridge.exposeInMainWorld('file', {
       else if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
       else return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
    },
+   convertMillisecondsToTimeLeft: (milliseconds) => {
+      var seconds = Math.floor(milliseconds / 1000);
+      var minutes = Math.floor(seconds / 60);
+      var hours = Math.floor(minutes / 60);
+
+      hours %= 24;
+      minutes %= 60;
+      seconds %= 60;
+
+      return {
+          hours: hours,
+          minutes: minutes,
+          seconds: seconds
+      };
+   },
    getMimeType: (path) => mime.getType(path),
    setFilePath: (filePath) => ipcRenderer.send('setFilePath', filePath),
    getTimeStamp: () => new Date().toTimeString(),
