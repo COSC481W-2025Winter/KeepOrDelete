@@ -8,7 +8,6 @@ window.onload = async function() {
    // Cache DOM references
    const dirPathElement = document.getElementById("dirPath");
    const currentItemElement = document.getElementById("currentItem");
-   const notificationElement = document.getElementById("notification");
    const popupContentElement = document.getElementById('popupContent');
    const popupElement = document.getElementById('popup')
    const closeModal = document.getElementById("closeModal");
@@ -134,18 +133,6 @@ window.onload = async function() {
       } else {
          currentItemElement.innerText = "No files found.";
       }
-   }
-
-
-   function showNotification(message) {
-      const notification = notificationElement;
-      notification.innerText = message;
-      notification.style.display = 'block';
-
-      // Hide the message after 3 seconds
-      setTimeout(() => {
-         notification.style.display = 'none';
-      }, 3000);
    }
 
    // Change Directory Button
