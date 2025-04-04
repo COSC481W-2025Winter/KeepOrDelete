@@ -3,6 +3,7 @@ import * as currentIndex from "../currentIndex.js"
 import * as swipe from "../swipe.js"
 import * as progress from "../progress.js"
 import * as rename from "../rename.js"
+import * as tooltip from "../tooltip.js"
 
 window.onload = async function() {
    // Cache DOM references
@@ -23,9 +24,7 @@ window.onload = async function() {
    const closeFinalizeModal = document.getElementById("closeFinalizeModal");
    const inspectButton = document.getElementById("inspectButton");
    const trashButton = document.getElementById("trash_button");
-   const tooltip = document.getElementById("tooltip");
    const saved = document.getElementById("dataSaved");
-   const hasShownTooltip = sessionStorage.getItem("tooltipShown");
    const dirPath = await window.file.getFilePath();
    const welcome = document.getElementById("welcomeScreen");
 
@@ -71,7 +70,7 @@ window.onload = async function() {
             welcome.classList.toggle("hidden", visible);
          }
 
-         if (visible) resetTooltip();
+         if (visible) tooltip.reset();
       });
    }
    //this stretch of code checks if we are navigating to this page from the final page from
@@ -110,7 +109,7 @@ window.onload = async function() {
          alert("Directory selection was canceled.");
          return;
       }
-      showTooltip();
+      tooltip.show();
       dirPathElement.innerText = `Selected Directory: \n${dirPath}`;
       saved.innerText = '';
       toggleUIElements(true);
@@ -537,70 +536,6 @@ window.onload = async function() {
       }
    }
 
-
-   function showTooltip() {
-      // Checks to see if user is a test agent
-      const isTesting = navigator.userAgent.includes("Playwright");
-
-      // Only runs if user is real
-      if (!isTesting && !hasShownTooltip) {
-         tooltip.classList.add("show");
-
-         // Dismiss tooltip on user input
-         document.addEventListener("mousedown", dismissTooltip);
-         document.addEventListener("keydown", dismissTooltip);
-         document.addEventListener("touchstart", dismissTooltip);
-
-         // WIGGLE IS THE MOST IMPORTANT PART OF THE PROJECT
-         triggerWiggle();
-         setInterval(triggerWiggle, 3000);
-         sessionStorage.setItem("tooltipShown", "true");
-      }
-   }
-
-
-   // Dismiss tooltip
-   function dismissTooltip() {
-      const tooltip = document.getElementById("tooltip");
-
-      if (tooltip) {
-         tooltip.classList.remove("show");
-         tooltip.classList.add("hide");
-
-         // Optionally remove after a timeout
-         setTimeout(() => {
-            tooltip.style.display = "none"; // Completely hide
-         }, 400);
-      }
-   }
-
-   function resetTooltip() {
-      const tooltip = document.getElementById("tooltip");
-
-      // Check if the tooltip has already been reset in this session
-      if (sessionStorage.getItem("tooltipReset") === "true") {
-         return; // Skip if already reset
-      }
-
-      if (tooltip) {
-         tooltip.style.display = "block";  // Show the tooltip
-         tooltip.classList.remove("hide");
-         tooltip.classList.add("show");
-
-         // Mark that the tooltip reset has been done in this session
-         sessionStorage.setItem("tooltipReset", "true");
-      } else {
-         console.error("Tooltip element not found.");
-      }
-   }
-
-   // WIGGLE WIGGLE WIGGLE
-   function triggerWiggle() {
-      if (!tooltip.classList.contains("wiggle")) {
-         tooltip.classList.add("wiggle");
-         setTimeout(() => tooltip.classList.remove("wiggle"), 500);
-      }
-   }
 
    // Reveal body after all elements are ready only for keep_or_delete.html
    if (document.body.classList.contains("keep-or-delete")) {
