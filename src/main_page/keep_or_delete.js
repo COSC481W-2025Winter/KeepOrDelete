@@ -14,7 +14,6 @@ window.onload = async function() {
    const renameModal = document.getElementById("renameModal");
    const renameContainer = document.getElementById("renameContainer");
    let renameInputElement = document.getElementById('renameInput');
-   const renameButton = document.getElementById('renameButton');
    const confirmRenameButton = document.getElementById("confirmRename");
    const backButton = document.getElementById("backButton");
    const deleteButton = document.getElementById("deleteButton");
@@ -29,7 +28,6 @@ window.onload = async function() {
    const hasShownTooltip = sessionStorage.getItem("tooltipShown");
    const dirPath = await window.file.getFilePath();
    const welcome = document.getElementById("welcomeScreen");
-   let removedFileTypes = new Set(await window.file.getRemovedFileTypes());
 
    if (!dirPath) {
       // Hide all UI elements except welcomeScreen
@@ -154,26 +152,6 @@ window.onload = async function() {
       if (fileObject.isEmpty()) return;
 
       swipe.animateSwipe("right");
-   });
-
-   renameButton.addEventListener('click', async (_event) => {
-      if (fileObject.isEmpty()) return;
-
-      renameModal.showModal();
-
-      const filename = fileObject.get(currentIndex.get()).name;
-      // If file is an image, show time left automatically
-      const mimeType = window.file.getMimeType(filename);
-      if (mimeType.startsWith("image/")) {
-         if (LimitDisplay()) {
-            const loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
-            const timeLeft = window.file.convertMillisecondsToTimeLeft(14400000 - (Date.now() - loggedTime));
-            popupContentElement.textContent = timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " left until I can suggest a name for images.";
-         }
-      }
-      else {
-         popupContentElement.innerText = "AI: Try me!"
-      }
    });
 
    closeModal.addEventListener("click", () => {
@@ -624,117 +602,8 @@ window.onload = async function() {
       }
    }
 
-   const trashModal = document.getElementById("trash_dialog"); //these vars have to do with trash page subwindow
-   const openTrashModal = document.getElementById("trash_button");
-   const closeTrashModal = document.getElementById("closeTrashModal");
-   const deletedFilesList = document.getElementById("deletedFilesList");
-   const deletedHeader = document.getElementById("deletedHeader");
-   let filesToBeDeleted = 0;
-   //ensuring all vars exist before entering this block
-   if (openTrashModal && closeTrashModal && trashModal && deletedFilesList) {
-      openTrashModal.addEventListener("click", function() {
-         loadDeletedFiles();
-         trashModal.showModal(); //load modal 
-      });
-      closeTrashModal.addEventListener("click", function() {
-         trashModal.close();
-      });
-      //master function for this subwindow, this is all logic from trash_page.js
-      function loadDeletedFiles() {
-         let deletedFiles = fileObject.getAll().filter(f => f.status === "delete");
-         filesToBeDeleted = deletedFiles.length;
-         if (filesToBeDeleted > 0) {
-            deletedHeader.innerHTML = `<h3 id="deletedHeader">${filesToBeDeleted} files to be deleted</h3>`;
-         }
-         console.log(deletedFiles);
-         if (deletedFiles.length > 0) { //if there is something in deleted files, update
-            deletedFilesList.innerHTML = ""; //empty
-            deletedFiles.forEach(file => {
-               const fileName = file.name;
-               const listItem = document.createElement("li");
-               listItem.innerText = fileName;
-               const deleteButton = document.createElement("button");
-               deleteButton.innerText = "Move to keep";
-               deleteButton.classList.add("deleteUndo");
-               deleteButton.dataset.file = file.path;
-               listItem.appendChild(deleteButton);
-               deletedFilesList.appendChild(listItem);
-               //listener for keep button for each li
-               deleteButton.addEventListener("click", function() {
-                  const filePath = deleteButton.dataset.file;
-                  //get fileObjects in local storage and get index of file we are interested in
-                  let targetIndex = fileObject.getAll().findIndex(f => f.path === filePath);
-                  if (targetIndex !== -1) { //if its -1, wasn't found
-                     filesToBeDeleted--;
-                     fileObject.setStatus(targetIndex, "keep"); //set to keep
-                     listItem.remove(); //built in remove method
-                     deletedHeader.innerHTML = `<h3 id="deletedHeader">${filesToBeDeleted} files to be deleted</h3>`
-                     if (filesToBeDeleted === 0) {
-                        deletedHeader.innerHTML = `<h3 id="deletedHeader">No files to be deleted</h3>`
-
-                     }
-                  }
-               });
-
-            });
-         }
-      }
-   } else {
-      console.error("One or more elements not found. Check your HTML IDs.");
-   }
-
    // Reveal body after all elements are ready only for keep_or_delete.html
    if (document.body.classList.contains("keep-or-delete")) {
       document.body.classList.add("show");
    }
-
-   function LimitDisplay() {
-
-      const currentTime = Date.now();
-      // Get the image limit and logged time from local storage
-      let imageLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
-      let loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
-
-      // Check if the limit has been reached
-      if ((currentTime - loggedTime) <= 14400000 && imageLimit >= 2) {
-         return true;
-      }
-      return false;
-   }
-
-   // Function to handle checkbox changes
-   function handleCheckboxChange(event) {
-      const fileType = event.target.value;
-      if (!event.target.checked) {
-         console.log(`Unchecked: ${fileType}`);
-         window.file.removeFileType(fileType);
-      } else {
-         console.log(`Checked: ${fileType}`);
-         window.file.addFileType(fileType);
-      }
-   }
-
-   // Function to set checkbox states based on removedFileTypes
-   async function setCheckboxStates() {
-      try {
-         removedFileTypes = await window.file.getRemovedFileTypes();
-         console.log('Removed file types:', removedFileTypes);  // Log to check the values
-
-         // For each checkbox, check if the file type exists in removedFileTypes and set it accordingly
-         document.querySelectorAll(".settings input[type='checkbox']").forEach((checkbox) => {
-            const fileType = checkbox.value;
-            checkbox.checked = !removedFileTypes.includes(fileType);
-         });
-      } catch (error) {
-         console.error("Error setting checkbox states:", error);
-      }
-   }
-
-   // Initialize checkbox states when the page loads
-   setCheckboxStates();
-
-   // Select all checkboxes and add event listeners
-   document.querySelectorAll(".settings input[type='checkbox']").forEach((checkbox) => {
-      checkbox.addEventListener("change", handleCheckboxChange);
-   });
 };

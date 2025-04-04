@@ -1,10 +1,15 @@
 import * as fileObject from "./fileObjects.js"
 import * as currentIndex from "./currentIndex.js"
+import * as swipe from "./swipe.js"
 
+const renameContainer = document.getElementById("renameContainer");
+const renameButton = document.getElementById('renameButton');
+const popupContentElement = document.getElementById('popupContent');
+const renameModal = document.getElementById("renameModal");
 let renameInputElement = document.getElementById('renameInput');
+const notification = document.getElementById('finalizeNotification');
 
 function showNotification(message) {
-   const notification = document.getElementById('finalizeNotification');
    notification.innerText = message;
    notification.style.display = 'block';
 
@@ -127,4 +132,38 @@ export function resetRenameInput(container) {
    setTimeout(() => {
       renameInputElement.blur();  // Remove highlight after creation
    }, 100);
+}
+
+renameButton.addEventListener('click', async (_event) => {
+   if (fileObject.isEmpty()) return;
+
+   renameModal.showModal();
+
+   const filename = fileObject.get(currentIndex.get()).name;
+   // If file is an image, show time left automatically
+   const mimeType = window.file.getMimeType(filename);
+   if (mimeType.startsWith("image/")) {
+      if (LimitDisplay()) {
+         const loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
+         const timeLeft = window.file.convertMillisecondsToTimeLeft(14400000 - (Date.now() - loggedTime));
+         popupContentElement.textContent = timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " left until I can suggest a name for images.";
+      }
+   }
+   else {
+      popupContentElement.innerText = "AI: Try me!"
+   }
+});
+
+function LimitDisplay() {
+
+   const currentTime = Date.now();
+   // Get the image limit and logged time from local storage
+   let imageLimit = parseInt(localStorage.getItem("imageLimit") || "0", 10);
+   let loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
+
+   // Check if the limit has been reached
+   if ((currentTime - loggedTime) <= 14400000 && imageLimit >= 2) {
+      return true;
+   }
+   return false;
 }
