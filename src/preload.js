@@ -3,7 +3,6 @@ const { generatePreviewHTML, convertDocxToPdf } = require("./preview.js");
 const fs = require("node:fs");
 const mime = require("mime");
 const path = require('path');
-const os = require('node:os');
 
 contextBridge.exposeInMainWorld('file', {
    getFilePath: () => ipcRenderer.invoke('getFilePath'),

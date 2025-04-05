@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, remote } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("node:path");
 const fs = require("fs");
 const { promises: fsPromises } = require('fs');
@@ -158,7 +158,7 @@ if (process.argv.includes("--test-config")) {
 
    // Generate a randomized tmp directory.
    // Clean it up even if it contains files.
-   configDir = tmp.dirSync({ unsafeCleanup: true }).name
+   const configDir = tmp.dirSync({ unsafeCleanup: true }).name
 
    // Overwrite global config path.
    configPath = path.join(configDir, "config.json")
@@ -210,7 +210,7 @@ ipcMain.handle("addFileType", async (event, fileType) => {
    }
 });
 
-ipcMain.handle("getRemovedFileTypes", async (event) => {
+ipcMain.handle("getRemovedFileTypes", async (_event) => {
    try {
       // Read the existing config file
       let config = getConfig();
