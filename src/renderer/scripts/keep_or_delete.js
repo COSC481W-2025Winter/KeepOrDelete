@@ -1,5 +1,5 @@
 import * as fileObjects from "./fileObjects.js"
-import * as progress from "./progress.js"
+import * as progressBar from "./progressBar.js"
 import * as ui from "./ui.js"
 
 // Cache DOM references
@@ -17,7 +17,7 @@ if (!dirPath) {
    if (!fileObjects.isEmpty()) {
       ui.displayCurrentFile();
    } else {
-      progress.updateProgress();
+      progressBar.update();
       document.getElementById("currentItem").innerText = "No files found.";
    }
 }

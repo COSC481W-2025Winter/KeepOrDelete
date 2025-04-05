@@ -5,7 +5,7 @@ import * as rename from "./rename.js"
 import * as settings from "./settings.js"
 import * as swipe from "./swipe.js"
 import * as inspect from "./inspect.js"
-import * as progress from "./progress.js"
+import * as progressBar from "./progressBar.js"
 
 const currentItemElement = document.getElementById("currentItem");
 const currentItemSizeElement = document.getElementById("currentItemSize");
@@ -77,5 +77,5 @@ async function refreshPreview(filePath) {
    const previewHTML = await window.file.generatePreviewHTML(filePath);
    previewContainer.innerHTML = previewHTML || "<p>Preview not available</p>";
    swipe.resetPreviewPosition();
-   progress.updateProgress();
+   progressBar.update();
 }

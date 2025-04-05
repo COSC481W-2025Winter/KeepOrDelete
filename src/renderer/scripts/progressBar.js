@@ -5,7 +5,7 @@ const saved = document.getElementById("dataSaved");
 const progress = document.getElementById("progress");
 
 // Progress Bar based on files left
-export async function updateProgress() {
+export async function update() {
    const removedFileTypes = await settings.removedFileTypes();
    const activeFiles = fileObject.getAll().filter(f => !removedFileTypes.includes(f.ext));
    const completedFiles = activeFiles.filter(f => f.status !== null);

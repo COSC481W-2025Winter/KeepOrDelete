@@ -4,7 +4,7 @@ import * as swipe from "./swipe.js"
 import * as tooltip from "./tooltip.js"
 import * as userAction from "./userAction.js"
 import * as ui from "./ui.js"
-import * as progress from "./progress.js"
+import * as progressBar from "./progressBar.js"
 import * as finalize from "./finalize.js"
 
 const dirPathElement = document.getElementById("dirPath");
@@ -60,7 +60,7 @@ export async function markForKeep() {
    fileObject.setStatus(currentIndex.get(), "keep");
    currentIndex.increment();
    await ui.displayCurrentFile();
-   await progress.updateProgress();
+   await progressBar.update();
    swipe.resetPreviewPosition();
 }
 
@@ -85,7 +85,7 @@ export async function markForDelete() {
 
    currentIndex.increment();
    await ui.displayCurrentFile();
-   progress.updateProgress();
+   progressBar.update();
    swipe.resetPreviewPosition();
 }
 
