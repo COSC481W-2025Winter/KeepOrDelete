@@ -150,6 +150,7 @@ p:has(#basename), #basename {
 }
 
 #kod-btns-container {
+  z-index: 10000;
   position: absolute;
   width: 298px;
   height: 152px;
@@ -674,3 +675,33 @@ body.keep-or-delete.show {
   gap: 10px; /* Adds spacing between buttons */
   width: 100%; /* Ensures full width of container */
 }
+
+
+.box, button, .modal, #file-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+.container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  #bar, #bottom-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .sort-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+

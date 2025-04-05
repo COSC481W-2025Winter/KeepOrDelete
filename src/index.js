@@ -10,11 +10,12 @@ let mainWindow;
 
 const createWindow = () => {
    mainWindow = new BrowserWindow({
-      width: 800,
-      height: 600,
-      // Lock window rezing until we do our UI overhaul to prevent hidden items
-      //resizable: false,
-      // Hide the top menu bar for release
+      width: 1000,
+      height: 900,
+      minWidth: 600,
+      minHeight: 600,
+      //maxWidth: 1600,
+      //maxHeight: 1200,
       autoHideMenuBar: true,
       webPreferences: {
          preload: path.join(__dirname, "preload.js"),
