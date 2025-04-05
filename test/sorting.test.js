@@ -12,18 +12,20 @@ const testFiles = [
     path.join(testDirectory, 'c.txt'),
 ];
 
-test.beforeAll(async () => {
+test.beforeEach(async () => {
     electronApp = await electron.launch({ args: ['./', '--test-config'], userAgent: 'Playwright' });
 
     await fs.mkdir(testDirectory, { recursive: true });
-    await Promise.all(testFiles.map(file => fs.writeFile(file, 'Sample', 'utf8')));
+    await fs.writeFile(path.join(testDirectory, 'A.txt'), 'aa', 'utf8');
+    await fs.writeFile(path.join(testDirectory, 'b.txt'), 'a', 'utf8');
+    await fs.writeFile(path.join(testDirectory, 'c.txt'), 'aaa', 'utf8');
 
-    // Ensure LocalStorage is cleared before each test
     const window = await electronApp.firstWindow();
-    await window.evaluate(() => localStorage.clear());  
+    await window.evaluate(() => localStorage.clear());
 });
 
-test.afterAll(async () => {
+
+test.afterEach(async () => {
     await electronApp.close();
     try {
         await fs.rm(testDirectory, { recursive: true, force: true });
@@ -73,4 +75,44 @@ test('Sort dropdown sorts files alphabetically A→Z and Z→A', async () => {
     expect(fileName.toLowerCase()).toBe('a.txt');
 
     await window.evaluate(() => localStorage.clear());
+});
+
+test('sort by file size', async () => {
+    const window = await electronApp.firstWindow();
+    await window.evaluate(() => localStorage.clear());
+    await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
+
+    // Mock file selection dialog
+    await electronApp.evaluate(({ dialog }, testDirectory) => {
+        dialog.showOpenDialog = async () => ({
+            canceled: false,
+            filePaths: [testDirectory],
+        });
+    }, testDirectory);
+
+    // Click to select directory and go to KeepOrDelete page
+    await window.locator('#selectDirButton').click();
+
+    const getCurrentFileName = async () => {
+        const text = await window.locator('#currentItem').innerText();
+        return text.replace('Current File: ', '').trim();
+    };
+
+    await expect(window.locator('#currentItem')).toHaveText(/Current File: .+/);
+    // Default should be A→Z
+    let fileName = await getCurrentFileName();
+    expect(fileName.toLowerCase()).toBe('a.txt');
+
+    // Change to Z→A
+    await window.locator('#sortOrder').selectOption('up');
+    await window.waitForTimeout(500); // allow re-sort/render
+
+    fileName = await getCurrentFileName();
+    expect(fileName.toLowerCase()).toBe('b.txt');
+
+    await window.locator('#sortOrder').selectOption('down');
+    await window.waitForTimeout(500); // allow re-sort/render
+
+    fileName = await getCurrentFileName();
+    expect(fileName.toLowerCase()).toBe('c.txt');
 });
