@@ -7,7 +7,7 @@ const sortOrderDropdown = document.getElementById("sortOrder");
 sortOrderDropdown.addEventListener("change", () => {
    sortFiles();
    currentIndex.reset();
-   swipe.displayCurrentFile();
+   ui.displayCurrentFile();
    sortOrderDropdown.blur()
 });
 

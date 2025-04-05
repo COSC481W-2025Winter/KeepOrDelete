@@ -29,7 +29,7 @@ export async function selectNewDirectory() {
 
    saved.innerText = '';
 
-   ui.toggleUIElements(true);
+   ui.setWelcomeVisibility(false);
 
    let files = await window.file.getFileData(dirPath);
 

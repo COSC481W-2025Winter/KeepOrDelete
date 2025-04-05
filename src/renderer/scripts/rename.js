@@ -87,7 +87,7 @@ export async function handleRename() {
          showNotification(`File renamed successfully to ${finalName}`, 'success');
          fileObject.get(currentIndex.get()).name = window.file.pathBasename(newFilePath);
          fileObject.get(currentIndex.get()).path = newFilePath;
-         swipe.displayCurrentFile();
+         ui.displayCurrentFile();
          resetRenameInput(renameContainer);
       } else {
          showNotification(response.message || 'Failed to rename the file.', 'error');

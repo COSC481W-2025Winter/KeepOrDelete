@@ -102,7 +102,10 @@ finalPageButton.addEventListener("click", () => {
       localStorage.setItem("finalPage", 'true');
       localStorage.setItem(Limitkey, preservedLimit);
       localStorage.setItem(Timekey, preservedTime);
-      window.location.href = "keep_or_delete.html";
+
+      window.file.setFilePath("");
+
+      window.location.reload();
    });
 
    document.getElementById("exitButton").addEventListener("click", async () => {

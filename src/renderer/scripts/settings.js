@@ -23,7 +23,7 @@ backButtonSettings.addEventListener("click", async () => {
    }
    const removedFileTypes = await window.file.getRemovedFileTypes();
    currentIndex.reset();
-   swipe.displayCurrentFile();
+   ui.displayCurrentFile();
    progressBar.update();
    console.log(removedFileTypes)
    settingsModal.close();

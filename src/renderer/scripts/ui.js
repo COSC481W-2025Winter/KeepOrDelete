@@ -14,7 +14,9 @@ const inspectButton = document.getElementById("inspectButton");
 const welcome = document.getElementById("welcomeScreen");
 const previewContainer = document.getElementById("previewContainer");
 
-export function toggleUIElements(visible) {
+export function setWelcomeVisibility(visible) {
+   welcome.classList.toggle("hidden", !visible);
+
    const ids = [
       "trash_button",
       "dirDisplay",
@@ -24,21 +26,16 @@ export function toggleUIElements(visible) {
       "tooltip",
       "fileinfo",
       "backButton",
+      "mainHeader",
    ];
 
    ids.forEach(id => {
       const element = document.getElementById(id);
 
-      if (element) {
-         element.classList.toggle("hidden", !visible);
-      }
-
-      if (welcome) {
-         welcome.classList.toggle("hidden", visible);
-      }
-
-      if (visible) tooltip.reset();
+      element.hidden = visible;
    });
+
+   if (!visible) tooltip.reset();
 }
 
 export async function displayCurrentFile() {
