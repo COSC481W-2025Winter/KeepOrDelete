@@ -579,7 +579,7 @@ window.onload = async function () {
             currentX = e.clientX;
         }
         // Calculate distance moved
-        // let diffX = currentX - startX;
+        let diffX = currentX - startX;
         // Use distance moved to move the previewContainer
         dirDisplay.style.transform = `translateX(${diffX}px) rotate(${diffX / 15}deg)`;
     }
