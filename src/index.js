@@ -33,10 +33,12 @@ const createWindow = () => {
  /* pdf2json library converts a PDF into a JSON structure, 
  This custom function is created to process the JSON structure 
  and extract all text into one continuous string.*/
-function extractPDFText(pdfData) {
+ function extractPDFText(pdfData) {
    let fullText = "";
    if (pdfData && Array.isArray(pdfData.Pages)) {
-     pdfData.Pages.forEach((page) => {
+     // Only process the first two pages
+     const pagesToProcess = pdfData.Pages.slice(0, 2);
+     pagesToProcess.forEach((page) => {
        if (Array.isArray(page.Texts)) {
          page.Texts.forEach((textItem) => {
            if (Array.isArray(textItem.R)) {

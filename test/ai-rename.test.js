@@ -152,7 +152,7 @@ test("Image renaming limit prevents additional processing", async () => {
   await window.click("#renameButton");
   await window.click("#popupContent");
   const popupContentText = await window.locator("#popupContent").innerText();
-  await expect(popupContentText).toContain("reached the limit");
+  await expect(popupContentText).toContain("limit for image files has been reached");
 
   // Verify that the imageLimit remains at "2" in localStorage.
   const imageLimitStored = await window.evaluate(() =>
