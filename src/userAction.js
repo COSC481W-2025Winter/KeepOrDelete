@@ -38,15 +38,17 @@ export async function selectNewDirectory() {
       return fileName !== ".DS_Store";
    });
 
-   // Convert raw data into FileObject instances
-   fileObject.setFromFiles(files);
+   fileObject.reset();
    currentIndex.reset();
 
-   if (!fileObject.isEmpty()) {
+   // Convert raw data into FileObject instances
+   fileObject.setFromFiles(files);
+
+   if (fileObject.isEmpty()) {
+      currentItemElement.innerText = "No files found.";
+   } else {
       backButton.innerText = "Change Directory"
       ui.displayCurrentFile();
-   } else {
-      currentItemElement.innerText = "No files found.";
    }
 }
 

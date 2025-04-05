@@ -8,17 +8,14 @@ const deletedHeader = document.getElementById("deletedHeader");
 
 let filesToBeDeleted = 0;
 
-if (openTrashModal && closeTrashModal && trashModal && deletedFilesList) {
-   openTrashModal.addEventListener("click", function() {
-      loadDeletedFiles();
-      trashModal.showModal(); //load modal 
-   });
-   closeTrashModal.addEventListener("click", function() {
-      trashModal.close();
-   });
-} else {
-   console.error("One or more elements not found. Check your HTML IDs.");
-}
+openTrashModal.addEventListener("click", function() {
+   loadDeletedFiles();
+   trashModal.showModal(); //load modal 
+});
+
+closeTrashModal.addEventListener("click", function() {
+   trashModal.close();
+});
 
 function loadDeletedFiles() {
    let deletedFiles = fileObject.getAll().filter(f => f.status === "delete");

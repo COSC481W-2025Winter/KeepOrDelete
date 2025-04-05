@@ -1,6 +1,6 @@
 import * as fileObject from "./fileObjects.js"
 import * as userAction from "./userAction.js"
-import { getInspectMode, setInspectMode } from "./inspect.js"
+import { getInspectMode } from "./inspect.js"
 
 const previewContainer = document.getElementById("previewContainer");
 
