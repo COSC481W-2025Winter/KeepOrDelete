@@ -1,9 +1,8 @@
 import * as fileObject from "./fileObjects.js"
 import * as userAction from "./userAction.js"
+import { getInspectMode, setInspectMode } from "./inspect.js"
 
 const previewContainer = document.getElementById("previewContainer");
-
-let inspectMode = false;
 
 let startX;
 let currentX;
@@ -88,7 +87,7 @@ export function animateSwipe(direction) {
 // Detects when swipe is started
 export function startSwipe(e) {
    // Prevent swiping in Inspect Mode
-   if (inspectMode) return;
+   if (getInspectMode()) return;
    // Starting position
    startX = e.clientX || e.touches[0].clientX;
    currentX = startX;
@@ -113,7 +112,7 @@ export function moveSwipe(e) {
 }
 
 export function endSwipe(_e) {
-   if (!isSwiping || inspectMode) return;
+   if (!isSwiping || getInspectMode()) return;
    isSwiping = false;
    // Get final distance swiped
    let diffX = currentX - startX;
@@ -127,16 +126,4 @@ export function endSwipe(_e) {
    } else {
       resetPreviewPosition();
    }
-}
-
-export function getInspectMode() {
-   return inspectMode;
-}
-
-export function setInspectMode(b) {
-   inspectMode = b;
-}
-
-export function toggleInspectMode() {
-   inspectMode = !inspectMode;
 }

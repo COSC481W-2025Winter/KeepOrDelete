@@ -4,6 +4,7 @@ import * as currentIndex from "./currentIndex.js"
 import * as rename from "./rename.js"
 import * as settings from "./settings.js"
 import * as swipe from "./swipe.js"
+import * as inspect from "./inspect.js"
 import * as progress from "./progress.js"
 
 const currentItemElement = document.getElementById("currentItem");
@@ -66,7 +67,7 @@ export async function displayCurrentFile() {
    // Reset rename input field
    rename.resetRenameInput(renameContainer);
    //reset inspect mode upon file change
-   swipe.setInspectMode(false);
+   inspect.setInspectMode(false);
    inspectButton.innerText = "Inspect Document";
    // Attach Enter event listener for renaming
    //attachRenameListeners();
