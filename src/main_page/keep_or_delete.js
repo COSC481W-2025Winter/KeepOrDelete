@@ -1195,9 +1195,9 @@ window.onload = async function () {
                 deletedFiles.forEach(file => {
                     const fileName = file.name;
                     const listItem = document.createElement("li");
-                    listItem.innerText = fileName;
+                    listItem.innerText = fileName + " ";
                     const deleteButton = document.createElement("button");
-                    deleteButton.innerText = "Move to keep";
+                    deleteButton.innerText = "Restore";
                     deleteButton.classList.add("deleteUndo");
                     deleteButton.dataset.file = file.path;
                     listItem.appendChild(deleteButton);

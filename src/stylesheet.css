@@ -676,12 +676,6 @@ body.keep-or-delete.show {
   width: 100%; /* Ensures full width of container */
 }
 
-
-.box, button, .modal, #file-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
 * {
   transition: all 0.2s ease-in-out;
 }
@@ -705,3 +699,23 @@ body.keep-or-delete.show {
   }
 }
 
+
+.deleteUndo {
+  border-radius: 4px;
+  border: none;
+  height:  20px;
+  width: auto;
+  box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.25);
+  color: white;
+  font-size: inherit;
+  font-weight: bold;
+  width: auto;
+  padding: 0 15px;
+}
+
+#deletedFilesList {
+  margin-bottom: 20px;
+  padding: 5px 0;
+  line-height: 1.6;
+  list-style-type: disc;
+}
