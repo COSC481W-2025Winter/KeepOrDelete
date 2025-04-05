@@ -13,11 +13,19 @@ class FileObject {
 }
 
 // Collection of `FileObject` instances.
-let fileObjects = [];
+//
+// On initialization, restores from local storage if possible.
+let fileObjects = JSON.parse(localStorage.getItem("fileObjects")) || [];
+
+// Saves `fileObjects` to local storage. This restores the queue state on refresh.
+function saveToStorage() {
+   localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
+}
 
 /// Clears the `fileObjects` array.
 export function reset() {
-   fileObjects = []
+   fileObjects = [];
+   saveToStorage();
 }
 
 /// Returns a copy of a single `fileObject` element.
@@ -33,6 +41,7 @@ export function getAll() {
 /// Sets the status of a single `fileObjects` element.
 export function setStatus(i, status) {
    fileObjects[i].status = status;
+   saveToStorage();
 }
 
 /// Returns `true` if `fileObjects` is empty. Returns `false` otherwise.
@@ -44,6 +53,7 @@ export function isEmpty() {
 // `FileObject` instances created from the filepaths.
 export function setFromFiles(files) {
    fileObjects = files.map(f => new FileObject(f));
+   saveToStorage();
 }
 
 /// Sorts `fileObjects` by the specified order ("asc" | "desc")

@@ -1,5 +1,4 @@
-import * as fileObject from "../fileObjects.js"
-import * as swipe from "../swipe.js"
+import * as fileObjects from "../fileObjects.js"
 import * as progress from "../progress.js"
 import * as ui from "../ui.js"
 
@@ -12,9 +11,11 @@ if (!dirPath) {
 } else {
    // Show main UI and hide welcome screen
    ui.toggleUIElements(true);
+
    document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
-   if (!fileObject.isEmpty()) {
-      swipe.displayCurrentFile();
+
+   if (!fileObjects.isEmpty()) {
+      ui.displayCurrentFile();
    } else {
       progress.updateProgress();
       document.getElementById("currentItem").innerText = "No files found.";
