@@ -20,39 +20,39 @@ closeTrashModal.addEventListener("click", function() {
 function loadDeletedFiles() {
    let deletedFiles = fileObject.getAll().filter(f => f.status === "delete");
    filesToBeDeleted = deletedFiles.length;
-   if (filesToBeDeleted > 0) {
-      deletedHeader.innerHTML = `<h3 id="deletedHeader">${filesToBeDeleted} files to be deleted</h3>`;
+
+   // Delete existing HTML deletion list elements.
+   deletedFilesList.innerHTML = "";
+
+   if (filesToBeDeleted === 0) {
+      deletedHeader.innerHTML = `<h3 id="deletedHeader">No files to be deleted</h3>`
+      return;
    }
-   console.log(deletedFiles);
-   if (deletedFiles.length > 0) { //if there is something in deleted files, update
-      deletedFilesList.innerHTML = ""; //empty
-      deletedFiles.forEach(file => {
-         const fileName = file.name;
-         const listItem = document.createElement("li");
-         listItem.innerText = fileName;
-         const deleteButton = document.createElement("button");
-         deleteButton.innerText = "Move to keep";
-         deleteButton.classList.add("deleteUndo");
-         deleteButton.dataset.file = file.path;
-         listItem.appendChild(deleteButton);
-         deletedFilesList.appendChild(listItem);
-         //listener for keep button for each li
-         deleteButton.addEventListener("click", function() {
-            const filePath = deleteButton.dataset.file;
-            //get fileObjects in local storage and get index of file we are interested in
-            let targetIndex = fileObject.getAll().findIndex(f => f.path === filePath);
-            if (targetIndex !== -1) { //if its -1, wasn't found
-               filesToBeDeleted--;
-               fileObject.setStatus(targetIndex, "keep"); //set to keep
-               listItem.remove(); //built in remove method
-               deletedHeader.innerHTML = `<h3 id="deletedHeader">${filesToBeDeleted} files to be deleted</h3>`
-               if (filesToBeDeleted === 0) {
-                  deletedHeader.innerHTML = `<h3 id="deletedHeader">No files to be deleted</h3>`
 
-               }
-            }
-         });
+   deletedHeader.innerHTML = `<h3 id="deletedHeader">${filesToBeDeleted} files to be deleted</h3>`;
 
+   deletedFiles.forEach(file => {
+      const fileName = file.name;
+      const listItem = document.createElement("li");
+      listItem.innerText = fileName;
+      const deleteButton = document.createElement("button");
+      deleteButton.innerText = "Move to keep";
+      deleteButton.classList.add("deleteUndo");
+      deleteButton.dataset.file = file.path;
+      listItem.appendChild(deleteButton);
+      deletedFilesList.appendChild(listItem);
+      //listener for keep button for each li
+      deleteButton.addEventListener("click", function() {
+         const filePath = deleteButton.dataset.file;
+         //get fileObjects in local storage and get index of file we are interested in
+         let targetIndex = fileObject.getAll().findIndex(f => f.path === filePath);
+         if (targetIndex !== -1) { //if its -1, wasn't found
+            filesToBeDeleted--;
+            fileObject.setStatus(targetIndex, "keep"); //set to keep
+            listItem.remove(); //built in remove method
+            deletedHeader.innerHTML = `<h3 id="deletedHeader">${filesToBeDeleted} files to be deleted</h3>`
+         }
       });
-   }
+
+   });
 }
