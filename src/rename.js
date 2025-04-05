@@ -6,8 +6,10 @@ const renameContainer = document.getElementById("renameContainer");
 const renameButton = document.getElementById('renameButton');
 const popupContentElement = document.getElementById('popupContent');
 const renameModal = document.getElementById("renameModal");
-let renameInputElement = document.getElementById('renameInput');
+const closeModal = document.getElementById("closeModal");
+const confirmRenameButton = document.getElementById("confirmRename");
 const notification = document.getElementById('finalizeNotification');
+let renameInputElement = document.getElementById('renameInput');
 
 function showNotification(message) {
    notification.innerText = message;
@@ -167,3 +169,26 @@ function LimitDisplay() {
    }
    return false;
 }
+
+closeModal.addEventListener("click", () => {
+   renameModal.close();
+   resetRenameInput(renameContainer);
+});
+
+confirmRenameButton.addEventListener('click', async (event) => {
+   if (fileObject.isEmpty()) return;
+   event.preventDefault();
+   event.stopPropagation();
+   await handleRename();
+});
+
+// Add event listener for Enter key
+renameInputElement.addEventListener('keypress', async (event) => {
+   if (fileObject.isEmpty()) return;
+
+   if (event.key === "Enter") {
+      event.preventDefault();
+      event.stopPropagation();
+      await handleRename();
+   }
+});
