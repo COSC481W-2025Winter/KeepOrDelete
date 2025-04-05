@@ -12,7 +12,8 @@ export default defineConfig([
 		rules: {
 			"no-undef": "warn",
          "no-unused-vars": ["warn",{
-            "argsIgnorePattern": "^_"
+            "argsIgnorePattern": "^_",
+            "varsIgnorePattern": "^_"
          }]
 		},
       languageOptions: {
