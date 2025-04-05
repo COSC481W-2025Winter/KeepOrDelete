@@ -128,6 +128,10 @@ finalPageButton.addEventListener("click", () => {
    renderFileLists();
 });
 
+export function modalIsOpen() {
+   return finalizeModal.open;
+}
+
 closeFinalizeModal.addEventListener("click", () => {
    finalizeModal.close();
 });

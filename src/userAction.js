@@ -5,6 +5,7 @@ import * as tooltip from "./tooltip.js"
 import * as userAction from "./userAction.js"
 import * as ui from "./ui.js"
 import * as progress from "./progress.js"
+import * as finalize from "./finalize.js"
 
 const dirPathElement = document.getElementById("dirPath");
 const saved = document.getElementById("dataSaved");
@@ -114,7 +115,7 @@ document.getElementById("selectDirButton").addEventListener("click", async () =>
 
 // Arrow key file swiping
 document.addEventListener("keydown", async (e) => {
-   if (fileObject.isEmpty()) return;
+   if (fileObject.isEmpty() || finalize.modalIsOpen()) return;
 
    if (e.key === "ArrowRight") {
       swipe.animateSwipe("right");
