@@ -1,6 +1,6 @@
-import * as fileObjects from "../fileObjects.js"
-import * as progress from "../progress.js"
-import * as ui from "../ui.js"
+import * as fileObjects from "./fileObjects.js"
+import * as progress from "./progress.js"
+import * as ui from "./ui.js"
 
 // Cache DOM references
 const dirPath = await window.file.getFilePath();

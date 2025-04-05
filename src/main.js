@@ -17,7 +17,7 @@ const createWindow = () => {
       // Hide the top menu bar for release
       autoHideMenuBar: true,
       webPreferences: {
-         preload: path.join(__dirname, "preload.js"),
+         preload: path.join(__dirname, "preload", "preload.js"),
          sandbox: false,
          nodeIntegration: false,
          contextIsolation: true,
@@ -25,7 +25,7 @@ const createWindow = () => {
       }
    });
 
-   mainWindow.loadFile(path.join(__dirname, "main_page", "/keep_or_delete.html"));
+   mainWindow.loadFile(path.join(__dirname, "renderer", "index.html"));
 };
 /* Having the parsing logic in the main process avoids conflicts
  or errors related to worker configuration in preload.js */

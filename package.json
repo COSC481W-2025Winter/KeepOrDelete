@@ -3,7 +3,7 @@
   "productName": "KeepOrDelete",
   "version": "2.1.0",
   "description": "Interactive file system manager",
-  "main": "src/index.js",
+  "main": "./src/main.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",

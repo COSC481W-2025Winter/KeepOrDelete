@@ -3,7 +3,7 @@
 
 <head>
    <meta charset="UTF-8" />
-   <link rel="stylesheet" href="../stylesheet.css">
+   <link rel="stylesheet" href="./stylesheet.css">
    <meta http-equiv="Content-Security-Policy" content="default-src 'self';
          script-src 'self';
          connect-src 'self' https://610op4g6ei.execute-api.us-east-1.amazonaws.com;
@@ -72,7 +72,7 @@
    <div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
 
    <div>
-      <img src="trash.jpg" id="trash_button" alt="Trash Icon">
+      <img src="./res/trash.jpg" id="trash_button" alt="Trash Icon">
    </div>
 
    <dialog id="trash_dialog">
@@ -151,12 +151,12 @@
    </div>
 
 </body>
-<script type="module" src="../settings.js"></script>
-<script type="module" src="../rename.js"></script>
-<script type="module" src="../sort.js"></script>
-<script type="module" src="../finalize.js"></script>
-<script type="module" src="../trashModal.js"></script>
-<script type="module" src="../currentIndex.js"></script>
-<script type="module" src="./keep_or_delete.js"></script>
+<script type="module" src="./scripts/settings.js"></script>
+<script type="module" src="./scripts/rename.js"></script>
+<script type="module" src="./scripts/sort.js"></script>
+<script type="module" src="./scripts/finalize.js"></script>
+<script type="module" src="./scripts/trashModal.js"></script>
+<script type="module" src="./scripts/currentIndex.js"></script>
+<script type="module" src="./scripts/keep_or_delete.js"></script>
 
 </html>
