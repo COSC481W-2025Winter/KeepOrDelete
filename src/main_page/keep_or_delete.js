@@ -195,13 +195,17 @@ window.onload = async function () {
 
     //update to extract the name of the option selected and invoke that sort method that correlates
     sortOrderDropdown.addEventListener("change", () => {
-        sortFiles();
-        currentIndex = 0;
-        displayCurrentFile();
-        sortOrderDropdown.blur()
+        const sortOrder = sortOrderDropdown.value;
+        if (sortOrder === "asc" || sortOrder === "desc") {
+            sortFilesByName(sortOrder);
+        } else if (sortOrder === "up" || sortOrder === "down") {
+            sortFilesBySize(sortOrder);
+        }
+        displayCurrentFile(); // <- update your UI with sorted results
     });
 
-    //function for name
+
+    //function for name-
     function sortFilesByName() {
         const sortOrder = sortOrderDropdown.value;
         fileObjects.sort((a, b) => {
@@ -214,9 +218,15 @@ window.onload = async function () {
         localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
     }
     //function for size
-    function sortFilesBySize() {
-
+    function sortFilesBySize(order) {
+        fileObjects.sort((a, b) => {
+            return order === "up"
+                ? a.size - b.size  // Small → Big
+                : b.size - a.size; // Big → Small
+        });
+        localStorage.setItem("fileObjects", JSON.stringify(fileObjects));
     }
+
 
     function showNotification(message) {
         const notification = notificationElement;
