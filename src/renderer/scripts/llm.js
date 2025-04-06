@@ -2,15 +2,9 @@ import * as fileObject from "./fileObjects.js"
 import * as currentIndex from "./currentIndex.js"
 
 const popupContentElement = document.getElementById('popupContent');
-const aiButton = document.getElementById('popup')
-let renameInputElement = document.getElementById('renameInput');
-
-aiButton.addEventListener("click", () => {
-   if (fileObject.isEmpty()) return;
-   LLM();
-})
 
 export function LLM() {
+   let renameInputElement = document.getElementById('renameInput');
    const filename = fileObject.get(currentIndex.get()).path;
    // Check for file types using mime 
    //--------------------------------------------------------------------

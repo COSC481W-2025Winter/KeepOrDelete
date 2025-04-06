@@ -1,6 +1,8 @@
 import * as fileObject from "./fileObjects.js"
 import * as currentIndex from "./currentIndex.js"
 import * as ui from "./ui.js"
+import * as llm from "./llm.js"
+
 
 const renameContainer = document.getElementById("renameContainer");
 const renameButton = document.getElementById('renameButton');
@@ -179,6 +181,10 @@ renameButton.addEventListener('click', async (_event) => {
    }
    else {
       popupContentElement.innerText = "AI: Try me!"
+      popupContentElement.addEventListener("click", () => {
+         if (fileObject.isEmpty()) return;
+         llm.LLM();
+      })
    }
 });
 
