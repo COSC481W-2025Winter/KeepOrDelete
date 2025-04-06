@@ -14,6 +14,7 @@ const backButton = document.getElementById("backButton");
 const deleteButton = document.getElementById("deleteButton");
 const currentItemElement = document.getElementById("currentItem");
 const nextButton = document.getElementById("nextButton");
+let deleteInProgress = false;
 
 // Select directory and load new files
 export async function selectNewDirectory() {
@@ -68,12 +69,15 @@ export async function markForKeep() {
 
 /// Mark current file for deletion.
 export async function markForDelete() {
+   if (deleteInProgress) return;
+   deleteInProgress = true;
    if (fileObject.isEmpty()) {
       await window.file.showMessageBox({
          type: "error",
          title: "Error",
          message: "No file(s) to delete."
       });
+      deleteInProgress = false;
       return;
    }
 
@@ -89,6 +93,7 @@ export async function markForDelete() {
    await ui.displayCurrentFile();
    progressBar.update();
    swipe.resetPreviewPosition();
+   deleteInProgress = false;
 }
 
 // Change Directory Button
