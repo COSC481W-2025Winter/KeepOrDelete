@@ -16,3 +16,10 @@ function sortFiles() {
    fileObjects.sortBy(order, target);
    localStorage.setItem("fileObjects", JSON.stringify(fileObjects.getAll()));
 }
+
+export function restoreSort() {
+   // Set the dropdown to the A → Z value
+   sortOrderDropdown.value = "asc name";
+   sortFiles();
+   sortOrderDropdown.blur()
+}

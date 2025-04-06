@@ -6,6 +6,7 @@ import * as userAction from "./userAction.js"
 import * as ui from "./ui.js"
 import * as progressBar from "./progressBar.js"
 import * as finalize from "./finalize.js"
+import * as sort from "./sort.js"
 
 const dirPathElement = document.getElementById("dirPath");
 const saved = document.getElementById("dataSaved");
@@ -49,6 +50,7 @@ export async function selectNewDirectory() {
       currentItemElement.innerText = "No files found.";
    } else {
       backButton.innerText = "Change Directory"
+      sort.restoreSort();
       ui.displayCurrentFile();
    }
 }
