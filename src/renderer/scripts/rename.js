@@ -1,6 +1,6 @@
 import * as fileObject from "./fileObjects.js"
 import * as currentIndex from "./currentIndex.js"
-import * as swipe from "./swipe.js"
+import * as ui from "./ui.js"
 
 const renameContainer = document.getElementById("renameContainer");
 const renameButton = document.getElementById('renameButton');
