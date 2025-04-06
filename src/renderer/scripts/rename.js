@@ -8,17 +8,41 @@ const popupContentElement = document.getElementById('popupContent');
 const renameModal = document.getElementById("renameModal");
 const closeModal = document.getElementById("closeModal");
 const confirmRenameButton = document.getElementById("confirmRename");
-const notification = document.getElementById('finalizeNotification');
+const finalNotification = document.getElementById('finalizeNotification');
+const notification = document.getElementById('notification');
 let renameInputElement = document.getElementById('renameInput');
 
-function showNotification(message) {
-   notification.innerText = message;
-   notification.style.display = 'block';
-
-   // Hide the message after 3 seconds
+function showNotification(message, type = 'info') {
+   // Create a popup div
+   const popup = document.createElement('div');
+   popup.innerText = message;
+   popup.classList.add('popup-notification', type);
+   
+   popup.style.position = 'fixed';
+   popup.style.top = '20px';
+   popup.style.right = '20px';
+   popup.style.padding = '10px 20px';
+   popup.style.backgroundColor = type === 'error' ? '#f44336' : '#4CAF50';
+   popup.style.color = '#fff';
+   popup.style.borderRadius = '5px';
+   popup.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+   popup.style.zIndex = '99999';
+   const dialog = document.querySelector('dialog[open]');
+   if (dialog && dialog.open) {
+      dialog.appendChild(popup);
+      // Remove the popup after 3 seconds
    setTimeout(() => {
-      notification.style.display = 'none';
+      dialog.removeChild(popup);
    }, 3000);
+   } else {
+      document.body.appendChild(popup);
+      // Remove the popup after 3 seconds
+   setTimeout(() => {
+      document.body.removeChild(popup);
+   }, 3000);
+   }
+
+   
 }
 
 async function renameOnEnter(event) {
@@ -40,28 +64,30 @@ async function renameOnEnter(event) {
    }
 }
 
-export async function handleRename() {
-   const newName = renameInputElement.value.trim();
-   let currentFile = fileObject.get(currentIndex.get()).path;
+export async function handleRename(optionalInputElement, optionalFile) {
+   const inputElement = optionalInputElement || renameInputElement;
+   const newName = inputElement.value.trim();
 
    if (!newName) {
       showNotification('Please enter a new file name.', 'error');
-      resetRenameInput(renameContainer);
+      if (!optionalInputElement) resetRenameInput(renameContainer);
       return;
    }
 
    // Check for illegal characters and warn the user
    if (containsIllegalCharacters(newName)) {
       showNotification('⚠️ File name contains illegal characters.', 'error');
-      resetRenameInput(renameContainer);
+      if (!optionalInputElement) resetRenameInput(renameContainer);
       return;  // Prevent further action if invalid
    }
 
+   const currentFile = optionalFile || fileObject.get(currentIndex.get());
+   const currentFilePath = currentFile.path;
    // Ensure the new name has the correct file extension
-   const originalExtension = currentFile.substring(currentFile.lastIndexOf('.'));
+   const originalExtension = currentFilePath.substring(currentFilePath.lastIndexOf('.'));
    const finalName = newName.includes('.') ? newName : `${newName}${originalExtension}`;
 
-   const directoryPath = window.file.pathDirname(currentFile);
+   const directoryPath = window.file.pathDirname(currentFilePath);
    const newFilePath = window.file.pathJoin(directoryPath, finalName);
 
    try {
@@ -72,31 +98,31 @@ export async function handleRename() {
       const allFileNames = allFilePaths.map(filePath => window.file.pathBasename(filePath));
 
       // Step 3: Check if the new name already exists (excluding the current file)
-      if (allFileNames.includes(finalName) && currentFile !== newFilePath) {
+      if (allFileNames.includes(finalName) && currentFilePath !== newFilePath) {
          showNotification(`A file named "${finalName}" already exists.`, 'error');
-         resetRenameInput(renameContainer);
+         if (!optionalInputElement) resetRenameInput(renameContainer);
          return;  // **This return ensures we don't continue to the renaming operation**
       }
 
       console.log('Renaming:', currentFile, 'to', newFilePath);
 
       // Step 4: Perform the rename
-      const response = await window.file.renameFile(currentFile, newFilePath);
+      const response = await window.file.renameFile(currentFilePath, newFilePath);
       if (response.success) {
-         renameModal.close();
+         if (!optionalInputElement) renameModal.close();
          showNotification(`File renamed successfully to ${finalName}`, 'success');
-         fileObject.get(currentIndex.get()).name = window.file.pathBasename(newFilePath);
-         fileObject.get(currentIndex.get()).path = newFilePath;
+         currentFile.name = window.file.pathBasename(newFilePath);
+         currentFile.path = newFilePath;
          ui.displayCurrentFile();
-         resetRenameInput(renameContainer);
+         if (!optionalInputElement) resetRenameInput(renameContainer);
       } else {
          showNotification(response.message || 'Failed to rename the file.', 'error');
-         resetRenameInput(renameContainer);
+         if (!optionalInputElement) resetRenameInput(renameContainer);
       }
    } catch (error) {
       console.error('Error renaming file:', error);
       showNotification(`An error occurred: ${error.message}`, 'error');
-      resetRenameInput(renameContainer);
+      if (!optionalInputElement) resetRenameInput(renameContainer);
    }
 }
 
