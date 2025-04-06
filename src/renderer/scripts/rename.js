@@ -178,13 +178,12 @@ renameButton.addEventListener('click', async (_event) => {
          const timeLeft = window.file.convertMillisecondsToTimeLeft(14400000 - (Date.now() - loggedTime));
          popupContentElement.textContent = timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " left until I can suggest a name for images.";
       }
+      else{
+         popupContentElement.innerText = "AI: Try me!"
+      }
    }
    else {
       popupContentElement.innerText = "AI: Try me!"
-      popupContentElement.addEventListener("click", () => {
-         if (fileObject.isEmpty()) return;
-         llm.LLM();
-      })
    }
 });
 
@@ -213,6 +212,11 @@ confirmRenameButton.addEventListener('click', async (event) => {
    event.stopPropagation();
    await handleRename();
 });
+
+popupContentElement.addEventListener("click", () => {
+   if (fileObject.isEmpty()) return;
+   llm.LLM();
+})
 
 // Add event listener for Enter key
 renameInputElement.addEventListener('keypress', async (event) => {
