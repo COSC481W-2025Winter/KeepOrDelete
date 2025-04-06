@@ -1,5 +1,5 @@
 import * as currentIndex from "./currentIndex.js"
-import * as swipe from "./swipe.js"
+import * as ui from "./ui.js"
 import * as fileObjects from "./fileObjects.js"
 
 const sortOrderDropdown = document.getElementById("sortOrder");
@@ -12,7 +12,7 @@ sortOrderDropdown.addEventListener("change", () => {
 });
 
 function sortFiles() {
-   const sortOrder = sortOrderDropdown.value;
-   fileObjects.sortBy(sortOrder);
+   const [order, target] = sortOrderDropdown.value.split(" ");
+   fileObjects.sortBy(order, target);
    localStorage.setItem("fileObjects", JSON.stringify(fileObjects.getAll()));
 }

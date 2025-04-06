@@ -56,13 +56,19 @@ export function setFromFiles(files) {
    saveToStorage();
 }
 
-/// Sorts `fileObjects` by the specified order ("asc" | "desc")
-export function sortBy(order) {
+/// Sorts `fileObjects` by the specified order ("asc" | "desc") and specified target to sort by
+export function sortBy(order, target = "name") {
    fileObjects.sort((a, b) => {
-      const nameA = a.name.toLowerCase();
-      const nameB = b.name.toLowerCase();
-      if (nameA < nameB) return order === "asc" ? -1 : 1;
-      if (nameA > nameB) return order === "asc" ? 1 : -1;
-      return 0; // Stable sort
+      if (target === "name") {
+         const nameA = a.name.toLowerCase();
+         const nameB = b.name.toLowerCase();
+         if (nameA < nameB) return order === "asc" ? -1 : 1;
+         if (nameA > nameB) return order === "asc" ? 1 : -1;
+         return 0; // Stable sort
+      } else if (target === "size") {
+         if (a.size < b.size) return order === "asc" ? -1 : 1;
+         if (a.size > b.size) return order === "asc" ? 1 : -1;
+         return 0; // Stable sort
+      }
    });
 }
