@@ -9,7 +9,16 @@ inspectButton.addEventListener("click", () => {
    // Toggle inspect mode state
    toggleInspectMode();
 
-
+   if (inspectMode) {
+      fileContainer.style.transform = "scale(1.25)";
+      //iframe.style.transform = "scale(0.75)";
+      file
+    } else {
+      fileContainer.style.transform = "scale(1)";
+      //iframe.style.transform = "scale(1)";
+    }
+    
+   
    
    if (iframe) {
       // Toggle pointer-events for PDF(allows pdf interaction)

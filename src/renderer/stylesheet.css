@@ -20,6 +20,7 @@ body {
 }
 
 #welcomeScreen {
+  z-index: 10000000000;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -109,6 +110,7 @@ body.keep-or-delete.show {
 
 /*Previews*/
 .fileContainer{
+  z-index: 10000000;
   position: relative;
   width: 65%;
   min-width: 300px;
@@ -120,7 +122,23 @@ body.keep-or-delete.show {
   padding: 0;
   box-sizing: border-box;
   overflow: visible;
+  transform-origin: center center;
+  transition: transform 0.3s ease;
 }
+
+.fileOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0,0,0,0.1); /* optional background */
+  z-index: 999; /* Make sure it's above everything */
+}
+
 #previewWrapper {
   position: relative;
   width: 100%;
@@ -154,6 +172,9 @@ body.keep-or-delete.show {
   pointer-events: none;
   user-select: none;
 }
+
+
+
 .txtPreview {
   display: block !important;
   background: rgba(255, 255, 255, 0.34);  
@@ -178,6 +199,7 @@ body.keep-or-delete.show {
   pointer-events: none;
 }
 .pdfPreview iframe {
+  -webkit-font-smoothing: subpixel-antialiased;
   position: absolute;
   top: 0;
   left: 0;
