@@ -32,7 +32,7 @@ function loadDeletedFiles() {
       return;
    }
 
-   deletedHeader.innerHTML = `<h3 id="deletedHeader">${filesToBeDeleted} files to be deleted</h3>`;
+   deletedHeader.innerHTML = `<h3 id="deletedHeader">Files to be deleted: ${filesToBeDeleted}</h3>`;
 
    deletedFiles.forEach(file => {
       const fileName = file.name;
