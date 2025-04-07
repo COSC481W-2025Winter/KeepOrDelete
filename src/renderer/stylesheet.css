@@ -7,7 +7,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f4f4;.
+  background-color: #f4f4f4;
   font-size: 16px;
   font-weight: 400;
   letter-spacing: 0.25px;
@@ -767,6 +767,7 @@ body.keep-or-delete.show {
   padding: 0;
   border: none;
   background: transparent;
+  overflow: hidden;
 }
 
 .final-page {
@@ -1161,6 +1162,24 @@ body.keep-or-delete.show {
 #deletedFilesList li button:active {
   transform: scale(0.96);
 }
+
+/*Scrollbars*/
+::-webkit-scrollbar {
+  height: 12px;
+  width: 8px;
+  background: #ffffff;
+}
+::-webkit-scrollbar-thumb {
+  background: #d7d7d7;
+  border-radius: 1ex;
+  box-shadow: 0px 1px 2px rgba(255, 255, 255, 0.75);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #aaaaaa;
+  border-radius: 2ex;
+  box-shadow: 0px 1px 2px rgba(217, 216, 216, 0.75);
+}
+
 
 /*Rename*/
 /*SOMEONE FINISHHHH*/
