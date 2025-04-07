@@ -61,7 +61,7 @@ async function setupWithTestFile(testFile) {
       })
    }
 
-   await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
+   await window.goto("file://" + path.resolve(__dirname, "../src/renderer/index.html"));
 
    // Intercept file selection dialog
    await electronApp.evaluate(({ dialog }, tmpDir) => {

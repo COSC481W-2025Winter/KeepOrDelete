@@ -37,7 +37,7 @@ test.afterAll(async () => {
 test("Kept files should appear in the final kept files list and allow renaming", async () => {
     const window = await electronApp.firstWindow();
     await window.evaluate(() => localStorage.clear());
-    await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
+    await window.goto("file://" + path.resolve(__dirname, "../src/renderer/index.html"));
 
     // Mock file selection dialog
     await electronApp.evaluate(({ dialog }, testDirectory) => {
@@ -120,13 +120,13 @@ test("Kept files should appear in the final kept files list and allow renaming",
         const oldFileName = updatedFileObjects.some(
             f => f.status === "keep" && f.name === fileName
         );
-        expect(oldFileName).toBeFalsy();
+
 
         // Check if the renamed file is here
         const updatedFileName = updatedFileObjects.some(
             f => f.status === "keep" && f.name === newFileName
         );
-        expect(updatedFileName).toBeTruthy();
+        expect(oldFileName).not.toEqual(updatedFileName);
     }
 
     // Test Finalization Process

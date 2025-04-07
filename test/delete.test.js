@@ -5,7 +5,7 @@ const fs = require("fs/promises");
 
 let app;
 //entry point in our file tree
-const filePath = path.resolve(__dirname, "../src/main_page/keep_or_delete.html");
+const filePath = path.resolve(__dirname, "../src/renderer/index.html");
 const fileUrl = `file://${filePath}`;
 
 const testDirectory = path.join(__dirname, "test-files"); //test directory and files
@@ -29,11 +29,14 @@ test.beforeEach(async () => {
         userAgent: "Playwright" 
     });
 });
+test.afterEach(async () => {
+    await app.close();
+});
 
 test("will delete common file types with next button", async ({ page }) => {
     //this to line 56 is getting us to keep_or_delete.html
     const window = await app.firstWindow();
-    await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
+    await window.goto("file://" + path.resolve(__dirname, "../src/renderer/index.html"));
     await window.evaluate(() => localStorage.clear());
     await app.evaluate(({ dialog }, testDirectory) => {
         dialog.showOpenDialog = async () => ({
@@ -87,7 +90,7 @@ test("will delete common file types with next button", async ({ page }) => {
 test("will delete common file types with swiping", async ({ page }) => {
     //this to line 56 is getting us to keep_or_delete.html
     const window = await app.firstWindow();
-    await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
+    await window.goto("file://" + path.resolve(__dirname, "../src/renderer/index.html"));
     await window.evaluate(() => localStorage.clear());
     await app.evaluate(({ dialog }, testDirectory) => {
         dialog.showOpenDialog = async () => ({
