@@ -19,23 +19,24 @@ For Mac users, we recommend downloading different files depending on your system
 
 Keep or Delete requires special system privileges in order to run on Mac.
 
-1. After downloading, drag KeepOrDelete to applications folder.
+1. After downloading, drag KeepOrDelete to Applications folder.
 
-![screenshot](installation_ex/1.png)
+<img src="installation_ex/1.png" alt="screenshot" width="400"/>
 
 2. Once you click on the application there will be a popup. Click "Done".
 
-![screenshot](installation_ex/2.png)
+<img src="installation_ex/2.png" alt="screenshot" width="400"/>
 
 3. Open the Apple Menu.
 4. Click "System Settings".
 
-![screenshot](installation_ex/3.png)
+<img src="installation_ex/3.png" alt="screenshot" width="400"/>
 
 5. In the sidebar, click "Privacy & Security".
 6. Navigate to "Security", then click "Open".
 7. Select "Open Anyway". Enter your password when prompted.
-![screenshot](installation_ex/4.png)
+
+<img src="installation_ex/4.png" alt="screenshot" width="400"/>
 
 ### Linux
 
