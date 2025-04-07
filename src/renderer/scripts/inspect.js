@@ -4,10 +4,13 @@ const inspectButton = document.getElementById("inspectButton");
 
 inspectButton.addEventListener("click", () => {
    const iframe = document.querySelector("#previewContainer iframe");
+   const fileContainer = document.getElementById("fileContainer");
    const textPreview = document.querySelector("#previewContainer pre");
    // Toggle inspect mode state
    toggleInspectMode();
 
+
+   
    if (iframe) {
       // Toggle pointer-events for PDF(allows pdf interaction)
       iframe.style.pointerEvents = inspectMode ? "auto" : "none";

@@ -2,7 +2,7 @@ import * as fileObject from "./fileObjects.js"
 import * as userAction from "./userAction.js"
 import { getInspectMode } from "./inspect.js"
 
-const previewContainer = document.getElementById("previewContainer");
+const previewContainer = document.getElementById("fileContainer");
 
 let startX;
 let currentX;
