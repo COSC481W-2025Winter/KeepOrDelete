@@ -11,7 +11,7 @@ if (!dirPath) {
    // Show main UI and hide welcome screen
    ui.setWelcomeVisibility(false);
 
-   document.getElementById("dirPath").innerText = `Selected Directory: \n${dirPath}`;
+   document.getElementById("dirPath").innerText = `Current Directory: ${dirPath}`;
 
    if (!fileObjects.isEmpty()) {
       ui.displayCurrentFile();

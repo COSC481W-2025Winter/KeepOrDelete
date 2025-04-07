@@ -8,6 +8,26 @@ const closeFinalizeModal = document.getElementById("closeFinalizeModal");
 finalPageButton.addEventListener("click", () => {
    finalizeModal.showModal();
 
+   const tabButtons = document.querySelectorAll('.tab');
+   const tabContents = {
+      kept: document.getElementById('keptTab'),
+      deleted: document.getElementById('deletedTab'),
+   };
+
+   tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+         const target = btn.dataset.tab;
+
+         // Toggle active tab button
+         tabButtons.forEach(b => b.classList.remove('active'));
+         btn.classList.add('active');
+
+         // Toggle content
+         for (const [key, el] of Object.entries(tabContents)) {
+            el.classList.toggle('hidden', key !== target);
+         }
+      });
+   });
    // Get references to the kept and deleted files 
    const keptFilesList = document.getElementById("keptFilesList");
    const deletedFilesList = document.getElementById("finalizedDeletedFilesList");
@@ -41,24 +61,26 @@ finalPageButton.addEventListener("click", () => {
 
    // Display the kept files 
    function renderKeptFile(file) {
+      const listItem = document.createElement("li");
       const renameInput = document.createElement("input");
+
       renameInput.type = "text";
       renameInput.value = file.name;
+      renameInput.title = "Rename file"
       renameInput.classList.add("rename-input");
       renameInput.dataset.oldname = file.path;
 
-      const listItem = document.createElement("li");
       listItem.appendChild(renameInput);
       keptFilesList.appendChild(listItem);
 
-      renameInput.addEventListener("keypress", async function(event) {
+      renameInput.addEventListener("keypress", async function (event) {
          if (event.key === "Enter") {
             await rename.handleRename(renameInput, file);
             renderFileLists();
          }
       });
 
-      renameInput.addEventListener("blur", async function() {
+      renameInput.addEventListener("blur", async function () {
          await rename.handleRename(renameInput, file);
          renderFileLists();
       });
@@ -67,15 +89,20 @@ finalPageButton.addEventListener("click", () => {
    // Display the deleted files 
    function renderDeletedFile(file) {
       const listItem = document.createElement("li");
-      listItem.innerText = file.name;
-      const deleteButton = document.createElement("button");
-      deleteButton.innerText = "Move to keep";
-      deleteButton.classList.add("deleteUndo");
-      deleteButton.dataset.path = file.path;
-      listItem.appendChild(deleteButton);
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "file-name";
+      nameSpan.textContent = file.name;
+
+      const undoButton = document.createElement("button");
+      undoButton.textContent = "Restore";
+      undoButton.title = "Undo deletion"
+      undoButton.dataset.path = file.path;
+
+      listItem.appendChild(nameSpan);
+      listItem.appendChild(undoButton);
       deletedFilesList.appendChild(listItem);
 
-      deleteButton.addEventListener("click", () => {
+      undoButton.addEventListener("click", () => {
          // Update file status to keep
          file.status = "keep";
          // Re-render lists

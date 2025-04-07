@@ -12,7 +12,6 @@
    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
    <title>KeepOrDelete</title>
 </head>
-<!-- Here u can add other tabs and compnents for display-->
 
 <body class="keep-or-delete">
    <div id="welcomeScreen" class="welcome-container">
@@ -20,26 +19,54 @@
       <p>Select a directory to get started.</p>
       <button id="selectDirButton">Select Directory</button>
    </div>
-   <h1 id="mainHeader">KeepOrDelete</h1>
-   <div id="dirDisplay">
-      <p id="dirPath"></p>
-      <button id="inspectButton">Inspect Document</button>
-      <button id="renameButton">Rename File</button>
 
-      <div class="sort-container">
-         <label for="sortOrder" class="sort-label">Sort Order:</label>
-         <select id="sortOrder" class="sort-dropdown">
-            <option value="asc name">A → Z</option>
-            <option value="desc name">Z → A</option>
-            <option value="asc size">File Size (Ascending)</option>
-            <option value="desc size">File Size (Descending)</option>
-         </select>
+   <div id="headerBar">
+      <button id="backButton">Change Directory</button>
+      <div id="dirPathContainer">
+         <p id="dirPath">No directory selected</p>
+         <div class="sort-container">
+            <label for="sortOrder" class="sort-label">Sort By:</label>
+            <select id="sortOrder" class="sort-dropdown">
+               <option value="asc name">A → Z</option>
+               <option value="desc name">Z → A</option>
+               <option value="asc size">File Size (Ascending)</option>
+               <option value="desc size">File Size (Descending)</option>
+            </select>
+         </div>
       </div>
-
-      <div id="previewContainer"></div>
+      <button id="settingsButton" title="Settings">⚙️</button>
+   </div>
+   <div id="trashButtonContainer">
+      <button id="trash_button" title="Recently Deleted">🗑️</button>
+      <span id="trashBadge">0</span>
    </div>
 
+   <div class="fileContainer">
+      <button id="inspectButton" title="Inspect Document">🔎</button>
+
+      <div id="previewWrapper">
+         <div id="previewContainer"></div>
+
+      </div>
+      <div id="fileinfo" class="file-info">
+         <div class="nameContainer">
+            <p id="currentItem"></p>
+            <button id="renameButton" title="Rename File">
+               <img src="./res/edit.svg" alt="Rename" class="icon-svg" />
+            </button>
+         </div>
+         <p id="currentItemSize"></p>
+
+      </div>
+
+   </div>
+   </div>
+
+   <button id="deleteButton">❌</button>
+   <button id="nextButton">✔️</button>
+
    <div id="notification"> </div>
+
    <dialog id="renameModal">
       <div id="renameContainer">
          <input type="text" id="renameInput" placeholder="Enter new file name">
@@ -54,31 +81,23 @@
       </div>
    </dialog>
 
+
    <div id="progress-bar" class="glowing">
       <div id="progress"></div>
    </div>
-   <div id="dataSaved"></div>
-   <button id="backButton">Change Directory</button>
 
-   <div id="fileinfo" class="file-info">
-      <p id="currentItem"></p>
-      <p id="currentItemSize"></p>
-   </div>
+   <div id="dataSaved"></div>
+
    <div class="button-container">
-      <button id="deleteButton">Delete</button>
-      <button id="nextButton">Keep</button>
-      <button id="finalPageButton">Review & Finalize</button>
-      <button id="settingsButton">Settings</button>
+
+      <button id="finalPageButton">Review ➜</button>
    </div>
 
    <div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
 
-   <div>
-      <img src="./res/trash.jpg" id="trash_button" alt="Trash Icon">
-   </div>
 
    <dialog id="trash_dialog">
-      <button id="closeTrashModal">Close</button>
+      <button id="closeTrashModal">🗙</button>
       <div class="trash-container">
          <h3 id="deletedHeader">No files to be deleted</h3>
          <ul id="deletedFilesList"></ul>
@@ -89,8 +108,13 @@
    <dialog id="finalizeModal">
       <div class="final-page">
          <div class="final-container">
+            <button id="closeFinalizeModal" autofocus>🗙</button>
             <h1>Final Step: Review Your Files</h1>
-            <div class="file-container">
+            <div class="tab-buttons">
+               <button class="tab active" data-tab="kept">Kept Files</button>
+               <button class="tab" data-tab="deleted">Deleted Files</button>
+            </div>
+            <div class="tab-content" id="keptTab">
                <div class="kept-files">
                   <h2>Kept Files</h2>
                   <div id="finalizeNotification">
@@ -98,59 +122,64 @@
                   </div>
                   <div id="keptFilesList"></div>
                </div>
-
+            </div>
+            <div class="tab-content hidden" id="deletedTab">
                <div class="deleted-files">
                   <h2>Deleted Files</h2>
                   <div id="finalizedDeletedFilesList"></div>
                </div>
             </div>
-
             <div id="finalizeModalButtons">
-               <button id="closeFinalizeModal" autofocus>Close</button>
                <div class="btnPadding"></div>
                <button id="finalizeButton">Finalize & Select New Directory</button>
                <button id="exitButton">Finalize & Exit</button>
             </div>
          </div>
+
+
+      </div>
       </div>
    </dialog>
    <dialog id="settingsModal">
 
-   <div class="container">
-      <h1>Settings</h1>
-      <h3>Uncheck a box to hide files of that type from view</h3>
-      <div class="settings">
-        <div class="settings-row">
-          <h3>Coding Files</h3>
-          <div><input type="checkbox" id="py" name="py" value="py" checked /><label for="py">.py</label></div>
-          <div><input type="checkbox" id="java" name="java" value="java" checked /><label for="java">.java</label></div>
-          <div><input type="checkbox" id="js" name="js" value="js" checked /><label for="js">.js</label></div>
-          <div><input type="checkbox" id="jar" name="jar" value="jar" checked /><label for="jar">.jar</label></div>
-        </div>
-  
-        <div class="settings-row">
-          <h3>Writing Files</h3>
-          <div><input type="checkbox" id="txt" name="txt" value="txt" checked /><label for="txt">.txt</label></div>
-          <div><input type="checkbox" id="csv" name="csv" value="csv" checked /><label for="csv">.csv</label></div>
-          <div><input type="checkbox" id="pdf" name="pdf" value="pdf" checked /><label for="pdf">.pdf</label></div>
-          <div><input type="checkbox" id="md" name="md" value="md" checked /><label for="md">.md</label></div>
-          <div><input type="checkbox" id="doc" name="doc" value="doc" checked /><label for="doc">.doc</label></div>
-          <div><input type="checkbox" id="docx" name="docx" value="docx" checked /><label for="docx">.docx</label></div>
-          <div><input type="checkbox" id="pptx" name="pptx" value="pptx" checked /><label for="pptx">.pptx</label></div>
-        </div>
-  
-        <div class="settings-row">
-          <h3>Media Files</h3>
-          <div><input type="checkbox" id="png" name="png" value="png" checked /><label for="png">.png</label></div>
-          <div><input type="checkbox" id="jpg" name="jpg" value="jpg" checked /><label for="jpg">.jpg</label></div>
-          <div><input type="checkbox" id="mp4" name="mp4" value="mp4" checked /><label for="mp4">.mp4</label></div>
-          <div><input type="checkbox" id="wav" name="wav" value="wav" checked /><label for="wav">.wav</label></div>
-          <div><input type="checkbox" id="mp3" name="mp3" value="mp3" checked /><label for="mp3">.mp3</label></div>
-        </div>
+      <div class="container">
+         <h1>Settings</h1>
+         <h3>Filters out unselected files</h3>
+         <div class="settings">
+            <div class="settings-row">
+               <h3>Coding Files</h3>
+               <div><input type="checkbox" id="py" name="py" value="py" checked /><label for="py">.py</label></div>
+               <div><input type="checkbox" id="java" name="java" value="java" checked /><label for="java">.java</label>
+               </div>
+               <div><input type="checkbox" id="js" name="js" value="js" checked /><label for="js">.js</label></div>
+               <div><input type="checkbox" id="jar" name="jar" value="jar" checked /><label for="jar">.jar</label></div>
+            </div>
+
+            <div class="settings-row">
+               <h3>Writing Files</h3>
+               <div><input type="checkbox" id="txt" name="txt" value="txt" checked /><label for="txt">.txt</label></div>
+               <div><input type="checkbox" id="csv" name="csv" value="csv" checked /><label for="csv">.csv</label></div>
+               <div><input type="checkbox" id="pdf" name="pdf" value="pdf" checked /><label for="pdf">.pdf</label></div>
+               <div><input type="checkbox" id="md" name="md" value="md" checked /><label for="md">.md</label></div>
+               <div><input type="checkbox" id="doc" name="doc" value="doc" checked /><label for="doc">.doc</label></div>
+               <div><input type="checkbox" id="docx" name="docx" value="docx" checked /><label for="docx">.docx</label>
+               </div>
+               <div><input type="checkbox" id="pptx" name="pptx" value="pptx" checked /><label for="pptx">.pptx</label>
+               </div>
+            </div>
+
+            <div class="settings-row">
+               <h3>Media Files</h3>
+               <div><input type="checkbox" id="png" name="png" value="png" checked /><label for="png">.png</label></div>
+               <div><input type="checkbox" id="jpg" name="jpg" value="jpg" checked /><label for="jpg">.jpg</label></div>
+               <div><input type="checkbox" id="mp4" name="mp4" value="mp4" checked /><label for="mp4">.mp4</label></div>
+               <div><input type="checkbox" id="wav" name="wav" value="wav" checked /><label for="wav">.wav</label></div>
+               <div><input type="checkbox" id="mp3" name="mp3" value="mp3" checked /><label for="mp3">.mp3</label></div>
+            </div>
+         </div>
+         <button id="backButtonSettings">🗙</button>
       </div>
-      <button id="backButtonSettings">Back</button>
-    </div>
-   </div>
+      </div>
 
 </body>
 <script type="module" src="./scripts/settings.js"></script>

@@ -8,12 +8,14 @@ const deletedHeader = document.getElementById("deletedHeader");
 
 let filesToBeDeleted = 0;
 
-openTrashModal.addEventListener("click", function() {
+openTrashModal.addEventListener("click", function () {
    loadDeletedFiles();
+   document.getElementById("trash_dialog").style.display = "block";
    trashModal.showModal(); //load modal 
 });
 
-closeTrashModal.addEventListener("click", function() {
+closeTrashModal.addEventListener("click", function () {
+   document.getElementById("trash_dialog").style.display = "none";
    trashModal.close();
 });
 
@@ -34,15 +36,19 @@ function loadDeletedFiles() {
    deletedFiles.forEach(file => {
       const fileName = file.name;
       const listItem = document.createElement("li");
-      listItem.innerText = fileName;
+      const fileNameSpan = document.createElement("span");
+      fileNameSpan.classList.add("file-name");
+      fileNameSpan.textContent = fileName;
+      listItem.appendChild(fileNameSpan);
       const deleteButton = document.createElement("button");
-      deleteButton.innerText = "Move to keep";
+      deleteButton.innerText = "Undo";
+      deleteButton.title = "Undo deletion"
       deleteButton.classList.add("deleteUndo");
       deleteButton.dataset.file = file.path;
       listItem.appendChild(deleteButton);
       deletedFilesList.appendChild(listItem);
       //listener for keep button for each li
-      deleteButton.addEventListener("click", function() {
+      deleteButton.addEventListener("click", function () {
          const filePath = deleteButton.dataset.file;
          //get fileObjects in local storage and get index of file we are interested in
          let targetIndex = fileObject.getAll().findIndex(f => f.path === filePath);

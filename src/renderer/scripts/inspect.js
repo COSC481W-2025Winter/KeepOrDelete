@@ -16,10 +16,15 @@ inspectButton.addEventListener("click", () => {
    if (textPreview) {
       // Toggle user-select for text files (allows highlighting)
       textPreview.style.userSelect = inspectMode ? "text" : "none";
+      const txtContainer = textPreview.closest('.txtPreview');
+      if (txtContainer) {
+         txtContainer.style.pointerEvents = inspectMode ? "auto" : "none";
+      }
    }
 
    // Update button text
-   inspectButton.innerText = inspectMode ? "Exit Inspect" : "Inspect Document";
+   inspectButton.innerText = inspectMode ? "❌" : "🔎";
+   inspectButton.title = inspectMode ? "Exit inspect mode" : "Inspect Document"
 });
 
 function toggleInspectMode() {

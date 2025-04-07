@@ -27,7 +27,7 @@ export async function selectNewDirectory() {
 
    tooltip.show();
 
-   dirPathElement.innerText = `Selected Directory: \n${dirPath}`;
+   dirPathElement.innerText = `Current Directory: ${dirPath}`;
 
    saved.innerText = '';
 

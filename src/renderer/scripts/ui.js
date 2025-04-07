@@ -14,19 +14,21 @@ const inspectButton = document.getElementById("inspectButton");
 const welcome = document.getElementById("welcomeScreen");
 const previewContainer = document.getElementById("previewContainer");
 
+
 export function setWelcomeVisibility(visible) {
    welcome.classList.toggle("hidden", !visible);
 
    const ids = [
       "trash_button",
-      "dirDisplay",
+      "previewWrapper",
       "previewContainer",
       "notification",
       "progress-bar",
       "tooltip",
       "fileinfo",
       "backButton",
-      "mainHeader",
+      "trashBadge",
+      "finalPageButton"
    ];
 
    ids.forEach(id => {
@@ -51,21 +53,22 @@ export async function displayCurrentFile() {
    if (index >= fileObjects.length) {
       currentItemElement.innerText = "No files in queue.";
       currentItemSizeElement.innerText = "";
-      previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
+      previewContainer.innerHTML = "You've reached the end! Press the 'Review' button to wrap up.";
       return
    }
 
    console.log(fileObjects[index].ext)
    const file = fileObjects[index];
-   currentItemElement.innerText = "Current File: " + file.name;
+   currentItemElement.innerText = file.name;
    let formattedSize = window.file.formatFileSize(file.size);
-   currentItemSizeElement.innerText = "| File Size: " + formattedSize;
+   currentItemSizeElement.innerText = "File size: " + formattedSize;
+   updateTrashBadge()
    refreshPreview(file.path);
    // Reset rename input field
    rename.resetRenameInput(renameContainer);
    //reset inspect mode upon file change
    inspect.setInspectMode(false);
-   inspectButton.innerText = "Inspect Document";
+   inspectButton.innerText = "🔎";
    // Attach Enter event listener for renaming
    //attachRenameListeners();
 }
@@ -75,4 +78,16 @@ async function refreshPreview(filePath) {
    previewContainer.innerHTML = previewHTML || "<p>Preview not available</p>";
    swipe.resetPreviewPosition();
    progressBar.update();
+}
+
+function updateTrashBadge() {
+   let badge = document.getElementById("trashBadge");
+   let deletedFiles = fileObject.getAll().filter(f => f.status === "delete");
+   if (deletedFiles.length > 0) {
+      badge.textContent = deletedFiles.length > 99 ? "99+" : deletedFiles.length;
+      badge.hidden = false;
+
+   } else {
+      badge.hidden = true;
+   }
 }

@@ -12,8 +12,10 @@ const createWindow = () => {
    mainWindow = new BrowserWindow({
       width: 1600,
       height: 900,
+      minWidth: 700,
+      minHeight: 800,
       // Lock window rezing until we do our UI overhaul to prevent hidden items
-      resizable: false,
+      resizable: true,
       // Hide the top menu bar for release
       autoHideMenuBar: true,
       webPreferences: {

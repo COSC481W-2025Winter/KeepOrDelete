@@ -1,324 +1,213 @@
-/* General page styling */
 html,
 body {
   overflow: hidden;
 }
-
-#trash_dialog {
-  position: fixed;
-  top: 0px;
-  bottom: auto;
-  left: auto;
-  right: 20px;
-  z-index: 1000;
-  width: 300px;
-  height: 500px;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-#finalizeModal {
-   width: 87%;
-   height: 87%;
-   border-radius: 8px;
-}
-
-#settingsButton {
-  position: fixed;
-  bottom: 0px;
-  right: 0px;
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-
-}
-
-
-
 body {
   position: relative;
   margin: 0;
   padding: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
+  background-color: #f4f4f4;.
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.25px;
+  line-height: 1.6;
+  color: #2c2c2c;
   text-align: center;
 }
-
-/* button to view recently deleted */
-#trash_button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 40px;
-  height: 30px;
+.hidden {
+  display: none !important;
 }
 
-/* Headings */
-h1 {
-  margin-bottom: 0.2em;
-}
-
-/* Container elements (if needed) */
-#dirDisplay {
+#welcomeScreen {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 1em;
-}
-
-/* Modern button styling */
-button {
-  padding: 0.75em 1.5em;
-  margin: 0.5em;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
-  background-color: #007bff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s ease;
-}
-
-/* Button hover and active states */
-button:hover {
-  background-color: #0056b3;
-}
-
-button:active {
-  transform: scale(0.98);
-}
-
-#backButton {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 0.5em 1em;
-  font-size: 0.9rem;
-}
-
-.button-container {
-  display: flex;
   justify-content: center;
-  gap: 1em;
-  margin-top: auto;
+  height: 100vh;
+  padding: 20px;
+  background-color: #f0f2f5;
+  text-align: center;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease-in-out;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+#welcomeScreen.fade-out {
+  animation: fadeOut 0.6s ease forwards;
+}
+#welcomeScreen h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2b2b2b;
+  margin-bottom: 10px;
 }
 
-/* Optional: Styling for the disclaimer and other texts */
-.disclaimer {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 1em;
-}
-
-/* Code block styling */
-code {
-  background-color: #eaeaea;
-  padding: 0.2em 0.4em;
-  border-radius: 3px;
-}
-
-#previewContainer {
-  user-select: none;
+#welcomeScreen p {
   font-size: 1rem;
-  width: 500px;
-  height: 300px;
-  margin: 20px auto;
-  /* Centers horizontally */
-  display: block;
-  /* Ensures block-level behavior */
+  color: #555;
+  margin-bottom: 25px;
+  max-width: 500px;
+}
+
+#welcomeScreen button {
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background-color: #4d92f2;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+#welcomeScreen button:hover {
+  background-color: #367be5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+
+#welcomeScreen button:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    visibility: visible;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Hide body only for keep_or_delete.html */
+body.keep-or-delete {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+/* Show content when JS is ready */
+body.keep-or-delete.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+/*Previews*/
+.fileContainer{
   position: relative;
+  width: 65%;
+  min-width: 300px;
+  margin: 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  background: transparent;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: visible;
 }
-
-#previewContainer * {
-  width: inherit;
-  height: inherit;
+#previewWrapper {
+  position: relative;
+  width: 100%;
+  height: 50vh;
+  min-width: 300px;
+  margin: 0 auto;
+  overflow: visibile;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  background-color: #fff;
 }
-
-.txtPreview {
-  border: 2px solid #bbbbbb;
-  background-color: #e5e5e5;
-  overflow: auto;
-  font-family: monospace;
-  border-radius: 10px;
-  text-align: left;
+#previewWrapper > * {
+  pointer-events: none;
   user-select: none;
 }
-
-.pdfPreview iframe {
+#previewContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: auto;
+}
+#previewContainer > * {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  user-select: none;
+}
+.txtPreview {
+  display: block !important;
+  background: rgba(255, 255, 255, 0.34);  
+  border-radius: 5px;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  text-align: left;
+  overflow-y: auto;   
+}
+.txtPreview pre {
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+}
+.pdfPreview {
+  position: relative;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
-
-.txtPreview * {
-  margin: 8px;
+.pdfPreview iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
 }
-
 .imgPreview img {
-  width: auto !important;
-  /* Maintain aspect ratio. */
-  pointer-events: none
-    /* Dragging images conflicts with swiping. */
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
 }
-
+.videoPreview video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: auto;
+}
 .unsupportedPreview {
   text-align: center;
   color: #777777;
   line-height: 300px;
   margin: auto;
 }
-
 .docxPreview {
   overflow: scroll;
   background-color: white;
   text-align: left;
 }
-
-.videoPreview,
-.videoPreview video {
-  /* Match width of controls with width of video. */
-  width: auto !important;
-  /* Remain within bounds of the preview container. */
-  max-width: 100%;
-  pointer-events: none;
-}
-
-.final-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.final-container {
-  width: 100%;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.file-container {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: 20px;
-  height: auto;
-}
-
-.btnPadding {
-   width: 50px;
-}
-
-#finalizeModalButtons * {
-   display: inline-block !important;
-}
-
-.kept-files,
-.deleted-files {
-  flex: 1;
-  padding: 10px;
-  max-height: 70vh;
-  overflow: auto;
-  box-sizing: border-box;
-}
-
-.final-page .rename-input {
-  border: none;
-  background: transparent;
-  font-size: 1rem;
-  text-align: left;
-  width: 100%;
-  outline: none;
-}
-
-.final-page .rename-input:hover {
-  background: #f0f0f0;
-  cursor: text;
-}
-
-/* Two-column layout for kept and deleted files */
-.file-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 80%;
-  margin: auto;
-}
-
-/* Kept files (left side) */
-.kept-files {
-  flex: 1;
-  text-align: left;
-  max-width: 45%;
-}
-
-/* Deleted files (right side) */
-.deleted-files {
-  flex: 1;
-  text-align: left;
-  max-width: 45%;
-}
-
-/* Remove bullet points */
-#keptFilesList,
-#finalizedDeletedFilesList,
-#deletedFilesList {
-  list-style-type: none;
-  padding: 0;
-}
-
-/* Rename input styling */
-.rename-input {
-  border: 1px solid transparent;
-  /* Initially transparent */
-  background: #fafafa;
-  font-size: 1rem;
-  text-align: left;
-  width: 100%;
-  outline: none;
-  padding: 5px;
-  margin-bottom: 5px;
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
-}
-
-.rename-input:hover {
-  background: #f0f0f0;
-  border-color: #ccc;
-  cursor: text;
-}
-
-/* When focused (clicked), emphasize it */
-.rename-input:focus {
-  background: white;
-  border: 1px solid #007bff;
-  box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
-}
-
-/* Button Styling */
-#finalizeButton {
-  display: block;
-  margin: 20px auto;
-  padding: 10px 20px;
-  font-size: 1rem;
-  font-weight: bold;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#finalizeButton:hover {
-  background-color: #0056b3;
-}
-
 .swipeIcon {
   position: absolute;
   top: 50%;
@@ -328,57 +217,312 @@ code {
   opacity: 0;
   transition: opacity 0.25s ease-out;
 }
-
 .swipeIcon.show {
   opacity: 1;
 }
 
-
-/* settings styling */
-.settingsBox {
+/*Preview Overlay*/
+#fileinfo {
+  width: 100%;
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  background-color: #e3e3e7;
+  border-top: 1px solid #ccc;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  box-sizing: border-box;
+  gap: 6px;
 }
-
-.settings-row {
-  flex: 1;
-  padding: 10px;
+#currentItem {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
 }
-
-.settings-row h3 {
-  text-align: center;
+#currentItemSize {
+  margin: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-align: right;
 }
-
-#renameContainer {
-  display: inline-block;
-}
-
-.popup {
-  position: relative;
-  display: inline-block;
-  font-family: monospace;
-  background: #08c27b56;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+#inspectButton {
+  position: absolute;
+  top: 10px;
+  right: 25px;
+  z-index: 10;
+  background-color:rgb(233, 233, 233);
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 1.2rem;
   cursor: pointer;
-  opacity: .5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+#inspectButton:hover {
+  background-color:rgb(192, 192, 192);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.popup:hover {
-  opacity: 1;
+#inspectButton:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+#renameButton {
+  margin-left: 5px;
+  flex-shrink: 0;
+  pointer-events: auto;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
+#renameButton:hover {
+  transform: scale(1.1);
+  opacity: 0.85;
+}
+
+#renameButton:active {
+  transform: scale(0.95);
+}
+
+#renameButton .icon-svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.nameContainer {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* HEADER */
+#headerBar {
+  position: relative;
+  width: 100%;
+  height: 75px;
+  padding: 0 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ccc;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; 
+  align-items: center;
+  box-sizing: border-box;
+  z-index: 100;
+}
+
+#backButton {
+  justify-self: start;
+  margin-right: 10px;
+}
+
+#settingsButton:hover {
+  animation: spin .5s linear;
+  opacity: 0.85;
+}
+
+#settingsButton {
+  justify-self: end;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(90deg); }
+}
+
+#dirPathContainer {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  pointer-events: auto;
+  text-align: center;
+  max-width: 100%;
+}
+
+#dirPath {
+  margin: 0;
+  font-size: 1rem;
+  color: #2b2b2b;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#sortContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.sort-label {
+  font-size: 0.85rem;
+  color: #333;
+  font-weight: 500;
+}
+
+#sortOrder {
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#sortOrder:focus {
+  border-color: #4d92f2;
+  box-shadow: 0 0 0 2px rgba(77, 146, 242, 0.2);
+  outline: none;
+}
+#backButton {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: #4d92f2;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#backButton:hover {
+  background-color: #367be5;
+  transform: translateY(-2px);
+}
+
+#backButton:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/*Trash button*/
+#trashButtonContainer {
+  position: fixed;
+  bottom: 75px;
+  left: 75px;
+  z-index: 100;
+}
+
+#trashBadge {
+  position: absolute;
+  top: 0;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  background-color: #ff4d4f;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  border-radius: 50%;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  text-align: center;
+  padding: 0;
+}
+#trashBadge:not([hidden]) {
+  display: flex;
+}
+
+#trash_button {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  border-radius: 6px;
+  background-color: #ffffff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+  padding: 4px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  z-index: 99;
+}
+
+#trash_button:hover + #trashBadge {
+  transform: scale(1.1);
+}
+
+/*Keep or delete buttons*/
+#nextButton,
+#deleteButton {
+  width: 100px;
+  height: 100px;
+  display: inline-block;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  font-size: 2.5rem;
+  line-height: 100px;
+  text-align: center;
+  color: #666;
+  margin: 20px 20px;
+  background-color: #f7f7f7;
+  background-image: linear-gradient(to bottom, #f7f7f7, #e7e7e7);
+  box-shadow: 0px 3px 8px #aaa, inset 0px 2px 3px #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+#nextButton::before,
+#deleteButton::before {
+  content: "";
+  display: block;
+  background: #fff;
+  border-top: 2px solid #ddd;
+  position: absolute;
+  top: -18px;
+  left: -18px;
+  bottom: -18px;
+  right: -18px;
+  z-index: -1;
+  border-radius: 50%;
+  box-shadow: inset 0px 8px 48px #ddd;
+}
+#nextButton:hover,
+#deleteButton:hover {
+  color: #222;
+  box-shadow:
+  0 2px 6px rgba(0, 0, 0, 0.15),   
+  inset 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+#nextButton:active,
+#deleteButton:active {
+  box-shadow: 0px 3px 4px #aaa inset, 0px 2px 3px #fff;
+}
+
+/*Tool tip*/
 #tooltip {
   pointer-events: none;
   position: fixed;
+  min-width: 450px;
   top: 35%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 999;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(2px);
+  background: rgba(93, 126, 197, 0.65);
+  backdrop-filter: blur(1px);
   color: white;
   padding: 20px 35px;
   border-radius: 15px;
@@ -422,28 +566,7 @@ code {
   animation: wiggle 0.5s ease-in-out;
 }
 
-.trash-container {
-  flex: 1;
-  /* css for nothing getting cut off in trash container*/
-  overflow-y: auto;
-  max-height: calc(100% - 40px);
-  padding-bottom: 10px;
-}
-
-.file-info {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-}
-
-#renameModal {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
-
+/*Progress bar*/
 @keyframes inputGlow {
   0% {
     box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
@@ -463,12 +586,13 @@ code {
 }
 
 #progress-bar {
-  display: flex;
-  align-items: center;
-  width: 500px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   height: 20px;
   background-color: #ddd;
-  margin: 0 auto;
+  z-index: 50;
   animation: inputGlow 0.5s ease-out;
 }
 
@@ -477,6 +601,7 @@ code {
   height: 100%;
   background-color: #08c27bfc;
   transition: width 0.5s ease-out;
+  font-weight: 500;
 }
 
 @keyframes celebrate {
@@ -497,54 +622,545 @@ code {
   animation: celebrate 1s ease-out;
 }
 
-#welcomeScreen {
+/*finalize button*/
+#finalPageButton {
+  position: fixed;
+  bottom: 34px; 
+  right: 30px;
+  z-index: 100;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: #4d92f2;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#finalPageButton:hover {
+  background-color: #367be5;
+  transform: translateY(-2px);
+}
+
+#finalPageButton:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/*Emoji button overwrites*/
+#settingsButton,
+#trash_button
+{
+  background: none;
+  border: none;
+  box-shadow: none;
+  font-size: 1.8rem;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform 0.2s ease;
+  color: inherit;
+}
+
+#trash_button:hover
+{
+  transform: scale(1.1);
+  opacity: 0.85;
+}
+
+#trash_button:active
+{
+  transform: scale(0.95);
+}
+#trashBadge {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  pointer-events: none;
+}
+
+/*Settings page*/
+#settingsModal {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+#settingsModal .container {
+  width: 85%;
+  max-width: 800px;
+  margin: 5vh auto;
+  padding: 30px 40px;
+  background-color:rgb(255, 255, 255);
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  font-family: inherit;
+  text-align: left;
+}
+
+#settingsModal h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #2b2b2b;
+}
+
+#settingsModal h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.settings {
   display: flex;
   flex-direction: column;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.settings-row {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
-  text-align: center;
+  gap: 16px;
 }
 
-/* Hide body only for keep_or_delete.html */
-body.keep-or-delete {
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.2s ease-in-out;
+.settings-row div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-/* Show content when JS is ready */
-body.keep-or-delete.show {
-  visibility: visible;
-  opacity: 1;
+.settings-row label {
+  font-size: 0.95rem;
+  color: #444;
 }
 
-.sort-container {
+#backButtonSettings {
+  position: absolute;
+  top: 55px;
+  right: 20px;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  z-index: 10;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+#backButtonSettings:hover {
+  color: #000;
+  transform: scale(1.05);
+}
+
+#backButtonSettings:active {
+  transform: scale(0.95);
+}
+
+
+/*Final Page*/
+#finalizeModal {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.final-page {
   display: flex;
   justify-content: center;
-  margin: 10px 50px 5px 0;
   align-items: center;
+  padding: 60px 30px;
+  box-sizing: border-box;
+  height: 100%;
+  overflow: auto;
 }
 
-.sort-label {
-  margin-right: 10px;
-  font-weight: bold;
+.final-container {
+  width: 100%;
+  max-width: 1200px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  padding: 30px 40px;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  font-family: inherit;
+  text-align: left;
+  max-height: 90vh;
+  overflow: hidden;
+  margin: 5vh auto;
+  max-height: none;
+  overflow: visible;
 }
 
-.sort-dropdown {
-  padding: 6px 10px;
-  font-size: 1rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  background-color: white;
+#closeFinalizeModal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
   cursor: pointer;
+  color: #666;
+  z-index: 10;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+#closeFinalizeModal:hover {
+  color: #000;
+  transform: scale(1.05);
 }
 
-.sort-dropdown:hover {
-  border-color: #007bff;
+.final-container h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #2b2b2b;
+  text-align: center;
+}
+.tab-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 6px;
+}
+.tab {
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #444;
+}
+.tab:hover {
+  background-color: #f5f5f5;
+}
+.tab.active {
+  border-bottom: 3px solid #4d92f2;
+  color: #4d92f2;
 }
 
-.hidden {
-  display: none !important;
-
+.tab-content {
+  animation: fadeInTab 0.2s ease;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 500px;
+  padding-right: 6px;
 }
+.tab-content.hidden {
+  display: none;
+}
+@keyframes fadeInTab {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.final-tab-panel {
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: inset 0 0 0 1px #e1e1e1;
+}
+
+.final-tab-panel h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+#keptFilesList,
+#finalizedDeletedFilesList {
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+#finalizeNotification p {
+  font-size: 0.9rem;
+  color: #d9534f;
+  margin-bottom: 12px;
+}
+#finalizeModalButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#finalizeModalButtons button {
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #4d92f2;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+#finalizeModalButtons button:hover {
+  background-color: #367be5;
+  transform: translateY(-2px);
+}
+#finalizeModalButtons button:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+.final-page .rename-input {
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  text-align: left;
+  width: 100%;
+  outline: none;
+}
+#keptFilesList,
+#finalizedDeletedFilesList,
+#deletedFilesList {
+  list-style-type: none;
+  padding: 0;
+}
+
+#finalizedDeletedFilesList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+}
+
+#finalizedDeletedFilesList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e0e0e0;
+  font-size: 0.95rem;
+  color: #333;
+  min-height: 48px;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#finalizedDeletedFilesList li .file-name {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 12px;
+  text-align: left;
+  min-width: 0;
+}
+
+#finalizedDeletedFilesList li button {
+  flex-shrink: 0;
+  background-color: #4d92f2;
+  color: white;
+  font-weight: 600;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+#finalizedDeletedFilesList li button:hover {
+  background-color: #367be5;
+  transform: translateY(-1px);
+}
+
+#finalizedDeletedFilesList li button:active {
+  transform: scale(0.96);
+}
+#keptFilesList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+}
+
+#keptFilesList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e0e0e0;
+  font-size: 0.95rem;
+  color: #333;
+  min-height: 48px;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#keptFilesList li input.rename-input {
+  width: 100%;
+  height: 100%;
+  font-size: 0.95rem;
+  background: transparent;
+  border: none;
+  padding: 10px 16px;
+  margin: 0;
+  box-sizing: border-box;
+  outline: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  border-radius: 8px;
+}
+#keptFilesList li input.rename-input:hover {
+  background-color: #f5f5f5;
+  cursor: text;
+}
+
+#keptFilesList li input.rename-input:focus {
+  background: white;
+  box-shadow: inset 0 0 0 2px #007bff;
+}
+
+/*Trash Page*/
+#trash_dialog::backdrop {
+  display: none; 
+}
+#trash_dialog {
+  all: unset;
+  display: none;
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+  z-index: 999;
+}
+
+.trash-container {
+  width: 400px;
+  max-height: 70vh;
+  max-width: 800px;
+  margin: 5vh auto;
+  padding: 30px 40px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  font-family: inherit;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow-y: auto;
+  gap: 20px;
+}
+
+#closeTrashModal {
+  position: absolute;
+  top: 50px;
+  right: 40px;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  z-index: 10;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+#closeTrashModal:hover {
+  color: #000;
+  transform: scale(1.05);
+}
+
+#deletedHeader {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2b2b2b;
+  margin: 0;
+}
+
+#deletedFilesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+#deletedFilesList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e0e0e0;
+  font-size: 0.95rem;
+  color: #333;
+  min-height: 48px;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#deletedFilesList li .file-name {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 12px;
+  text-align: left;
+  min-width: 0;
+}
+
+#deletedFilesList li button {
+  flex-shrink: 0;
+  background-color: #4d92f2;
+  color: white;
+  font-weight: 600;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+#deletedFilesList li button:hover {
+  background-color: #367be5;
+  transform: translateY(-1px);
+}
+
+#deletedFilesList li button:active {
+  transform: scale(0.96);
+}
+
+/*Rename*/
+/*SOMEONE FINISHHHH*/

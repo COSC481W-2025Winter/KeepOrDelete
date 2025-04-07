@@ -19,7 +19,7 @@ function showNotification(message, type = 'info') {
    const popup = document.createElement('div');
    popup.innerText = message;
    popup.classList.add('popup-notification', type);
-   
+
    popup.style.position = 'fixed';
    popup.style.top = '20px';
    popup.style.right = '20px';
@@ -33,18 +33,18 @@ function showNotification(message, type = 'info') {
    if (dialog && dialog.open) {
       dialog.appendChild(popup);
       // Remove the popup after 3 seconds
-   setTimeout(() => {
-      dialog.removeChild(popup);
-   }, 3000);
+      setTimeout(() => {
+         dialog.removeChild(popup);
+      }, 3000);
    } else {
       document.body.appendChild(popup);
       // Remove the popup after 3 seconds
-   setTimeout(() => {
-      document.body.removeChild(popup);
-   }, 3000);
+      setTimeout(() => {
+         document.body.removeChild(popup);
+      }, 3000);
    }
 
-   
+
 }
 
 async function renameOnEnter(event) {
@@ -88,7 +88,10 @@ export async function handleRename(optionalInputElement, optionalFile) {
    // Ensure the new name has the correct file extension
    const originalExtension = currentFilePath.substring(currentFilePath.lastIndexOf('.'));
    const finalName = newName.includes('.') ? newName : `${newName}${originalExtension}`;
-
+   const currentFileName = window.file.pathBasename(currentFilePath);
+   if (finalName === currentFileName) {
+      return;
+   }
    const directoryPath = window.file.pathDirname(currentFilePath);
    const newFilePath = window.file.pathJoin(directoryPath, finalName);
 
@@ -178,12 +181,12 @@ renameButton.addEventListener('click', async (_event) => {
          const timeLeft = window.file.convertMillisecondsToTimeLeft(14400000 - (Date.now() - loggedTime));
          popupContentElement.textContent = timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " left until I can suggest a name for images.";
       }
-      else{
-         popupContentElement.innerText = "AI: Try me!"
+      else {
+         popupContentElement.innerText = "AI Suggestion"
       }
    }
    else {
-      popupContentElement.innerText = "AI: Try me!"
+      popupContentElement.innerText = "AI Suggestion"
    }
 });
 

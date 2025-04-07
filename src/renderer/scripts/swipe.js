@@ -75,11 +75,10 @@ export function animateSwipe(direction) {
       previewContainer.removeEventListener("transitionend", handleTransitionEnd);
 
       if (direction === "right") await userAction.markForKeep();
-         else await userAction.markForDelete();
-
+      else await userAction.markForDelete();
+      icon.remove();
       if (fileObject.isEmpty()) {
          previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
-         icon.remove();
       };
    });
 }
