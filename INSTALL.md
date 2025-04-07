@@ -17,6 +17,14 @@ For Mac users, we recommend downloading different files depending on your system
 + ARM: `KeepOrDelete-2.1.0-arm64.dmg`
 + x64: `KeepOrDelete-2.1.0.dmg`
 
+Keep or Delete requires special system privileges in order to run on Mac.
+
+1. Open the Apple Menu.
+2. Click "System Settings".
+3. In the sidebar, click "Privacy & Security".
+4. Navigate to "Security", then click "Open".
+5. Select "Open Anyway". Enter your password when prompted.
+
 ### Linux
 
 For most Linux distributions, we recommend downloading the `KeepOrDelete-X.X.X.AppImage`.
