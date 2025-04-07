@@ -1,8 +1,9 @@
 import * as fileObject from "./fileObjects.js"
 import * as userAction from "./userAction.js"
+import * as ui from "./ui.js"
 import { getInspectMode } from "./inspect.js"
 
-const previewContainer = document.getElementById("previewContainer");
+const previewContainer = document.getElementById("fileContainer");
 
 let startX;
 let currentX;
@@ -77,9 +78,7 @@ export function animateSwipe(direction) {
       if (direction === "right") await userAction.markForKeep();
       else await userAction.markForDelete();
       icon.remove();
-      if (fileObject.isEmpty()) {
-         previewContainer.innerHTML = "You've reached the end! Press the 'Review and Finalize' button to wrap up.";
-      };
+      ui.displayCurrentFile();
    });
 }
 

@@ -108,7 +108,7 @@ body.keep-or-delete.show {
 }
 
 /*Previews*/
-.fileContainer{
+#fileContainer{
   position: relative;
   width: 65%;
   min-width: 300px;

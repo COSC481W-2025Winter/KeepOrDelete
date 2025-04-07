@@ -10,6 +10,7 @@ import * as progressBar from "./progressBar.js"
 const currentItemElement = document.getElementById("currentItem");
 const currentItemSizeElement = document.getElementById("currentItemSize");
 const renameContainer = document.getElementById("renameContainer");
+const renameButton = document.getElementById("renameButton");
 const inspectButton = document.getElementById("inspectButton");
 const welcome = document.getElementById("welcomeScreen");
 const previewContainer = document.getElementById("previewContainer");

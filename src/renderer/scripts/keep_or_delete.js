@@ -13,11 +13,7 @@ if (!dirPath) {
 
    document.getElementById("dirPath").innerText = `Current Directory: ${dirPath}`;
 
-   if (!fileObjects.isEmpty()) {
-      ui.displayCurrentFile();
-   } else {
-      document.getElementById("currentItem").innerText = "No files found.";
-   }
+   ui.displayCurrentFile();
 }
 
 // Reveal body after all elements are ready only for index.html
