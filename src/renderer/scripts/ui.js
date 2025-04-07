@@ -44,7 +44,7 @@ export async function displayCurrentFile() {
    const fileObjects = fileObject.getAll();
    const removedFileTypes = await settings.removedFileTypes();
    let index = currentIndex.get();
-
+   updateTrashBadge()
    while (index < fileObjects.length && (fileObjects[index].status !== null || removedFileTypes.includes(fileObjects[index].ext))) {
       currentIndex.increment();
       index = currentIndex.get();
@@ -62,7 +62,6 @@ export async function displayCurrentFile() {
    currentItemElement.innerText = file.name;
    let formattedSize = window.file.formatFileSize(file.size);
    currentItemSizeElement.innerText = "File size: " + formattedSize;
-   updateTrashBadge()
    refreshPreview(file.path);
    // Reset rename input field
    rename.resetRenameInput(renameContainer);
@@ -80,9 +79,10 @@ async function refreshPreview(filePath) {
    progressBar.update();
 }
 
-function updateTrashBadge() {
+export function updateTrashBadge() {
    let badge = document.getElementById("trashBadge");
    let deletedFiles = fileObject.getAll().filter(f => f.status === "delete");
+   console.log(deletedFiles.length)
    if (deletedFiles.length > 0) {
       badge.textContent = deletedFiles.length > 99 ? "99+" : deletedFiles.length;
       badge.hidden = false;
