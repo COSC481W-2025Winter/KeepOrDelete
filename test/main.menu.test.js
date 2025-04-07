@@ -4,7 +4,7 @@ const fs = require("fs/promises");
 
 let app;
 //init path
-const filePath = path.resolve(__dirname, "../src/main_page/keep_or_delete.html");
+const filePath = path.resolve(__dirname, "../src/renderer/index.html");
 const fileUrl = `file://${filePath}`;
 
 //test directory
@@ -64,7 +64,7 @@ test("Select new directory successfully", async () => {
   const dirPathText = await window.locator("#dirPath").innerText();
 
   // Check that directory was selected
-  expect(dirPathText).toMatch(/Selected Directory:/);
+  expect(dirPathText).toMatch(/Current Directory:/);
   await window.evaluate(() => localStorage.clear());
 });
 

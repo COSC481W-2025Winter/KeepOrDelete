@@ -35,7 +35,7 @@ test.afterAll(async () => {
 test('Sort dropdown sorts files alphabetically A→Z and Z→A', async () => {
     const window = await electronApp.firstWindow();
     await window.evaluate(() => localStorage.clear());
-    await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
+    await window.goto("file://" + path.resolve(__dirname, "../src/renderer/index.html"));
 
     // Mock file selection dialog
     await electronApp.evaluate(({ dialog }, testDirectory) => {
@@ -47,30 +47,29 @@ test('Sort dropdown sorts files alphabetically A→Z and Z→A', async () => {
 
     // Click to select directory and go to KeepOrDelete page
     await window.locator('#selectDirButton').click();
-
     const getCurrentFileName = async () => {
-        const text = await window.locator('#currentItem').innerText();
-        return text.replace('Current File: ', '').trim();
+        return await window.locator('#currentItem').innerText();
     };
 
-    await expect(window.locator('#currentItem')).toHaveText(/Current File: .+/);
+    await window.locator('#currentItem').waitFor({ state: 'visible' });
+    await expect(window.locator('#currentItem')).not.toHaveText(''); // wait until
     // Default should be A→Z
     let fileName = await getCurrentFileName();
-    expect(fileName.toLowerCase()).toBe('a.txt');
+    expect(fileName.toLowerCase()).toEqual('a.txt');
 
     // Change to Z→A
-    await window.locator('#sortOrder').selectOption('desc');
+    await window.locator('#sortOrder').selectOption('desc name');
     await window.waitForTimeout(500); // allow re-sort/render
 
     fileName = await getCurrentFileName();
-    expect(fileName.toLowerCase()).toBe('c.txt');
+    expect(fileName.toLowerCase()).toEqual('c.txt');
 
     // Change back to A→Z
-    await window.locator('#sortOrder').selectOption('asc');
+    await window.locator('#sortOrder').selectOption('asc name');
     await window.waitForTimeout(500);
 
     fileName = await getCurrentFileName();
-    expect(fileName.toLowerCase()).toBe('a.txt');
+    expect(fileName.toLowerCase()).toEqual('a.txt');
 
     await window.evaluate(() => localStorage.clear());
 });

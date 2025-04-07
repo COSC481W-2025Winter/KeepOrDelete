@@ -47,7 +47,7 @@ test.afterAll(async () => {
 test("shows error notification for empty rename input (single file)", async ({ page }) => {
     const window = await electronApp.firstWindow();
     await window.evaluate(() => localStorage.clear());
-    await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
+    await window.goto("file://" + path.resolve(__dirname, "../src/renderer/index.html"));
 
     await electronApp.evaluate(({ dialog }, testDirectory) => {
         dialog.showOpenDialog = async () => ({
@@ -67,7 +67,7 @@ test("shows error notification for empty rename input (single file)", async ({ p
     
 
     // Explicitly wait for the error notification
-    const notification = window.locator("#notification");
+    const notification = window.locator(".popup-notification");
     await expect(notification).toBeVisible()
     await expect(notification).toHaveText("Please enter a new file name.");
     await window.evaluate(() => localStorage.clear());
@@ -77,7 +77,7 @@ test("shows error notification for empty rename input (single file)", async ({ p
 test("will rename common file types", async () => {
     const window = await electronApp.firstWindow();
     await window.evaluate(() => localStorage.clear());
-    await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
+    await window.goto("file://" + path.resolve(__dirname, "../src/renderer/index.html"));
 
     // Intercept file selection dialog
     await electronApp.evaluate(({ dialog }, testDirectory) => {

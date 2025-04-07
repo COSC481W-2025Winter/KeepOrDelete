@@ -66,7 +66,7 @@ const testFileProcessing = async (window, swipeAction) => {
 
 test("Button press to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
-   await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
+   await window.goto("file://" + path.resolve(__dirname, "../src/renderer/index.html"));
    // Intercept file selection dialog
    await electronApp.evaluate(({ dialog }, testDirPath) => {
       dialog.showOpenDialog = async () => ({
@@ -89,7 +89,7 @@ test("Button press to keep on KeepOrDelete page", async () => {
 test("Touch swipe to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
    await window.evaluate(() => localStorage.clear());
-   await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
+   await window.goto("file://" + path.resolve(__dirname, "../src/renderer/index.html"));
 
    // Intercept file selection dialog
    await electronApp.evaluate(({ dialog }, testDirPath) => {
@@ -120,7 +120,7 @@ test("Touch swipe to keep on KeepOrDelete page", async () => {
 test("Arrow key Swipe to keep on KeepOrDelete page", async () => {
    const window = await electronApp.firstWindow();
    await window.evaluate(() => localStorage.clear());
-   await window.goto("file://" + path.resolve(__dirname, "../src/main_page/keep_or_delete.html"));
+   await window.goto("file://" + path.resolve(__dirname, "../src/renderer/index.html"));
 
    // Intercept file selection dialog
    await electronApp.evaluate(({ dialog }, testDirPath) => {
