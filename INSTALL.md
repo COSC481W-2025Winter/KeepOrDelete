@@ -49,6 +49,9 @@ $ appimage-run KeepOrDelete-X.X.X.AppImage
 
 <!-- inspo from https://github.com/neovim/neovim/blob/master/INSTALL.md#install-from-source -->
 
+> [!WARNING]
+> For non-developers, we recommend [installing via GitHub Releases](#install-a-release-version-recommended).
+
 Prerequisites:
 
 + [Git](https://git-scm.com)
