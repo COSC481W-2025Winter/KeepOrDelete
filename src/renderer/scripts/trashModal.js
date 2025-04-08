@@ -1,5 +1,7 @@
 import * as fileObject from "./fileObjects.js"
 import * as ui from "./ui.js"
+import * as progressBar from "./progressBar.js"
+
 const trashModal = document.getElementById("trash_dialog");
 const openTrashModal = document.getElementById("trash_button");
 const closeTrashModal = document.getElementById("closeTrashModal");
@@ -17,6 +19,7 @@ openTrashModal.addEventListener("click", function () {
 closeTrashModal.addEventListener("click", function () {
    document.getElementById("trash_dialog").style.display = "none";
    ui.updateTrashBadge();
+   progressBar.update();
    trashModal.close();
 });
 
