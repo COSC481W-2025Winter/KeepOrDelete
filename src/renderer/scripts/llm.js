@@ -1,7 +1,7 @@
 import * as fileObject from "./fileObjects.js"
 import * as currentIndex from "./currentIndex.js"
 
-const popupContentElement = document.getElementById('popupContent');
+const popupContentElement = document.getElementById('AIButton');
 
 export function LLM() {
    let renameInputElement = document.getElementById('renameInput');
