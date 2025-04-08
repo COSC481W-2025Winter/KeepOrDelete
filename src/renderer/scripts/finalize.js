@@ -1,5 +1,6 @@
 import * as fileObject from "./fileObjects.js"
 import * as rename from "./rename.js"
+import * as progressBar from "./progressBar.js"
 
 const finalizeModal = document.getElementById("finalizeModal");
 const finalPageButton = document.getElementById("finalPageButton");
@@ -164,4 +165,5 @@ export function modalIsOpen() {
 
 closeFinalizeModal.addEventListener("click", () => {
    finalizeModal.close();
+   progressBar.update();
 });
