@@ -263,6 +263,16 @@ body.keep-or-delete.show {
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
   transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  width: 40px;
+  height: 40px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+}
+#inspectButton img {
+  width: 20px;
+  height: 20px;
+  display: block;
 }
 #inspectButton:hover {
   background-color:rgb(192, 192, 192);
@@ -335,6 +345,12 @@ body.keep-or-delete.show {
 
 #settingsButton {
   justify-self: end;
+  width: 25px;
+  height: 25px;
+}
+#settingsButton img {
+  width: 100%;
+  height: 100%;
 }
 @keyframes spin {
   0% { transform: rotate(0deg); }
@@ -423,8 +439,8 @@ body.keep-or-delete.show {
 
 #trashBadge {
   position: absolute;
-  top: 0;
-  right: 8px;
+  top: 3px;
+  right: 4px;
   width: 24px;
   height: 24px;
   background-color: #ff4d4f;
@@ -483,6 +499,11 @@ body.keep-or-delete.show {
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+}
+#nextButton img,
+#deleteButton img {
+  width: 100%;
+  height: 100%;
 }
 
 #nextButton::before,
@@ -1081,7 +1102,7 @@ body.keep-or-delete.show {
 #closeTrashModal {
   position: absolute;
   top: 50px;
-  right: 40px;
+  right: 10px;
   font-size: 1.5rem;
   background: none;
   border: none;
@@ -1179,7 +1200,70 @@ body.keep-or-delete.show {
   border-radius: 2ex;
   box-shadow: 0px 1px 2px rgba(217, 216, 216, 0.75);
 }
-
-
 /*Rename*/
-/*SOMEONE FINISHHHH*/
+#renameModal {
+  padding: 10px;
+  border: none;
+  background: transparent;
+  background-color:rgb(255, 255, 255);
+  overflow: visible;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border-radius: 15px;
+}
+#renameContainer {
+  padding: 10px;
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  background-color: #f4f4f4;
+  border-radius: 5px;
+}
+.modal-buttons button {
+  margin: 10px;
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background-color: #4d92f2;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+.modal-buttons button:hover {
+  background-color: #367be5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+.modal-buttons button:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+#AIButton{
+  padding: 7px;
+  font-size: .9rem;
+  font-weight: 600;
+  background-color: #4d92f2;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+#AIButton:hover {
+  background-color: #367be5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+#renameInput {
+  border: 2px solid rgba(122, 117, 117, 0.53);
+  border-radius: 6px;
+  padding: 10px;
+  background: transparent;
+  font-size: 1rem;
+  text-align: left;
+  width: 100%;
+  outline: none;
+}
