@@ -123,9 +123,9 @@ document.getElementById("selectDirButton").addEventListener("click", async () =>
 // Arrow key file swiping
 document.addEventListener("keydown", async (e) => {
    if (fileObject.isEmpty()) return;
-      // Prevent swiping if any dialog is open
-      const modalOpen = Array.from(document.querySelectorAll('dialog')).some(dialog => dialog.open);
-      if (modalOpen) return;
+   // Prevent swiping if any dialog is open
+   const modalOpen = Array.from(document.querySelectorAll('dialog')).some(dialog => dialog.open);
+   if (modalOpen) return;
 
    if (e.key === "ArrowRight") {
       swipe.animateSwipe("right");
