@@ -659,6 +659,8 @@ body.keep-or-delete.show {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   transition: all 0.2s ease;
+  align-items: center;
+  justify-content: center;
 }
 
 #finalPageButton:hover {
