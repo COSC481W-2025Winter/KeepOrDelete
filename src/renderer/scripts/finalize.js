@@ -1,6 +1,7 @@
 import * as fileObject from "./fileObjects.js"
 import * as rename from "./rename.js"
-import * as progress from "./progressBar.js"
+import * as progressBar from "./progressBar.js"
+
 const finalizeModal = document.getElementById("finalizeModal");
 const finalPageButton = document.getElementById("finalPageButton");
 const closeFinalizeModal = document.getElementById("closeFinalizeModal");
@@ -105,8 +106,6 @@ finalPageButton.addEventListener("click", () => {
       undoButton.addEventListener("click", () => {
          // Update file status to keep
          file.status = "keep";
-         //update storage saved
-         progress.update()
          // Re-render lists
          renderFileLists();
       });
@@ -166,4 +165,5 @@ export function modalIsOpen() {
 
 closeFinalizeModal.addEventListener("click", () => {
    finalizeModal.close();
+   progressBar.update();
 });

@@ -30,16 +30,4 @@ export async function update() {
    progress.classList.remove("glowing");
    void progress.offsetWidth;
    progress.classList.add("glowing");
-
-   if (fileObject.isEmpty()) {
-      // When there are no files, assume all work is done (100%)
-      percent = 100;
-      progress.classList.add("complete");
-      progress.style.width = `${percent}%`;
-      progress.textContent = percent + "%";
-      setTimeout(() => {
-         progress.classList.remove("complete");
-      }, 1000);
-      return;
-   }
 }
