@@ -62,3 +62,65 @@ function triggerWiggle() {
       setTimeout(() => tooltip.classList.remove("wiggle"), 500);
    }
 }
+
+// Similar code for deletion tooltips
+export function showDeletionTooltips() {
+   const isTesting = navigator.userAgent.includes("Playwright");
+
+   if (isTesting) return;
+
+   const finalizeTooltip = document.getElementById("finalizeTooltip");
+   const trashTooltip = document.getElementById("trashTooltip");
+
+   if (!sessionStorage.getItem("finalizeTooltipShown")) {
+      if (finalizeTooltip) finalizeTooltip.classList.add("show");
+      if (trashTooltip) trashTooltip.classList.add("show");
+
+      sessionStorage.setItem("finalizeTooltipShown", "true");
+
+      document.addEventListener("mousedown", hideDeletionTooltips);
+      document.addEventListener("keydown", hideDeletionTooltips);
+      document.addEventListener("touchstart", hideDeletionTooltips);
+
+      triggerSideWiggle();
+      const interval = setInterval(triggerSideWiggle, 3000);
+      window._deletionWiggleInterval = interval;
+   }
+}
+
+function hideDeletionTooltips() {
+   const finalizeTooltip = document.getElementById("finalizeTooltip");
+   const trashTooltip = document.getElementById("trashTooltip");
+
+   finalizeTooltip?.classList.remove("show");
+   finalizeTooltip?.classList.add("hide");
+
+   trashTooltip?.classList.remove("show");
+   trashTooltip?.classList.add("hide");
+
+   setTimeout(() => {
+      finalizeTooltip.style.display = "none";
+      trashTooltip.style.display = "none";
+   }, 500);
+   
+   if (window._deletionWiggleInterval) {
+      clearInterval(window._deletionWiggleInterval);
+      window._deletionWiggleInterval = null;
+   }
+   
+}
+
+function triggerSideWiggle() {
+   const finalizeTooltip = document.getElementById("finalizeTooltip");
+   const trashTooltip = document.getElementById("trashTooltip");
+
+   if (!finalizeTooltip.classList.contains("wiggle-side")) {
+      finalizeTooltip.classList.add("wiggle-side");
+      trashTooltip.classList.add("wiggle-side");
+
+      setTimeout(() => {
+         finalizeTooltip.classList.remove("wiggle-side");
+         trashTooltip.classList.remove("wiggle-side");
+      }, 500);
+   }
+}

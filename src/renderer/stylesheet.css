@@ -1268,3 +1268,60 @@ body.keep-or-delete.show {
   width: 100%;
   outline: none;
 }
+
+/*Deletion tooltips*/
+#finalizeTooltip,
+#trashTooltip {
+  position: fixed;
+  z-index: 9999;
+  background:rgba(77, 146, 242, 0.6);
+  color: white;
+  padding: 5px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  opacity: 0;
+  width: max-content;
+  max-width: 200px;
+  pointer-events: none;
+}
+
+#finalizeTooltip {
+  bottom: 45px;
+  right: 150px;
+}
+
+#trashTooltip {
+  bottom: 45px;
+  left: 95px;
+}
+
+#finalizeTooltip.show,
+#trashTooltip.show {
+  opacity: 1;
+}
+
+#finalizeTooltip.hide,
+#trashTooltip.hide {
+  opacity: 0;
+}
+
+.wiggle-side {
+  animation: wiggle-side 0.5s ease-in-out;
+}
+
+@keyframes wiggle-side {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+  75% {
+    transform: rotate(-3deg);
+  }
+}
