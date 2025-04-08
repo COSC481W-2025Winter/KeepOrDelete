@@ -80,7 +80,7 @@ export async function markForDelete() {
       deleteInProgress = false;
       return;
    }
-
+   tooltip.showDeletionTooltips();
    const index = currentIndex.get();
 
    console.log("Before update:", JSON.stringify(fileObject.get(index)));

@@ -12,18 +12,21 @@ const testFiles = [
     path.join(testDirectory, 'c.txt'),
 ];
 
-test.beforeAll(async () => {
+test.beforeEach(async () => {
     electronApp = await electron.launch({ args: ['./', '--test-config'], userAgent: 'Playwright' });
 
     await fs.mkdir(testDirectory, { recursive: true });
-    await Promise.all(testFiles.map(file => fs.writeFile(file, 'Sample', 'utf8')));
-
+    await Promise.all([
+        fs.writeFile(testFiles[0], 'A', 'utf8'),     
+        fs.writeFile(testFiles[1], 'BBBBBB', 'utf8'),   
+        fs.writeFile(testFiles[2], 'CCC', 'utf8'),      
+      ]);
     // Ensure LocalStorage is cleared before each test
     const window = await electronApp.firstWindow();
     await window.evaluate(() => localStorage.clear());  
 });
 
-test.afterAll(async () => {
+test.afterEach(async () => {
     await electronApp.close();
     try {
         await fs.rm(testDirectory, { recursive: true, force: true });
@@ -70,6 +73,51 @@ test('Sort dropdown sorts files alphabetically A→Z and Z→A', async () => {
 
     fileName = await getCurrentFileName();
     expect(fileName.toLowerCase()).toEqual('a.txt');
+
+    await window.evaluate(() => localStorage.clear());
+});
+
+test('Sort dropdown sorts files by size', async () => {
+    const window = await electronApp.firstWindow();
+    await window.evaluate(() => localStorage.clear());
+    await window.goto("file://" + path.resolve(__dirname, "../src/renderer/index.html"));
+
+    // Mock file selection dialog
+    await electronApp.evaluate(({ dialog }, testDirectory) => {
+        dialog.showOpenDialog = async () => ({
+            canceled: false,
+            filePaths: [testDirectory],
+        });
+    }, testDirectory);
+
+    // Click to select directory and go to KeepOrDelete page
+    await window.locator('#selectDirButton').click();
+    const getCurrentFileName = async () => {
+        return await window.locator('#currentItem').innerText();
+    };
+
+    await window.locator('#currentItem').waitFor({ state: 'visible' });
+    await window.locator('#sortOrder').selectOption('asc size');
+    await window.waitForTimeout(500);
+
+    let fileName = await getCurrentFileName();
+    expect(fileName).toBe('A.txt'); 
+    await window.locator('#nextButton').click();
+    await window.waitForTimeout(300);
+    fileName = await getCurrentFileName();
+    expect(fileName).toBe('c.txt'); 
+
+    await window.locator('#nextButton').click();
+    await window.waitForTimeout(300);
+    fileName = await getCurrentFileName();
+    expect(fileName).toBe('b.txt'); 
+
+    // Now sort by descending size
+    await window.locator('#sortOrder').selectOption('desc size');
+    await window.waitForTimeout(500);
+
+    fileName = await getCurrentFileName();
+    expect(fileName).toBe('b.txt'); 
 
     await window.evaluate(() => localStorage.clear());
 });

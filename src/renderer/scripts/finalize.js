@@ -106,6 +106,7 @@ finalPageButton.addEventListener("click", () => {
       undoButton.addEventListener("click", () => {
          // Update file status to keep
          file.status = "keep";
+         progressBar.update();
          // Re-render lists
          renderFileLists();
       });
@@ -165,5 +166,4 @@ export function modalIsOpen() {
 
 closeFinalizeModal.addEventListener("click", () => {
    finalizeModal.close();
-   progressBar.update();
 });
