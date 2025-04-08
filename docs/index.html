@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KeepOrDelete App</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: white;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+    }
+    html{
+      background: #2C65D2;
+    }
+    .header {
+      padding: 2em 1em;
+      background: #2C65D2;
+      color: white;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.386);
+      margin-bottom: 3px;
+    }
+
+    .header img {
+      width: 180px;
+      margin-bottom: 15px;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4)) brightness(2.0);
+    }
+
+    .header p {
+      font-size: 1.1em;
+      margin-top: 0.2em;
+    }
+
+    .download-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.2em;
+      margin-top: 2.5em;
+      padding: 0 1em;
+    }
+
+    .download-btn {
+      background: white;
+      color: #2C65D2;
+      font-weight: 600;
+      border: none;
+      border-radius: 999px;
+      padding: 0.85em 2em;
+      text-decoration: none;
+      text-align: center;
+      box-shadow: 0 3px 2px rgba(0, 0, 0, 0.337);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      flex: 1 1 180px;
+      max-width: 240px;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 8px rgba(0, 0, 0, 0.337);
+    }
+
+    .alt-link {
+      margin-top: 1.5em;
+      display: block;
+      font-size: 0.95rem;
+      color: #d0d1d3;
+      text-decoration: underline;
+    }
+    .alt-link:hover {
+      color: #ffffff;
+    }
+
+    .section {
+      padding: 3em 1.5em;
+      background: white;
+      }
+
+    .how-it-works-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr 1fr;
+      gap: 2em;
+      margin: auto;
+      width: 98%;
+    }
+
+    .card-column {
+      background: #f0f0f0;
+      padding: 1.5em;
+      border-radius: 12px;
+      box-shadow: 0 0px 4px rgba(0, 0, 0, 0.292);
+    }
+
+    .card-column h3 {
+      margin-top: 0;
+      margin-bottom: 1em;
+      text-align: center;
+    }
+
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    .video-container video,
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    ol {
+      padding-left: 1.2em;
+      font-size: 1.05em;
+      line-height: 1.8;
+    }
+
+    details {
+      background: white;
+      color: #2C65D2;
+      border-radius: 8px;
+      padding: 1em;
+      margin-bottom: 1em;
+    }
+
+
+
+    details summary {
+      font-weight: bold;
+      font-size: 1.1em;
+      cursor: pointer;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 1em;
+      background: #2C65D2;
+      color: white;
+      font-size: 0.9em;
+      text-align: center;
+    }
+
+    footer a {
+      color: #dfe9ff;
+    }
+
+    @media (max-width: 900px) {
+      .how-it-works-grid {
+        display: block;
+      }
+
+      .how-it-works-grid > * {
+        margin-bottom: 2em;
+      }
+
+      .card-column {
+        text-align: center;
+      }
+
+      details {
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .header img {
+        width: 120px;
+      }
+
+      .download-btn {
+        font-size: 1em;
+        padding: 0.9em 1.3em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <img src="Keep_Delete.png" alt="KeepOrDelete Logo" />
+    <p>Clean your files. Keep what matters. Delete the rest. Fast and fun.</p>
+    <div class="download-container">
+      <a href="https://github.com/COSC481W-2025Winter/KeepOrDelete/releases/download/v2.1.0/KeepOrDelete-Setup-2.1.0.exe" class="download-btn">Download for Windows</a>
+      <a href="https://github.com/COSC481W-2025Winter/KeepOrDelete/releases/download/v2.1.0/KeepOrDelete-2.1.0.dmg" class="download-btn">Download for macOS</a>
+      <a href="https://github.com/COSC481W-2025Winter/KeepOrDelete/releases/download/v2.1.0/KeepOrDelete-2.1.0.AppImage" class="download-btn">Download for Linux</a>  
+    </div>
+    <a class="alt-link" href="https://github.com/COSC481W-2025Winter/KeepOrDelete/releases" target="_blank">
+      Need a different version (e.g., ARM, .zip)? View all downloads →
+    </a>
+  </div>
+
+  <div class="section">
+    <div class="how-it-works-grid">
+
+      <!-- Column 1: How it Works -->
+      <div class="card-column">
+        <h3>How it Works</h3>
+        <ol>
+          <li>
+            <strong>Pick a Folder to Review</strong><br />
+            Start by selecting any folder on your device: Downloads, Desktop, or a messy project folder. The app will scan and prepare your files for cleanup.
+          </li>
+          <li>
+            <strong>Swipe to Sort Files Your Way</strong><br />
+            Review one file at a time using whichever method feels most natural:
+            <ul style="margin-top: 0.5em; margin-bottom: 0.5em; padding-left: 1.2em;">
+              <li>Drag the file left or right</li>
+              <li>Click the ❌ or ✅ buttons</li>
+              <li>Press ← or → on your keyboard</li>
+            </ul>
+            You can also rename files with the help of the AI assistant.
+          </li>
+          <li>
+            <strong>Confirm and Clean Up</strong><br />
+            When you're finished, finalize your choices. Files marked for deletion are sent to your trash, and the rest stay neatly organized.
+          </li>
+        </ol>
+      </div>
+
+      <!-- Column 2: Demo -->
+      <div class="card-column">
+        <h3>Demo</h3>
+        <div class="video-container">
+          <iframe src="https://www.youtube.com/embed/eK3chz-iZYQ?autoplay=1&loop=1&playlist=eK3chz-iZYQ&mute=1" title="Demo Video" 
+          frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+      </div>
+
+      <!-- Column 3: Installation -->
+      <div class="card-column">
+        <h3>Installation Instructions</h3>
+
+        <details>
+          <summary><strong>Windows</strong></summary>
+          <p>1. Click the "<strong>Download for Windows</strong>" button above.</p>
+          <p>2. Click the <strong>...</strong> on the browser's Download.</p>
+          <p>3. Click "<strong>Keep</strong>".</p>
+          <p>4. Click "<strong>Show more</strong>".</p>
+          <p>5. Click "<strong>Keep anyway</strong>".</p>
+          <p>6. Run the <strong>.exe</strong> file.</p>
+          <p>7. If a pop-up window shoes up "<strong>Windows protected yout PC</strong>" click "<strong>More Options</strong>".</p>
+          <p>8. Click "<strong>Run anyway</strong>".</p>
+        </details>
+
+        <details>
+          <summary><strong>macOS</strong></summary>
+          <p>1. For macOS x64, click the "<strong>Download for macOS</strong>" button above.</p>
+          <p>2. For macOS ARM, click "<strong>Need a different version (e.g., ARM, .zip)? View all downloads →</strong>", then select <strong>KeepOrDelete-X.X.X-arm64.dmg</strong></p>
+          <p>3. After downloading, drag <strong>KeepOrDelete</strong> to your <strong>Applications</strong> folder.</p>
+          <p><em><img src="1.png" width="200"></em></p>
+          <p>4. Open the app. When the popup appears, click <strong>Done</strong>.</p>
+          <p><em><img src="2.png" width="200"></em></p>
+          <p>5. Open the <strong>Apple Menu</strong> and click <strong>System Settings</strong>.</p>
+          <p><em><img src="3.png" width="200"></em></p>
+          <p>6. In the sidebar, click <strong>Privacy & Security</strong>.</p>
+          <p>7. Scroll down to <strong>Security</strong> and click <strong>Open Anyway</strong>.</p>
+          <p>8. Enter your password when prompted.</p>
+          <p><em><img src="4.png" width="200"></em></p>
+        </details>
+
+        <details>
+          <summary><strong>Linux</strong></summary>
+          <p>1. Click the "<strong>Download for Linux</strong>" button above.</p>
+          <p>2. Make the file executable: <strong>$ chmod +x KeepOrDelete-X.X.X.AppImage</strong></p>
+          <p>3. Run the file: <strong>./KeepOrDelete-X.X.X.AppImage</strong></p>
+        </details>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 KeepOrDelete | <a href="https://github.com/COSC481W-2025Winter/KeepOrDelete" target="_blank">GitHub</a>
+  </footer>
+
+</body>
+</html>
