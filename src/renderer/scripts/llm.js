@@ -3,6 +3,7 @@ import * as currentIndex from "./currentIndex.js"
 
 const popupContentElement = document.getElementById('AIButton');
 
+let timeout = null; 
 export function LLM() {
    let renameInputElement = document.getElementById('renameInput');
    const filename = fileObject.get(currentIndex.get()).path;
@@ -14,7 +15,7 @@ export function LLM() {
       const fileContents = window.file.getFileContents(filename);
       if (!fileContents || fileContents.length === 0) {
          popupContentElement.textContent = "No file contents found.";
-         setTimeout(() => {
+         timeout = setTimeout(() => {
             popupContentElement.textContent = "Please choose a file with contents.";
          }, 4000);
          return;
@@ -127,7 +128,7 @@ export function LLM() {
          const timeLeft = window.file.convertMillisecondsToTimeLeft(14400000 - (currentTime - loggedTime));
          console.log(timeLeft);
          popupContentElement.textContent = "Your renaming limit for image files has been reached.";
-         setTimeout(() => {
+         timeout = setTimeout(() => {
             popupContentElement.textContent = "You have " + timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " left.";
          }, 4000);
          return;
@@ -189,10 +190,11 @@ export function LLM() {
       // Handle unsupported file types
       console.log("Unsupported file type:", mimeType);
       popupContentElement.textContent = 'File type not supported.';
-      setTimeout(() => {
+      timeout = setTimeout(() => {
          popupContentElement.textContent = "I only support pdf, docx, jpeg, png, and txt files.";
       }, 4000);
       return;
    }
 }
+export {timeout};
 

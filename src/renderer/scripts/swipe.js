@@ -2,6 +2,7 @@ import * as fileObject from "./fileObjects.js"
 import * as userAction from "./userAction.js"
 import * as ui from "./ui.js"
 import { getInspectMode } from "./inspect.js"
+import * as llm from "./llm.js"
 
 const previewContainer = document.getElementById("fileContainer");
 
@@ -80,6 +81,7 @@ export function animateSwipe(direction) {
       icon.remove();
       ui.displayCurrentFile();
    });
+   clearTimeout(llm.timeout);
 }
 
 // Detects when swipe is started
