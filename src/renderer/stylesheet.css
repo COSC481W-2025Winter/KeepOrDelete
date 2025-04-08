@@ -286,7 +286,9 @@ body.keep-or-delete.show {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
   transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   width: 40px;
-  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
 }
 
 #inspectButton:hover {
@@ -304,6 +306,18 @@ body.keep-or-delete.show {
   width: 20px;
   height: 20px;
 }
+
+/* Wrapper for smooth scaling */
+.pdfWrapper {
+  transition: transform 0.3s ease;
+  transform-origin: top left;
+}
+
+/* Applied during inspect mode */
+.pdfWrapper.inspect-scale {
+  transform: scale(1.25);
+}
+
 #renameButton {
   margin-left: 5px;
   flex-shrink: 0;

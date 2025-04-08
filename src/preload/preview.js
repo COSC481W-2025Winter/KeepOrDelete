@@ -33,7 +33,7 @@ async function generatePreviewHTML(filepath) {
       // <pre> tag displays preformatted text. Displays all whitespace chars.
       return `<div class="txtPreview"><pre>${fileContents}</pre></div>`;
    } else if (mimeType == "application/pdf") {
-      return `<div class="pdfPreview"><iframe data-testid="pdf-iframe" src="${filepath}#toolbar=0"></iframe></div>`;
+      return `<div class="pdfPreview"><div class="pdfWrapper"><iframe data-testid="pdf-iframe" src="${filepath}#toolbar=0"></iframe></div></div>`;
    } else if (filepath.includes("docx")) {
       const pdfPath = await convertDocxToPdf(filepath);
 

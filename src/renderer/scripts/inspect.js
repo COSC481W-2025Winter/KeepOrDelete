@@ -5,19 +5,25 @@ const inspectButton = document.getElementById("inspectButton");
 inspectButton.addEventListener("click", () => {
    const iframe = document.querySelector("#previewContainer iframe");
    const fileContainer = document.getElementById("fileContainer");
+   const pdfWrapper = document.querySelector("#previewContainer .pdfWrapper");
    const textPreview = document.querySelector("#previewContainer pre");
    // Toggle inspect mode state
    toggleInspectMode();
 
+   
+
    if (inspectMode) {
       fileContainer.style.transform = "scale(1.25)";
-      //iframe.style.transform = "scale(0.75)";
-      file
-    } else {
+      if (pdfWrapper) {
+         pdfWrapper.classList.add("inspect-scale");
+      }
+   } else {
       fileContainer.style.transform = "scale(1)";
-      //iframe.style.transform = "scale(1)";
-    }
-    
+      if (pdfWrapper) {
+         pdfWrapper.classList.remove("inspect-scale");
+      }
+   }
+
    
    
    if (iframe) {
