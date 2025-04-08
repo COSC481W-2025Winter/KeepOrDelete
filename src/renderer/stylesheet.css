@@ -339,7 +339,7 @@ body.keep-or-delete.show {
 }
 
 #settingsButton:hover {
-  animation: spin .5s linear;
+  animation: spin .5s linear infinite;
   opacity: 0.85;
 }
 
