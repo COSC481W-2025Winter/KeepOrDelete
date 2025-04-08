@@ -34,16 +34,21 @@
             </select>
          </div>
       </div>
-      <button id="settingsButton" title="Settings">⚙️</button>
+      <button id="settingsButton" title="Settings">
+         <img src="./res/gear.svg" alt="Settings Button"/>
+      </button>
    </div>
    <div id="trashButtonContainer">
-      <button id="trash_button" title="Recently Deleted">🗑️</button>
+      <button id="trash_button" title="Recently Deleted">
+         <img src="./res/trash.svg" alt="Recently Deleted Button"/>
+      </button>
       <span id="trashBadge">0</span>
    </div>
 
    <div id="fileContainer">
-      <button id="inspectButton" title="Inspect Document">🔎</button>
-
+      <button id="inspectButton" title="Inspect Document">
+         <img src="./res/inspect.svg" alt="Inpsect Button"/>
+      </button>
       <div id="previewWrapper">
          <div id="previewContainer"></div>
 
@@ -62,8 +67,12 @@
    </div>
    </div>
 
-   <button id="deleteButton">❌</button>
-   <button id="nextButton">✔️</button>
+   <button id="deleteButton">
+      <img src="./res/close.svg" alt="Delete Button"/>
+   </button>
+   <button id="nextButton">
+      <img src="./res/done.svg" alt="Keep Button"/>
+   </button>
 
    <div id="notification"> </div>
 
@@ -72,9 +81,7 @@
          <input type="text" id="renameInput" placeholder="Enter new file name">
          <p id="renameWarning"></p>
       </div>
-      <div class="popup" id="popup">
-         <span id="popupContent">AI Suggested Name</span>
-      </div>
+      <button id="AIButton">AI Suggested Name</button>
       <div class="modal-buttons">
          <button id="closeModal">Cancel</button>
          <button id="confirmRename">Confirm</button>
