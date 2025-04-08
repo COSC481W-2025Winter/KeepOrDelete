@@ -367,6 +367,7 @@ body.keep-or-delete.show {
   pointer-events: auto;
   text-align: center;
   max-width: 100%;
+  overflow: hidden;
 }
 
 #dirPath {
@@ -377,6 +378,7 @@ body.keep-or-delete.show {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 70vw;
 }
 #sortContainer {
   display: flex;
