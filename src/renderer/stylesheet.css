@@ -1215,7 +1215,6 @@ body.keep-or-delete.show {
   margin: 10px;
   display: flex;
   justify-content: center;
-  background-color: #f4f4f4;
   border-radius: 5px;
 }
 .modal-buttons button {
