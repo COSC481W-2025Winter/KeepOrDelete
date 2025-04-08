@@ -179,7 +179,7 @@ renameButton.addEventListener('click', async (_event) => {
       if (LimitDisplay()) {
          const loggedTime = parseInt(localStorage.getItem("loggedTime") || "0", 10);
          const timeLeft = window.file.convertMillisecondsToTimeLeft(14400000 - (Date.now() - loggedTime));
-         popupContentElement.textContent = timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " left until I can suggest a name for images.";
+         popupContentElement.textContent = timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " until AI image rename limit resets.";
       }
       else {
          popupContentElement.innerText = "AI Suggested Name"
