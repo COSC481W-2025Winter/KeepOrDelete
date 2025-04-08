@@ -6,7 +6,7 @@ import * as llm from "./llm.js"
 
 const renameContainer = document.getElementById("renameContainer");
 const renameButton = document.getElementById('renameButton');
-const popupContentElement = document.getElementById('popupContent');
+const popupContentElement = document.getElementById('AIButton');
 const renameModal = document.getElementById("renameModal");
 const closeModal = document.getElementById("closeModal");
 const confirmRenameButton = document.getElementById("confirmRename");
@@ -182,11 +182,11 @@ renameButton.addEventListener('click', async (_event) => {
          popupContentElement.textContent = timeLeft.hours + "h " + timeLeft.minutes + "m " + timeLeft.seconds + "s" + " left until I can suggest a name for images.";
       }
       else {
-         popupContentElement.innerText = "AI Suggestion"
+         popupContentElement.innerText = "AI Suggested Name"
       }
    }
    else {
-      popupContentElement.innerText = "AI Suggestion"
+      popupContentElement.innerText = "AI Suggested Name"
    }
 });
 

@@ -82,7 +82,7 @@ test("Clicking on AI button returns expected message", async ({ page }) => {
 
   // Make sure selected file has contents. This would be passed on to AWS Lambda
   await window.locator("#renameButton").click();
-  await window.locator("#popupContent").click();
+  await window.locator("#AIButton").click();
   const inputText = window.locator("#renameInput");
   //david did this btw
   await expect(inputText).toHaveValue("dummy suggestion");
@@ -92,8 +92,8 @@ test("Clicking on AI button returns expected message", async ({ page }) => {
   await window.locator("#nextButton").click();
   await page.waitForTimeout(1000);
   await window.locator("#renameButton").click();
-  await window.locator("#popupContent").click();
-  const popupContentLocator = window.locator("#popupContent");
+  await window.locator("#AIButton").click();
+  const popupContentLocator = window.locator("#AIButton");
   await expect(popupContentLocator).toContainText("No file contents found.");
   await window.locator("#closeModal").click();
 
@@ -138,20 +138,20 @@ test("Image renaming limit prevents additional processing", async () => {
 
   // Process the first image
   await window.click("#renameButton");
-  await window.click("#popupContent");
+  await window.click("#AIButton");
   await window.locator("#closeModal").click();
   await window.locator("#nextButton").click();
 
   // Process the second image
   await window.click("#renameButton");
-  await window.click("#popupContent");
+  await window.click("#AIButton");
   await window.locator("#closeModal").click();
   await window.locator("#nextButton").click();
 
   // Process the third image, which should be blocked by the limit logic
   await window.click("#renameButton");
-  await window.click("#popupContent");
-  const popupContentText = await window.locator("#popupContent").innerText();
+  await window.click("#AIButton");
+  const popupContentText = await window.locator("#AIButton").innerText();
   await expect(popupContentText).toContain("limit for image files has been reached");
 
   // Verify that the imageLimit remains at "2" in localStorage.

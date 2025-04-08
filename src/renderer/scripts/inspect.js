@@ -23,7 +23,7 @@ inspectButton.addEventListener("click", () => {
    }
 
    // Update button text
-   inspectButton.innerText = inspectMode ? "❌" : "🔎";
+   inspectButton.innerHTML = inspectMode ? '<img src="./res/close.svg" alt="Inpsect Button"/>' : '<img src="./res/inspect.svg" alt="Inpsect Button"/>';
    inspectButton.title = inspectMode ? "Exit inspect mode" : "Inspect Document"
 });
 

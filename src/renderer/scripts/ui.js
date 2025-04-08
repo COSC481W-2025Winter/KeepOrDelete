@@ -68,7 +68,7 @@ export async function displayCurrentFile() {
    rename.resetRenameInput(renameContainer);
    //reset inspect mode upon file change
    inspect.setInspectMode(false);
-   inspectButton.innerText = "🔎";
+   inspectButton.innerHTML = '<img src="./res/inspect.svg" alt="Inpsect Button"/>';
    // Attach Enter event listener for renaming
    //attachRenameListeners();
 }
