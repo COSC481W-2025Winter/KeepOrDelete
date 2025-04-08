@@ -1226,4 +1226,53 @@ body.keep-or-delete.show {
 
 
 /*Rename*/
+#renameModal {
+  padding: 10px;
+  border: none;
+  background: transparent;
+  background-color:rgb(255, 255, 255);
+  overflow: visible;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border-radius: 15px;
+
+}
+
+#renameContainer {
+  padding: 10px;
+  margin: 10px;
+  margin-left: 15px;
+  margin-right: 15px;
+  background-color: #f4f4f4;
+  border-radius: 5px;
+}
+
+.modal-buttons button {
+  margin: 10px;
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background-color: #4d92f2;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.modal-buttons button:hover {
+  background-color: #367be5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+
+.modal-buttons button:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+#renameInput {
+  width: 95%;
+
+}
 /*SOMEONE FINISHHHH*/

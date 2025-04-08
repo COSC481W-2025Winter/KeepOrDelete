@@ -6,7 +6,7 @@ import * as llm from "./llm.js"
 
 const renameContainer = document.getElementById("renameContainer");
 const renameButton = document.getElementById('renameButton');
-const popupContentElement = document.getElementById('popupContent');
+const popupContentElement = document.getElementById('AIButton');
 const renameModal = document.getElementById("renameModal");
 const closeModal = document.getElementById("closeModal");
 const confirmRenameButton = document.getElementById("confirmRename");
