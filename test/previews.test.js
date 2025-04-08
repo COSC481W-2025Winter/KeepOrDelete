@@ -22,7 +22,7 @@ class TestFile {
 
 // Create the empty test directory before running the tests.
 test.beforeAll(async () => {
-   electronApp = await electron.launch({ args: ["./"] });
+   electronApp = await electron.launch({ args: ["./", "--test-config"], userAgent: "Playwright"  });
 });
 
 test.afterAll(async () => {
@@ -40,6 +40,7 @@ const noPreviewMsg = /no.*available/i
  *
  * Intended to be called from each test case.
  */
+let firstLaunch = true;
 async function setupWithTestFile(testFile) {
    // Create a new tmp directory with a random name.
    const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name;
@@ -60,7 +61,7 @@ async function setupWithTestFile(testFile) {
       })
    }
 
-   await window.goto("file://" + path.resolve(__dirname, "../src/main_menu.html"));
+   await window.goto("file://" + path.resolve(__dirname, "../src/renderer/index.html"));
 
    // Intercept file selection dialog
    await electronApp.evaluate(({ dialog }, tmpDir) => {
@@ -71,18 +72,25 @@ async function setupWithTestFile(testFile) {
    }, tmpDir);
 
    // Navigate to next page using the override
-   await window.locator("#SelectButton").click();
-   await window.locator("#goButton").click();
-   await window.waitForURL("**/keep_or_delete.html");
+   if(firstLaunch){
+      await window.locator("#selectDirButton").click();
+      firstLaunch = false;
+   }
+   await window.locator("#backButton").click();
+
+   //await window.locator("#goButton").click();
+   //await window.waitForURL("**/keep_or_delete.html");
 }
 
 test("Preview `.txt`", async () => {
    const f = new TestFile("test.txt", "Standard text file", "utf8");
    await setupWithTestFile(f);
 
+   await window.waitForSelector("#previewContainer pre, #previewContainer p", { timeout: 2000 });
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toEqual(f.contents);
+   await window.locator("#backButton").click();
    await window.evaluate(() => localStorage.clear());
 })
 
@@ -90,9 +98,11 @@ test("Preview `.csv`", async () => {
    const f = new TestFile("test.csv", "Standard csv file", "utf8");
    await setupWithTestFile(f);
 
+   await window.waitForSelector("#previewContainer pre, #previewContainer p", { timeout: 2000 });
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toEqual(f.contents);
+   await window.locator("#backButton").click();
    await window.evaluate(() => localStorage.clear());
 })
 
@@ -117,6 +127,7 @@ test("Preview `.pdf`", async () => {
    const previewHash = crypto.createHash("md5").update(previewPdfContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.locator("#backButton").click();
    await window.evaluate(() => localStorage.clear());
 })
 
@@ -139,6 +150,7 @@ test("Preview `.png`", async () => {
    const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.locator("#backButton").click();
    await window.evaluate(() => localStorage.clear());
 })
 
@@ -161,6 +173,7 @@ test("Preview `.jpg`", async () => {
    const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.locator("#backButton").click();
    await window.evaluate(() => localStorage.clear());
 })
 
@@ -175,7 +188,7 @@ test("Preview `.docx`", async () => {
    // Word docs are currently asynchronously converted to pdf for preview
    // purposes. Give this conversion a time limit.
    expect(fs.existsSync(previewPath), { timeout: 2_000 });
-
+   await window.locator("#backButton").click();
    await window.evaluate(() => localStorage.clear());
 })
 
@@ -198,6 +211,7 @@ test("Preview `.mp4`", async () => {
    const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.locator("#backButton").click();
 })
 
 test("Preview `.mov`", async () => {
@@ -219,13 +233,16 @@ test("Preview `.mov`", async () => {
    const previewHash = crypto.createHash("md5").update(previewFileContents).digest("hex");
 
    expect(srcHash).toEqual(previewHash);
+   await window.locator("#backButton").click();
 })
 test("Preview `.frog` (unsupported)", async () => {
    const f = new TestFile("tree.frog", "Frog file contents ribbit", "utf8");
    await setupWithTestFile(f);
 
+   await window.waitForSelector("#previewContainer pre, #previewContainer p", { timeout: 2000 });
    const preview = await window.locator("#previewContainer").innerText();
 
    expect(preview).toMatch(noPreviewMsg);
+   await window.locator("#backButton").click();
    await window.evaluate(() => localStorage.clear());
 })

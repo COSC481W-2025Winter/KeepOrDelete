@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <meta charset="UTF-8" />
+   <link rel="stylesheet" href="./stylesheet.css">
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self';
+         script-src 'self';
+         connect-src 'self' https://610op4g6ei.execute-api.us-east-1.amazonaws.com;
+         object-src 'none'
+         " />
+   <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+   <title>KeepOrDelete</title>
+</head>
+
+<body class="keep-or-delete">
+   <div id="welcomeScreen" class="welcome-container">
+      <h2>Welcome to KeepOrDelete!</h2>
+      <p>Select a directory to get started.</p>
+      <button id="selectDirButton">Select Directory</button>
+   </div>
+
+   <div id="headerBar">
+      <button id="backButton">Change Directory</button>
+      <div id="dirPathContainer">
+         <p id="dirPath">No directory selected</p>
+         <div class="sort-container">
+            <label for="sortOrder" class="sort-label">Sort By:</label>
+            <select id="sortOrder" class="sort-dropdown">
+               <option value="asc name">A → Z</option>
+               <option value="desc name">Z → A</option>
+               <option value="asc size">File Size (Ascending)</option>
+               <option value="desc size">File Size (Descending)</option>
+            </select>
+         </div>
+      </div>
+      <button id="settingsButton" title="Settings">⚙️</button>
+   </div>
+   <div id="trashButtonContainer">
+      <button id="trash_button" title="Recently Deleted">🗑️</button>
+      <span id="trashBadge">0</span>
+   </div>
+
+   <div id="fileContainer">
+      <button id="inspectButton" title="Inspect Document">🔎</button>
+
+      <div id="previewWrapper">
+         <div id="previewContainer"></div>
+
+      </div>
+      <div id="fileinfo" class="file-info">
+         <div class="nameContainer">
+            <p id="currentItem"></p>
+            <button id="renameButton" title="Rename File">
+               <img src="./res/edit.svg" alt="Rename" class="icon-svg" />
+            </button>
+         </div>
+         <p id="currentItemSize"></p>
+
+      </div>
+
+   </div>
+   </div>
+
+   <button id="deleteButton">❌</button>
+   <button id="nextButton">✔️</button>
+
+   <div id="notification"> </div>
+
+   <dialog id="renameModal">
+      <div id="renameContainer">
+         <input type="text" id="renameInput" placeholder="Enter new file name">
+         <p id="renameWarning"></p>
+      </div>
+      <div class="popup" id="popup">
+         <span id="popupContent">AI Suggested Name</span>
+      </div>
+      <div class="modal-buttons">
+         <button id="closeModal">Cancel</button>
+         <button id="confirmRename">Confirm</button>
+      </div>
+   </dialog>
+
+
+   <div id="progress-bar" class="glowing">
+      <div id="progress"></div>
+   </div>
+
+   <div id="dataSaved"></div>
+
+   <div class="button-container">
+
+      <button id="finalPageButton">Review ➜</button>
+   </div>
+
+   <div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
+
+
+   <dialog id="trash_dialog">
+      <button id="closeTrashModal">🗙</button>
+      <div class="trash-container">
+         <h3 id="deletedHeader">No files to be deleted</h3>
+         <ul id="deletedFilesList"></ul>
+         <h3 id="deletedFilesNum"></h3>
+      </div>
+   </dialog>
+
+   <dialog id="finalizeModal">
+      <div class="final-page">
+         <div class="final-container">
+            <button id="closeFinalizeModal" autofocus>🗙</button>
+            <h1>Final Step: Review Your Files</h1>
+            <div class="tab-buttons">
+               <button class="tab active" data-tab="kept">Kept Files</button>
+               <button class="tab" data-tab="deleted">Deleted Files</button>
+            </div>
+            <div class="tab-content" id="keptTab">
+               <div class="kept-files">
+                  <h2>Kept Files</h2>
+                  <div id="finalizeNotification">
+                     <p id="renameWarning"></p>
+                  </div>
+                  <div id="keptFilesList"></div>
+               </div>
+            </div>
+            <div class="tab-content hidden" id="deletedTab">
+               <div class="deleted-files">
+                  <h2>Deleted Files</h2>
+                  <div id="finalizedDeletedFilesList"></div>
+               </div>
+            </div>
+            <div id="finalizeModalButtons">
+               <div class="btnPadding"></div>
+               <button id="finalizeButton">Finalize & Select New Directory</button>
+               <button id="exitButton">Finalize & Exit</button>
+            </div>
+         </div>
+
+
+      </div>
+      </div>
+   </dialog>
+   <dialog id="settingsModal">
+
+      <div class="container">
+         <h1>Settings</h1>
+         <h3>Filters out unselected files</h3>
+         <div class="settings">
+            <div class="settings-row">
+               <h3>Coding Files</h3>
+               <div><input type="checkbox" id="py" name="py" value="py" checked /><label for="py">.py</label></div>
+               <div><input type="checkbox" id="java" name="java" value="java" checked /><label for="java">.java</label>
+               </div>
+               <div><input type="checkbox" id="js" name="js" value="js" checked /><label for="js">.js</label></div>
+               <div><input type="checkbox" id="jar" name="jar" value="jar" checked /><label for="jar">.jar</label></div>
+            </div>
+
+            <div class="settings-row">
+               <h3>Writing Files</h3>
+               <div><input type="checkbox" id="txt" name="txt" value="txt" checked /><label for="txt">.txt</label></div>
+               <div><input type="checkbox" id="csv" name="csv" value="csv" checked /><label for="csv">.csv</label></div>
+               <div><input type="checkbox" id="pdf" name="pdf" value="pdf" checked /><label for="pdf">.pdf</label></div>
+               <div><input type="checkbox" id="md" name="md" value="md" checked /><label for="md">.md</label></div>
+               <div><input type="checkbox" id="doc" name="doc" value="doc" checked /><label for="doc">.doc</label></div>
+               <div><input type="checkbox" id="docx" name="docx" value="docx" checked /><label for="docx">.docx</label>
+               </div>
+               <div><input type="checkbox" id="pptx" name="pptx" value="pptx" checked /><label for="pptx">.pptx</label>
+               </div>
+            </div>
+
+            <div class="settings-row">
+               <h3>Media Files</h3>
+               <div><input type="checkbox" id="png" name="png" value="png" checked /><label for="png">.png</label></div>
+               <div><input type="checkbox" id="jpg" name="jpg" value="jpg" checked /><label for="jpg">.jpg</label></div>
+               <div><input type="checkbox" id="mp4" name="mp4" value="mp4" checked /><label for="mp4">.mp4</label></div>
+               <div><input type="checkbox" id="wav" name="wav" value="wav" checked /><label for="wav">.wav</label></div>
+               <div><input type="checkbox" id="mp3" name="mp3" value="mp3" checked /><label for="mp3">.mp3</label></div>
+            </div>
+         </div>
+         <button id="backButtonSettings">🗙</button>
+      </div>
+      </div>
+
+</body>
+<script type="module" src="./scripts/settings.js"></script>
+<script type="module" src="./scripts/rename.js"></script>
+<script type="module" src="./scripts/sort.js"></script>
+<script type="module" src="./scripts/finalize.js"></script>
+<script type="module" src="./scripts/trashModal.js"></script>
+<script type="module" src="./scripts/currentIndex.js"></script>
+<script type="module" src="./scripts/keep_or_delete.js"></script>
+
+</html>
