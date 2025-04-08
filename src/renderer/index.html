@@ -97,14 +97,16 @@
 
    <div class="button-container">
 
-      <button id="finalPageButton">Review ➜</button>
+      <button id="finalPageButton">Review</button>
    </div>
 
    <div id="tooltip">Swipe left to delete, right to keep. You can also use arrow keys!</div>
 
 
    <dialog id="trash_dialog">
-      <button id="closeTrashModal">🗙</button>
+      <button id="closeTrashModal">
+         <img src="./res/exit.svg" alt="Exit" class="icon-svg" />
+      </button>
       <div class="trash-container">
          <h3 id="deletedHeader">No files to be deleted</h3>
          <ul id="deletedFilesList"></ul>
@@ -115,7 +117,9 @@
    <dialog id="finalizeModal">
       <div class="final-page">
          <div class="final-container">
-            <button id="closeFinalizeModal" autofocus>🗙</button>
+            <button id="closeFinalizeModal" autofocus>
+               <img src="./res/exit.svg" alt="Exit" class="icon-svg" />
+            </button>
             <h1>Final Step: Review Your Files</h1>
             <div class="tab-buttons">
                <button class="tab active" data-tab="kept">Kept Files</button>
@@ -184,7 +188,9 @@
                <div><input type="checkbox" id="mp3" name="mp3" value="mp3" checked /><label for="mp3">.mp3</label></div>
             </div>
          </div>
-         <button id="backButtonSettings">🗙</button>
+         <button id="backButtonSettings">
+            <img src="./res/exit.svg" alt="Exit" class="icon-svg" />
+         </button>
       </div>
       </div>
 
