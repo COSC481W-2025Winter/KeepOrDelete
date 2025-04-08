@@ -19,7 +19,6 @@ openTrashModal.addEventListener("click", function () {
 closeTrashModal.addEventListener("click", function () {
    document.getElementById("trash_dialog").style.display = "none";
    ui.updateTrashBadge();
-   progressBar.update();
    trashModal.close();
 });
 
@@ -60,6 +59,7 @@ function loadDeletedFiles() {
             filesToBeDeleted--;
             fileObject.setStatus(targetIndex, "keep"); //set to keep
             listItem.remove(); //built in remove method
+            progressBar.update();
             deletedHeader.innerHTML = `<h3 id="deletedHeader">${filesToBeDeleted} files to be deleted</h3>`
          }
       });
