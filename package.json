@@ -19,10 +19,20 @@
     ],
     "asar": false,
     "linux": {
+      "icon": "src/assets/icon.png",
       "target": [
         "AppImage",
         "tar.gz"
       ]
+    },
+    "win": {
+      "icon": "src/assets/icon.ico"
+    },
+    "mac": {
+      "icon": "src/assets/icon.icns"
+    },
+    "directories": {
+      "buildResources": "src/assets"
     }
   },
   "devDependencies": {
