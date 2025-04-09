@@ -7,13 +7,16 @@ module.exports = {
     asar: {
       unpack: '**/icon.ico'
     },
-    icon: path.resolve(__dirname, 'src', 'assets', 'icon.ico'),
+    icon: path.resolve(__dirname, 'src', 'assets', 'icon'),
   },
   rebuildConfig: {},
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {},
+      config: {
+        name: 'KeepOrDelete',
+        setupIcon: path.resolve(__dirname, 'src', 'assets', 'icon.ico')
+      },
     },
     {
       name: '@electron-forge/maker-zip',
