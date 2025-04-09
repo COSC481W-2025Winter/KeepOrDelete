@@ -5,9 +5,9 @@ const path = require("node:path");
 module.exports = {
   packagerConfig: {
     asar: {
-      unpack: '**/assets/icon.ico'
+      unpack: '**/icon.ico'
     },
-    icon: path.join('src', 'assets', 'icon.ico'),
+    icon: path.resolve(__dirname, 'src', 'assets', 'icon.ico'),
   },
   rebuildConfig: {},
   makers: [
