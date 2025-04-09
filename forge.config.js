@@ -7,7 +7,7 @@ module.exports = {
     asar: {
       unpack: '**/assets/icon.ico'
     },
-    icon: path.join( __dirname, 'src', 'assets', 'icon.ico')
+    icon: path.join('src', 'assets', 'icon.ico'),
   },
   rebuildConfig: {},
   makers: [
