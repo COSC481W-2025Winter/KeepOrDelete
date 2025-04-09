@@ -1,7 +1,7 @@
 {
   "name": "KeepOrDelete",
   "productName": "KeepOrDelete",
-  "version": "2.1.0",
+  "version": "3.1.0",
   "description": "Interactive file system manager",
   "main": "./src/main.js",
   "scripts": {
