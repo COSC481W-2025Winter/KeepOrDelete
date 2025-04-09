@@ -18,6 +18,7 @@ const createWindow = () => {
       resizable: true,
       // Hide the top menu bar for release
       autoHideMenuBar: true,
+      icon: path.join('src', 'assets', 'icon.ico'),
       webPreferences: {
          preload: path.join(__dirname, "preload", "preload.js"),
          sandbox: false,
